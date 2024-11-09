@@ -1,0 +1,13 @@
+node_modules
+
+/build
+/public/build
+/server-build
+.env
+
+/app/globals.css
+/coverage
+/drizzle/migrations
+
+pnpm-lock.yaml
+package-lock.json
