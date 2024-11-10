@@ -4,13 +4,13 @@ import type { Config } from 'drizzle-kit'
 import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
-  schema: './app/db/schema.ts',
-  out: './drizzle',
-  dialect: 'turso',
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
     authToken: process.env.DATABASE_AUTH_TOKEN!,
+    url: process.env.DATABASE_URL!,
   },
-  verbose: true,
+  dialect: 'turso',
+  out: './app/db/migrations',
+  schema: './app/db/schemas/*',
   strict: true,
+  verbose: true,
 }) satisfies Config
