@@ -55,8 +55,9 @@ export default function Login() {
   const [form, fields] = useForm({
     constraint: getZodConstraint(loginSchema),
     id: 'login-form',
-    lastResult,
+    lastResult, // Sync the result of last submission
     onValidate({ formData }) {
+      // Reuse the validation logic on the client
       return parseWithZod(formData, { schema: loginSchema })
     },
     shouldRevalidate: 'onBlur',

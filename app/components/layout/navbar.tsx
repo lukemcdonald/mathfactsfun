@@ -1,8 +1,8 @@
-import { Link } from '@remix-run/react'
+import { Form, Link } from '@remix-run/react'
 import { Calculator } from 'lucide-react'
 
 import { Button } from '~/components/ui/button'
-import { SelectUser } from '~/db/schema'
+import { SelectUser } from '~/db/schemas/users'
 
 type NavbarProps = {
   userRole?: SelectUser['role']
@@ -22,9 +22,17 @@ export function Navbar({ userRole }: NavbarProps) {
 
         <div className="ml-auto flex items-center space-x-4">
           {userRole ?
-            <Link to={`/dashboard/${userRole}`}>
-              <Button variant="ghost">Dashboard</Button>
-            </Link>
+            <>
+              <Link to={`/dashboard/${userRole}`}>
+                <Button variant="ghost">Dashboard</Button>
+              </Link>
+              <Form
+                action="/logout"
+                method="post"
+              >
+                <Button type="submit">Logout</Button>
+              </Form>
+            </>
           : <>
               <Link to="/login">
                 <Button variant="ghost">Login</Button>
