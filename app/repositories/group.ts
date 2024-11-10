@@ -1,8 +1,21 @@
-import { Database } from '~/utils/types'
+import { eq } from 'drizzle-orm';
+
+import { groups } from '~/db/schema';
+import { InsertGroup } from '~/db/schemas/groups';
+import { Database } from '~/utils/types';
+
+
+export async function createGroup(db: Database, group: InsertGroup) {
+  await db.insert(groups).values({
+    id: group.id,
+    name: group.name,
+    teacherId: group.teacherId
+  })
+}
 
 export async function getGroupsByTeacherId(db: Database, teacherId: string) {
   return await db.query.groups.findMany({
-    where: (groups, { eq }) => eq(groups.teacherId, teacherId),
+    where: eq(groups.teacherId, teacherId),
     with: {
       groupMembers: {
         with: {
@@ -10,5 +23,11 @@ export async function getGroupsByTeacherId(db: Database, teacherId: string) {
         },
       },
     },
-  })
+  });
 }
+
+// export async function getGroupsByTeacherIdAlt(db: Database, teacherId: string) {
+//   return await db.select()
+//     .from(groups)
+//     .where(eq(groups.teacherId, teacherId));
+// }

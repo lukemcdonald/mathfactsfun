@@ -20,7 +20,9 @@ export async function loader({ request }: { request: Request }) {
   return json({ user })
 }
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user } = useLoaderData<typeof loader>()
+  const data = useLoaderData<typeof loader>()
+  const user = data?.user
+
   return (
     <html lang="en">
       <head>

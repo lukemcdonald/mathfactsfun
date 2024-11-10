@@ -1,15 +1,18 @@
+// Import necessary modules and functions
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { BookOpen, TrendingUp, Users } from 'lucide-react'
+import { nanoid } from 'nanoid'
 import { useState } from 'react'
 
 import { CreateGroupDialog } from '~/components/dashboard/create-group-dialog'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { db } from '~/db'
-import { getGroupsByTeacherId } from '~/repositories/group'
+import { createGroup, getGroupsByTeacherId } from '~/repositories/group'
 import { getUser } from '~/services/auth.server'
 
+// Loader function to fetch data
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
 
@@ -26,6 +29,31 @@ export async function loader({ request }: { request: Request }) {
   return json({ groups: teacherGroups, user })
 }
 
+// Action function to handle form submissions
+export async function action({ request }: { request: Request }) {
+  const user = await getUser(request)
+
+  if (!user || user.role !== 'teacher') {
+    return redirect('/login')
+  }
+
+  const formData = await request.formData()
+  const groupName = formData.get('groupName')
+
+  if (typeof groupName !== 'string' || !groupName.trim()) {
+    return json({ error: 'Group name is required' }, { status: 400 })
+  }
+
+  await createGroup(db, {
+    id: nanoid(),
+    name: groupName,
+    teacherId: user.id,
+  })
+
+  return redirect('/dashboard/teacher')
+}
+
+// The main component for the teacher dashboard
 export default function TeacherDashboard() {
   const { groups } = useLoaderData<typeof loader>()
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)

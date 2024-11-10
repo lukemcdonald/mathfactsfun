@@ -17,8 +17,7 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { db } from '~/db'
-import { users } from '~/db/schema'
-import { getUserByEmail } from '~/repositories/user'
+import { createUser, getUserByEmail } from '~/repositories/user'
 import { createUserSession, getUser } from '~/services/auth.server'
 
 const signupSchema = z.object({
@@ -66,7 +65,7 @@ export async function action({ request }: { request: Request }) {
   const hashedPassword = await bcrypt.hash(password, 10)
   const userId = nanoid()
 
-  await db.insert(users).values({
+  await createUser(db, {
     email,
     hashedPassword,
     id: userId,
