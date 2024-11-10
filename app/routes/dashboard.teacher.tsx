@@ -1,8 +1,5 @@
-'use client'
-
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { eq } from 'drizzle-orm'
 import { BookOpen, TrendingUp, Users } from 'lucide-react'
 import { useState } from 'react'
 
@@ -10,24 +7,21 @@ import { CreateGroupDialog } from '~/components/dashboard/create-group-dialog'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { db } from '~/db'
-import { groups } from '~/db/schema'
-import { getUser } from '~/utils/auth.server'
+import { getGroupsByTeacherId } from '~/repositories/group'
+import { getUser } from '~/services/auth.server'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
-  if (!user) return redirect('/login')
-  if (user.role !== 'teacher') return redirect('/dashboard/student')
 
-  const teacherGroups = await db.query.groups.findMany({
-    where: eq(groups.teacherId, user.id),
-    with: {
-      groupMembers: {
-        with: {
-          student: true,
-        },
-      },
-    },
-  })
+  if (!user) {
+    return redirect('/login')
+  }
+
+  if (user.role !== 'teacher') {
+    return redirect('/dashboard/student')
+  }
+
+  const teacherGroups = await getGroupsByTeacherId(db, user.id)
 
   return json({ groups: teacherGroups, user })
 }
@@ -67,7 +61,10 @@ export default function TeacherDashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {groups.reduce((acc, group) => acc + group.members.length, 0)}
+              {groups.reduce(
+                (acc, group) => acc + group.groupMembers.length,
+                0,
+              )}
             </p>
           </CardContent>
         </Card>
@@ -95,7 +92,7 @@ export default function TeacherDashboard() {
               <div className="space-y-4">
                 <h4 className="font-semibold">Students</h4>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {group.members.map((member) => (
+                  {group.groupMembers.map((member) => (
                     <div
                       className="flex items-center justify-between rounded-lg border p-4"
                       key={member.student.id}

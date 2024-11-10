@@ -1,15 +1,14 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
 import bcrypt from 'bcryptjs'
-import { eq } from 'drizzle-orm'
-import invariant from 'tiny-invariant';
+import invariant from 'tiny-invariant'
 
 import { db } from '~/db'
-import { users } from '~/db/schema'
+import { getUserByEmail, getUserById } from '~/repositories/user'
 
 const sessionSecret = process.env.SESSION_SECRET
-invariant(sessionSecret, 'SESSION_SECRET must be set');
+invariant(sessionSecret, 'SESSION_SECRET must be set')
 
-const USER_SESSION_KEY = 'userId';
+const USER_SESSION_KEY = 'userId'
 
 const storage = createCookieSessionStorage({
   cookie: {
@@ -35,16 +34,18 @@ export async function createUserSession(userId: string, redirectTo: string) {
 }
 
 export async function getUserSession(request: Request) {
-  const cookie = request.headers.get('Cookie');
-  return sessionStorage.getSession(cookie);
+  const cookie = request.headers.get('Cookie')
+  return storage.getSession(cookie)
 }
 
 export async function getUserId(request: Request) {
   const session = await getUserSession(request)
   const userId = session.get('userId')
+
   if (!userId || typeof userId !== 'string') {
     return null
   }
+
   return userId
 }
 
@@ -54,10 +55,12 @@ export async function requireUserId(
 ) {
   const session = await getUserSession(request)
   const userId = session.get('userId')
+
   if (!userId || typeof userId !== 'string') {
     const searchParams = new URLSearchParams([['redirectTo', redirectTo]])
     throw redirect(`/login?${searchParams}`)
   }
+
   return userId
 }
 
@@ -69,9 +72,7 @@ export async function getUser(request: Request) {
   }
 
   try {
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, userId),
-    })
+    const user = await getUserById(db, userId)
     return user
   } catch {
     throw logout(request)
@@ -89,14 +90,17 @@ export async function logout(request: Request) {
 }
 
 export async function verifyLogin(email: string, password: string) {
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  })
+  const user = await getUserByEmail(db, email)
 
-  if (!user) return null
+  if (!user) {
+    return null
+  }
 
   const isValid = await bcrypt.compare(password, user.hashedPassword)
-  if (!isValid) return null
+
+  if (!isValid) {
+    return null
+  }
 
   return user
 }

@@ -1,5 +1,3 @@
-'use client'
-
 import { json, redirect } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
 import { useCallback, useEffect, useState } from 'react'
@@ -8,7 +6,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Progress } from '~/components/ui/progress'
-import { getUser } from '~/utils/auth.server'
+import { getUser } from '~/services/auth.server'
 
 interface Question {
   answer: number

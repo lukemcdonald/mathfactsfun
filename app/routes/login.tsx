@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { createUserSession, getUser, verifyLogin } from '~/utils/auth.server'
+import { createUserSession, getUser, verifyLogin } from '~/services/auth.server'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),

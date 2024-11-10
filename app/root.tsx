@@ -9,7 +9,7 @@ import {
 } from '@remix-run/react'
 
 import { Navbar } from '~/components/layout/navbar'
-import { getUser } from '~/utils/auth.server'
+import { getUser } from '~/services/auth.server'
 
 import styles from './assets/globals.css?url'
 

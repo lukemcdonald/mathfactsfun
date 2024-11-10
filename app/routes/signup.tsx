@@ -18,7 +18,8 @@ import {
 } from '~/components/ui/select'
 import { db } from '~/db'
 import { users } from '~/db/schema'
-import { createUserSession, getUser } from '~/utils/auth.server'
+import { getUserByEmail } from '~/repositories/user'
+import { createUserSession, getUser } from '~/services/auth.server'
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -50,9 +51,7 @@ export async function action({ request }: { request: Request }) {
 
   const { email, name, password, role } = submission.value
 
-  const existingUser = await db.query.users.findFirst({
-    where: (users, { eq }) => eq(users.email, email),
-  })
+  const existingUser = await getUserByEmail(db, email)
 
   if (existingUser) {
     return json(

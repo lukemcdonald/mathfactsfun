@@ -1,26 +1,25 @@
-'use client'
-
 import { redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { eq } from 'drizzle-orm'
 import { Brain, Clock, Target } from 'lucide-react'
 
 import { PracticeCard } from '~/components/practice/practice-card'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { db } from '~/db'
-import { sessions } from '~/db/schema'
-import { getUser } from '~/utils/auth.server'
+import { getRecentSessionsByUserId } from '~/repositories/session'
+import { getUser } from '~/services/auth.server'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
-  if (!user) return redirect('/login')
-  if (user.role !== 'student') return redirect('/dashboard/teacher')
 
-  const recentSessions = await db.query.sessions.findMany({
-    limit: 5,
-    orderBy: (sessions, { desc }) => [desc(sessions.startedAt)],
-    where: eq(sessions.userId, user.id),
-  })
+  if (!user) {
+    return redirect('/login')
+  }
+
+  if (user.role !== 'student') {
+    return redirect('/dashboard/teacher')
+  }
+
+  const recentSessions = await getRecentSessionsByUserId(db, user.id, 5)
 
   return { recentSessions, user }
 }
