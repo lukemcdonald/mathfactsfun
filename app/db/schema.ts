@@ -1,4 +1,4 @@
-import { sql, relations } from 'drizzle-orm'
+import { sql, relations, InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
@@ -17,6 +17,9 @@ export const users = sqliteTable('users', {
 export const usersRelations = relations(users, ({ many }) => ({
   groupMembers: many(groupMembers),
 }))
+
+export type SelectUser = InferSelectModel<typeof users>
+export type InsertUser = InferInsertModel<typeof users>
 
 export const groups = sqliteTable('groups', {
   id: text('id').primaryKey(),

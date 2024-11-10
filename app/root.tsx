@@ -1,24 +1,26 @@
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from '@remix-run/react'
-import { cssBundleHref } from '@remix-run/css-bundle'
 
-import { LinksFunction } from '@remix-run/node'
+import { LinksFunction, json } from '@remix-run/node'
 import { Navbar } from '~/components/layout/navbar'
 
-import styles from './globals.css'
+import styles from './assets/globals.css?url'
+import { getUser } from '~/utils/auth.server'
 
-export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: styles },
-  ...(cssBundleHref ? [{ href: cssBundleHref, rel: 'stylesheet' }] : []),
-]
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
 
-export default function App() {
+export async function loader({ request }: { request: Request }) {
+  const user = await getUser(request)
+  return json({ user })
+}
+export function Layout({ children }: { children: React.ReactNode }) {
+  const { user } = useLoaderData<typeof loader>()
   return (
     <html lang="en">
       <head>
@@ -31,12 +33,15 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Navbar />
-        <Outlet />
+        <Navbar userRole={user?.role} />
+        {children}
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   )
+}
+
+export default function App() {
+  return <Outlet />
 }

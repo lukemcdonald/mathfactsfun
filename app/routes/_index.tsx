@@ -1,5 +1,4 @@
-import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { MetaFunction } from '@remix-run/node'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -10,25 +9,26 @@ import {
 } from '~/components/ui/card'
 import { Brain, Calculator, School, Users } from 'lucide-react'
 
-export const loader = async () => {
-  return json({
-    title: 'MathFacts.fun',
-    description: 'Master math facts through fun and engaging practice!',
-  })
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'MathFacts.fun' },
+    {
+      name: 'description',
+      content: 'Master math facts through fun and engaging practice!',
+    },
+  ]
 }
 
 export default function Index() {
-  const { title, description } = useLoaderData<typeof loader>()
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <main className="container mx-auto px-4 py-16">
         <div className="mb-16 text-center">
           <h1 className="mb-4 text-5xl font-bold text-gray-900 dark:text-white">
-            {title}!
+            MathFacts.fun
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300">
-            {description}
+            Master math facts through fun and engaging practice!
           </p>
         </div>
 

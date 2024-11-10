@@ -6,7 +6,7 @@ import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { verifyLogin, createUserSession, getUserId } from '~/utils/auth.server'
+import { verifyLogin, createUserSession, getUser } from '~/utils/auth.server'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -15,8 +15,10 @@ const loginSchema = z.object({
 })
 
 export async function loader({ request }: { request: Request }) {
-  const userId = await getUserId(request)
-  if (userId) return redirect('/')
+  const user = await getUser(request)
+  if (user) {
+    return redirect(`/dashboard/${user.role}`)
+  }
   return json({})
 }
 
@@ -69,7 +71,9 @@ export default function Login() {
         </div>
         <Form
           method="post"
-          {...form.props}
+          id={form.id}
+          onSubmit={form.onSubmit}
+          noValidate
           className="mt-8 space-y-6"
         >
           <div className="space-y-4 rounded-md shadow-sm">
@@ -80,9 +84,9 @@ export default function Login() {
                 type="email"
                 autoComplete="email"
               />
-              {fields.email.error && (
+              {fields.email.errors && (
                 <p className="mt-1 text-sm text-red-600">
-                  {fields.email.error}
+                  {fields.email.errors}
                 </p>
               )}
             </div>
@@ -94,16 +98,16 @@ export default function Login() {
                 type="password"
                 autoComplete="current-password"
               />
-              {fields.password.error && (
+              {fields.password.errors && (
                 <p className="mt-1 text-sm text-red-600">
-                  {fields.password.error}
+                  {fields.password.errors}
                 </p>
               )}
             </div>
           </div>
 
-          {form.error && (
-            <div className="text-sm text-red-600">{form.error}</div>
+          {form.errors && (
+            <div className="text-sm text-red-600">{form.errors}</div>
           )}
 
           <div>

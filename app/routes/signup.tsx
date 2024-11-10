@@ -17,7 +17,7 @@ import {
 import bcrypt from 'bcryptjs'
 import { db } from '~/db'
 import { users } from '~/db/schema'
-import { createUserSession, getUserId } from '~/utils/auth.server'
+import { createUserSession, getUser } from '~/utils/auth.server'
 import { nanoid } from 'nanoid'
 
 const signupSchema = z.object({
@@ -30,8 +30,10 @@ const signupSchema = z.object({
 })
 
 export async function loader({ request }: { request: Request }) {
-  const userId = await getUserId(request)
-  if (userId) return redirect('/')
+  const user = await getUser(request)
+  if (user) {
+    return redirect(`/dashboard/${user.role}`)
+  }
   return json({})
 }
 
@@ -77,15 +79,24 @@ export async function action({ request }: { request: Request }) {
 }
 
 export default function Signup() {
-  const lastSubmission = useActionData<typeof action>()
+  const lastResult = useActionData<typeof action>()
   const [form, fields] = useForm({
     id: 'signup-form',
+    // Sync the result of last submission
+    lastResult,
     constraint: getZodConstraint(signupSchema),
-    lastSubmission,
+    // Reuse the validation logic on the client
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: signupSchema })
     },
-    shouldRevalidate: 'onBlur',
+    shouldValidate: 'onBlur',
+    shouldRevalidate: 'onInput',
+  })
+
+  console.log('Signup', {
+    form,
+    fields,
+    lastResult,
   })
 
   return (
@@ -93,12 +104,14 @@ export default function Signup() {
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+            Create your account!
           </h2>
         </div>
         <Form
           method="post"
-          {...form.props}
+          id={form.id}
+          onSubmit={form.onSubmit}
+          noValidate
           className="mt-8 space-y-6"
         >
           <div className="space-y-4 rounded-md shadow-sm">
@@ -109,8 +122,10 @@ export default function Signup() {
                 type="text"
                 autoComplete="name"
               />
-              {fields.name.error && (
-                <p className="mt-1 text-sm text-red-600">{fields.name.error}</p>
+              {fields.name.errors && (
+                <p className="mt-1 text-sm text-red-600">
+                  {fields.name.errors}
+                </p>
               )}
             </div>
 
@@ -121,9 +136,9 @@ export default function Signup() {
                 type="email"
                 autoComplete="email"
               />
-              {fields.email.error && (
+              {fields.email.errors && (
                 <p className="mt-1 text-sm text-red-600">
-                  {fields.email.error}
+                  {fields.email.errors}
                 </p>
               )}
             </div>
@@ -135,9 +150,9 @@ export default function Signup() {
                 type="password"
                 autoComplete="new-password"
               />
-              {fields.password.error && (
+              {fields.password.errors && (
                 <p className="mt-1 text-sm text-red-600">
-                  {fields.password.error}
+                  {fields.password.errors}
                 </p>
               )}
             </div>
@@ -146,7 +161,7 @@ export default function Signup() {
               <Label htmlFor={fields.role.id}>I am a</Label>
               <Select
                 {...getSelectProps(fields.role)}
-                defaultValue="student"
+                defaultValue=""
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select your role" />
@@ -156,13 +171,15 @@ export default function Signup() {
                   <SelectItem value="teacher">Teacher</SelectItem>
                 </SelectContent>
               </Select>
-              {fields.role.error && (
-                <p className="mt-1 text-sm text-red-600">{fields.role.error}</p>
+              {fields.role.errors && (
+                <p className="mt-1 text-sm text-red-600">
+                  {fields.role.errors}
+                </p>
               )}
             </div>
           </div>
 
-          {form.error && <p className="text-sm text-red-600">{form.error}</p>}
+          {form.errors && <p className="text-sm text-red-600">{form.errors}</p>}
 
           <div>
             <Button
