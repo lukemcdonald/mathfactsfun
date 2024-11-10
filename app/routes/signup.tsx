@@ -1,9 +1,11 @@
+import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { json, redirect } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
+import bcrypt from 'bcryptjs'
+import { nanoid } from 'nanoid'
 import { z } from 'zod'
-import { useForm, getSelectProps, getInputProps } from '@conform-to/react'
 
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -14,16 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import bcrypt from 'bcryptjs'
 import { db } from '~/db'
 import { users } from '~/db/schema'
 import { createUserSession, getUser } from '~/utils/auth.server'
-import { nanoid } from 'nanoid'
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
   name: z.string().min(2, 'Name must be at least 2 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   role: z.enum(['teacher', 'student'], {
     required_error: 'Please select a role',
   }),
@@ -48,7 +48,7 @@ export async function action({ request }: { request: Request }) {
     })
   }
 
-  const { email, password, name, role } = submission.value
+  const { email, name, password, role } = submission.value
 
   const existingUser = await db.query.users.findFirst({
     where: (users, { eq }) => eq(users.email, email),
@@ -68,11 +68,11 @@ export async function action({ request }: { request: Request }) {
   const userId = nanoid()
 
   await db.insert(users).values({
-    id: userId,
     email,
+    hashedPassword,
+    id: userId,
     name,
     role,
-    hashedPassword,
   })
 
   return createUserSession(userId, '/')
@@ -81,21 +81,21 @@ export async function action({ request }: { request: Request }) {
 export default function Signup() {
   const lastResult = useActionData<typeof action>()
   const [form, fields] = useForm({
+    constraint: getZodConstraint(signupSchema),
     id: 'signup-form',
     // Sync the result of last submission
     lastResult,
-    constraint: getZodConstraint(signupSchema),
     // Reuse the validation logic on the client
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: signupSchema })
     },
-    shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
+    shouldValidate: 'onBlur',
   })
 
   console.log('Signup', {
-    form,
     fields,
+    form,
     lastResult,
   })
 
@@ -108,19 +108,19 @@ export default function Signup() {
           </h2>
         </div>
         <Form
-          method="post"
-          id={form.id}
-          onSubmit={form.onSubmit}
-          noValidate
           className="mt-8 space-y-6"
+          id={form.id}
+          method="post"
+          noValidate
+          onSubmit={form.onSubmit}
         >
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
               <Label htmlFor={fields.name.id}>Full Name</Label>
               <Input
                 {...getInputProps(fields.name, { type: 'text' })}
-                type="text"
                 autoComplete="name"
+                type="text"
               />
               {fields.name.errors && (
                 <p className="mt-1 text-sm text-red-600">
@@ -133,8 +133,8 @@ export default function Signup() {
               <Label htmlFor={fields.email.id}>Email address</Label>
               <Input
                 {...getInputProps(fields.email, { type: 'email' })}
-                type="email"
                 autoComplete="email"
+                type="email"
               />
               {fields.email.errors && (
                 <p className="mt-1 text-sm text-red-600">
@@ -147,8 +147,8 @@ export default function Signup() {
               <Label htmlFor={fields.password.id}>Password</Label>
               <Input
                 {...getInputProps(fields.password, { type: 'password' })}
-                type="password"
                 autoComplete="new-password"
+                type="password"
               />
               {fields.password.errors && (
                 <p className="mt-1 text-sm text-red-600">
@@ -183,8 +183,8 @@ export default function Signup() {
 
           <div>
             <Button
-              type="submit"
               className="w-full"
+              type="submit"
             >
               Sign up
             </Button>

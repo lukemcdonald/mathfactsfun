@@ -1,7 +1,7 @@
 import { Link } from '@remix-run/react'
-import { Button } from '~/components/ui/button'
 import { Calculator } from 'lucide-react'
 
+import { Button } from '~/components/ui/button'
 import { SelectUser } from '~/db/schema'
 
 type NavbarProps = {
@@ -13,8 +13,8 @@ export function Navbar({ userRole }: NavbarProps) {
     <nav className="border-b bg-background">
       <div className="container flex h-16 items-center px-4">
         <Link
-          to="/"
           className="flex items-center space-x-2"
+          to="/"
         >
           <Calculator className="h-6 w-6" />
           <span className="font-bold">MathFacts.fun</span>

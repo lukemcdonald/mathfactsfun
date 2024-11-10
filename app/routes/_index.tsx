@@ -1,4 +1,6 @@
 import { MetaFunction } from '@remix-run/node'
+import { Brain, Calculator, School, Users } from 'lucide-react'
+
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -7,14 +9,13 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
-import { Brain, Calculator, School, Users } from 'lucide-react'
 
 export const meta: MetaFunction = () => {
   return [
     { title: 'MathFacts.fun' },
     {
-      name: 'description',
       content: 'Master math facts through fun and engaging practice!',
+      name: 'description',
     },
   ]
 }
@@ -61,8 +62,8 @@ export default function Index() {
             </CardHeader>
             <CardContent>
               <Button
-                variant="outline"
                 className="w-full"
+                variant="outline"
               >
                 Teacher Dashboard
               </Button>
@@ -81,8 +82,8 @@ export default function Index() {
             </CardHeader>
             <CardContent>
               <Button
-                variant="outline"
                 className="w-full"
+                variant="outline"
               >
                 Learn More
               </Button>

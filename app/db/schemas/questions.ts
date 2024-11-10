@@ -1,24 +1,24 @@
-import { sql, relations, InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core'
+import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm'
+import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 import { sessions } from '~/db/schema'
 
 export const questions = sqliteTable('questions', {
-  id: text('id').primaryKey(),
-  sessionId: text('session_id')
+  correct: integer('correct', { mode: 'boolean' }),
+  createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
-    .references(() => sessions.id, { onDelete: 'cascade' }),
+    .default(sql`CURRENT_TIMESTAMP`),
+  id: text('id').primaryKey(),
   num1: integer('num1').notNull(),
   num2: integer('num2').notNull(),
   operation: text('operation', {
     enum: ['addition', 'subtraction', 'multiplication', 'division'],
   }).notNull(),
-  userAnswer: integer('user_answer'),
-  correct: integer('correct', { mode: 'boolean' }),
-  timeSpent: real('time_spent'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
+  sessionId: text('session_id')
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
+    .references(() => sessions.id, { onDelete: 'cascade' }),
+  timeSpent: real('time_spent'),
+  userAnswer: integer('user_answer'),
 })
 
 export const questionsRelations = relations(questions, ({ one }) => ({

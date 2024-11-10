@@ -2,15 +2,16 @@
 
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { getUser } from '~/utils/auth.server'
+import { eq } from 'drizzle-orm'
+import { BookOpen, TrendingUp, Users } from 'lucide-react'
+import { useState } from 'react'
+
+import { CreateGroupDialog } from '~/components/dashboard/create-group-dialog'
+import { Button } from '~/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { db } from '~/db'
 import { groups } from '~/db/schema'
-import { eq } from 'drizzle-orm'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Button } from '~/components/ui/button'
-import { Users, BookOpen, TrendingUp } from 'lucide-react'
-import { CreateGroupDialog } from '~/components/dashboard/create-group-dialog'
-import { useState } from 'react'
+import { getUser } from '~/utils/auth.server'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -28,7 +29,7 @@ export async function loader({ request }: { request: Request }) {
     },
   })
 
-  return json({ user, groups: teacherGroups })
+  return json({ groups: teacherGroups, user })
 }
 
 export default function TeacherDashboard() {
@@ -96,8 +97,8 @@ export default function TeacherDashboard() {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {group.members.map((member) => (
                     <div
-                      key={member.student.id}
                       className="flex items-center justify-between rounded-lg border p-4"
+                      key={member.student.id}
                     >
                       <div>
                         <p className="font-medium">{member.student.name}</p>
@@ -106,8 +107,8 @@ export default function TeacherDashboard() {
                         </p>
                       </div>
                       <Button
-                        variant="outline"
                         size="sm"
+                        variant="outline"
                       >
                         View Progress
                       </Button>
@@ -121,8 +122,8 @@ export default function TeacherDashboard() {
       </div>
 
       <CreateGroupDialog
-        open={isCreateGroupOpen}
         onOpenChange={setIsCreateGroupOpen}
+        open={isCreateGroupOpen}
       />
     </div>
   )

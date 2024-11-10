@@ -1,16 +1,17 @@
-import { sql, relations, InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm'
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+
 import { groupMembers, users } from '~/db/schema'
 
 export const groups = sqliteTable('groups', {
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   teacherId: text('teacher_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
 })
 
 export const groupsRelations = relations(groups, ({ many, one }) => ({

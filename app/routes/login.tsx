@@ -1,12 +1,13 @@
+import { getInputProps, useForm } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { json, redirect } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
 import { z } from 'zod'
-import { getInputProps, useForm } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { verifyLogin, createUserSession, getUser } from '~/utils/auth.server'
+import { createUserSession, getUser, verifyLogin } from '~/utils/auth.server'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -52,8 +53,8 @@ export async function action({ request }: { request: Request }) {
 export default function Login() {
   const lastResult = useActionData<typeof action>()
   const [form, fields] = useForm({
-    id: 'login-form',
     constraint: getZodConstraint(loginSchema),
+    id: 'login-form',
     lastResult,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: loginSchema })
@@ -70,19 +71,19 @@ export default function Login() {
           </h2>
         </div>
         <Form
-          method="post"
-          id={form.id}
-          onSubmit={form.onSubmit}
-          noValidate
           className="mt-8 space-y-6"
+          id={form.id}
+          method="post"
+          noValidate
+          onSubmit={form.onSubmit}
         >
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
               <Label htmlFor={fields.email.id}>Email address</Label>
               <Input
                 {...getInputProps(fields.email, { type: 'email' })}
-                type="email"
                 autoComplete="email"
+                type="email"
               />
               {fields.email.errors && (
                 <p className="mt-1 text-sm text-red-600">
@@ -95,8 +96,8 @@ export default function Login() {
               <Label htmlFor={fields.password.id}>Password</Label>
               <Input
                 {...getInputProps(fields.password, { type: 'password' })}
-                type="password"
                 autoComplete="current-password"
+                type="password"
               />
               {fields.password.errors && (
                 <p className="mt-1 text-sm text-red-600">
@@ -112,8 +113,8 @@ export default function Login() {
 
           <div>
             <Button
-              type="submit"
               className="w-full"
+              type="submit"
             >
               Sign in
             </Button>

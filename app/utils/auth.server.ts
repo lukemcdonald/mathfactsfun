@@ -1,8 +1,13 @@
+// TODO: Move to app/services/session.server.ts
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
+import bcrypt from 'bcryptjs'
+import { eq } from 'drizzle-orm'
+
 import { db } from '~/db'
 import { users } from '~/db/schema'
-import { eq } from 'drizzle-orm'
-import bcrypt from 'bcryptjs'
+
+// TODO: Use invariant
+// invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set');
 
 const sessionSecret = process.env.SESSION_SECRET
 if (!sessionSecret) {
@@ -11,13 +16,13 @@ if (!sessionSecret) {
 
 const storage = createCookieSessionStorage({
   cookie: {
-    name: 'MF_session',
-    secure: process.env.NODE_ENV === 'production',
-    secrets: [sessionSecret],
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 30, // 30 days
     httpOnly: true,
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    name: 'MF_session',
+    path: '/',
+    sameSite: 'lax',
+    secrets: [sessionSecret],
+    secure: process.env.NODE_ENV === 'production',
   },
 })
 
@@ -34,7 +39,6 @@ export async function createUserSession(userId: string, redirectTo: string) {
 export async function getUserSession(request: Request) {
   return storage.getSession(request.headers.get('Cookie'))
 }
-
 
 export async function getUserId(request: Request) {
   const session = await getUserSession(request)

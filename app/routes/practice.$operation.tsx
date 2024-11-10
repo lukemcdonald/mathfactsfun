@@ -2,26 +2,27 @@
 
 import { json, redirect } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
-import { getUser } from '~/utils/auth.server'
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+
 import { Button } from '~/components/ui/button'
+import { Card, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Progress } from '~/components/ui/progress'
-import { Card, CardContent } from '~/components/ui/card'
+import { getUser } from '~/utils/auth.server'
 
 interface Question {
+  answer: number
   num1: number
   num2: number
   operation: string
-  answer: number
 }
 
 export async function loader({
-  request,
   params,
+  request,
 }: {
-  request: Request
   params: { operation: string }
+  request: Request
 }) {
   const user = await getUser(request)
   if (!user) return redirect('/login')
@@ -41,7 +42,7 @@ export async function loader({
 
 export default function Practice() {
   const { operation } = useLoaderData<typeof loader>()
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
+  const [currentQuestion, setCurrentQuestion] = useState<null | Question>(null)
   const [userAnswer, setUserAnswer] = useState('')
   const [progress, setProgress] = useState(0)
   // const [startTime, setStartTime] = useState<number>(0)
@@ -58,23 +59,23 @@ export default function Practice() {
       case 'addition':
         answer = num1 + num2
         break
-      case 'subtraction':
-        answer = num1 - num2
-        break
-      case 'multiplication':
-        answer = num1 * num2
-        break
       case 'division':
         // Ensure clean division
         answer = num1
-        setCurrentQuestion({ num1: product, num2, operation, answer })
+        setCurrentQuestion({ answer, num1: product, num2, operation })
         setStartTime(Date.now())
         return
+      case 'multiplication':
+        answer = num1 * num2
+        break
+      case 'subtraction':
+        answer = num1 - num2
+        break
       default:
         answer = 0
     }
 
-    setCurrentQuestion({ num1, num2, operation, answer })
+    setCurrentQuestion({ answer, num1, num2, operation })
     setStartTime(Date.now())
   }, [operation])
 
@@ -107,12 +108,12 @@ export default function Practice() {
     switch (operation) {
       case 'addition':
         return '+'
-      case 'subtraction':
-        return '-'
-      case 'multiplication':
-        return '×'
       case 'division':
         return '÷'
+      case 'multiplication':
+        return '×'
+      case 'subtraction':
+        return '-'
       default:
         return ''
     }
@@ -122,8 +123,8 @@ export default function Practice() {
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-2xl">
         <Progress
-          value={progress}
           className="mb-8"
+          value={progress}
         />
 
         {progress < 100 ?
@@ -137,21 +138,21 @@ export default function Practice() {
               </div>
 
               <Form
-                onSubmit={handleSubmit}
                 className="space-y-4"
+                onSubmit={handleSubmit}
               >
                 <Input
-                  type="number"
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  placeholder="Enter your answer"
-                  className="text-center text-2xl"
                   // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
+                  className="text-center text-2xl"
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  placeholder="Enter your answer"
+                  type="number"
+                  value={userAnswer}
                 />
                 <Button
-                  type="submit"
                   className="w-full"
+                  type="submit"
                 >
                   Submit Answer
                 </Button>

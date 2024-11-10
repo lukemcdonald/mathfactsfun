@@ -1,61 +1,56 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
-  root: true,
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-  },
   env: {
     browser: true,
     commonjs: true,
     es6: true,
   },
-  ignorePatterns: ['!**/.server', '!**/.client'],
-
   // Base config
-  extends: ['eslint:recommended'],
-
-  rules: {
-    'react/prop-types': 'off',
-  },
-
+  extends: [
+    'eslint:recommended',
+    'plugin:perfectionist/recommended-natural-legacy',
+    'prettier',
+  ],
+  ignorePatterns: ['!**/.server', '!**/.client'],
   overrides: [
     // React
     {
-      files: ['**/*.{js,jsx,ts,tsx}'],
-      plugins: ['react', 'jsx-a11y'],
       extends: [
         'plugin:react/recommended',
         'plugin:react/jsx-runtime',
         'plugin:react-hooks/recommended',
         'plugin:jsx-a11y/recommended',
       ],
+      files: ['**/*.{js,jsx,ts,tsx}'],
+      plugins: ['react', 'jsx-a11y'],
       rules: {
         'react/prop-types': 0,
       },
       settings: {
-        react: {
-          version: 'detect',
-        },
         formComponents: ['Form'],
-        linkComponents: [
-          { name: 'Link', linkAttribute: 'to' },
-          { name: 'NavLink', linkAttribute: 'to' },
-        ],
         'import/resolver': {
           typescript: {},
+        },
+        linkComponents: [
+          { linkAttribute: 'to', name: 'Link' },
+          { linkAttribute: 'to', name: 'NavLink' },
+        ],
+        react: {
+          version: 'detect',
         },
       },
     },
 
     // Typescript
     {
+      extends: [
+        'plugin:@typescript-eslint/recommended',
+        'plugin:import/recommended',
+        'plugin:import/typescript',
+      ],
       files: ['**/*.{ts,tsx}'],
-      plugins: ['@typescript-eslint', 'import'],
       parser: '@typescript-eslint/parser',
+      plugins: ['@typescript-eslint', 'import'],
       settings: {
         'import/internal-regex': '^~/',
         'import/resolver': {
@@ -67,19 +62,27 @@ module.exports = {
           },
         },
       },
-      extends: [
-        'plugin:@typescript-eslint/recommended',
-        'plugin:import/recommended',
-        'plugin:import/typescript',
-      ],
     },
 
     // Node
     {
-      files: ['.eslintrc.cjs'],
       env: {
         node: true,
       },
+      files: ['.eslintrc.cjs'],
     },
   ],
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+  },
+
+  plugins: ['perfectionist'],
+  root: true,
+  rules: {
+    'react/prop-types': 'off',
+  },
 }

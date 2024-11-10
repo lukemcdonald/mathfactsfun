@@ -1,3 +1,4 @@
+import { json, LinksFunction } from '@remix-run/node'
 import {
   Links,
   Meta,
@@ -7,13 +8,12 @@ import {
   useLoaderData,
 } from '@remix-run/react'
 
-import { LinksFunction, json } from '@remix-run/node'
 import { Navbar } from '~/components/layout/navbar'
-
-import styles from './assets/globals.css?url'
 import { getUser } from '~/utils/auth.server'
 
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
+import styles from './assets/globals.css?url'
+
+export const links: LinksFunction = () => [{ href: styles, rel: 'stylesheet' }]
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -26,8 +26,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta
-          name="viewport"
           content="width=device-width, initial-scale=1"
+          name="viewport"
         />
         <Meta />
         <Links />

@@ -2,13 +2,14 @@
 
 import { redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { getUser } from '~/utils/auth.server'
+import { eq } from 'drizzle-orm'
+import { Brain, Clock, Target } from 'lucide-react'
+
+import { PracticeCard } from '~/components/practice/practice-card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { db } from '~/db'
 import { sessions } from '~/db/schema'
-import { eq } from 'drizzle-orm'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Brain, Clock, Target } from 'lucide-react'
-import { PracticeCard } from '~/components/practice/practice-card'
+import { getUser } from '~/utils/auth.server'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -16,16 +17,16 @@ export async function loader({ request }: { request: Request }) {
   if (user.role !== 'student') return redirect('/dashboard/teacher')
 
   const recentSessions = await db.query.sessions.findMany({
-    where: eq(sessions.userId, user.id),
-    orderBy: (sessions, { desc }) => [desc(sessions.startedAt)],
     limit: 5,
+    orderBy: (sessions, { desc }) => [desc(sessions.startedAt)],
+    where: eq(sessions.userId, user.id),
   })
 
-  return { user, recentSessions }
+  return { recentSessions, user }
 }
 
 export default function StudentDashboard() {
-  const { user, recentSessions } = useLoaderData<typeof loader>()
+  const { recentSessions, user } = useLoaderData<typeof loader>()
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -94,24 +95,24 @@ export default function StudentDashboard() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <PracticeCard
-          title="Addition"
           description="Practice addition with numbers 0-12"
           operation="addition"
+          title="Addition"
         />
         <PracticeCard
-          title="Subtraction"
           description="Practice subtraction with numbers 0-12"
           operation="subtraction"
+          title="Subtraction"
         />
         <PracticeCard
-          title="Multiplication"
           description="Practice multiplication with numbers 0-12"
           operation="multiplication"
+          title="Multiplication"
         />
         <PracticeCard
-          title="Division"
           description="Practice division with numbers 0-12"
           operation="division"
+          title="Division"
         />
       </div>
     </div>
