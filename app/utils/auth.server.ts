@@ -1,18 +1,15 @@
-// TODO: Move to app/services/session.server.ts
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
 import bcrypt from 'bcryptjs'
 import { eq } from 'drizzle-orm'
+import invariant from 'tiny-invariant';
 
 import { db } from '~/db'
 import { users } from '~/db/schema'
 
-// TODO: Use invariant
-// invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set');
-
 const sessionSecret = process.env.SESSION_SECRET
-if (!sessionSecret) {
-  throw new Error('SESSION_SECRET must be set')
-}
+invariant(sessionSecret, 'SESSION_SECRET must be set');
+
+const USER_SESSION_KEY = 'userId';
 
 const storage = createCookieSessionStorage({
   cookie: {
@@ -28,7 +25,8 @@ const storage = createCookieSessionStorage({
 
 export async function createUserSession(userId: string, redirectTo: string) {
   const session = await storage.getSession()
-  session.set('userId', userId)
+  session.set(USER_SESSION_KEY, userId)
+
   return redirect(redirectTo, {
     headers: {
       'Set-Cookie': await storage.commitSession(session),
@@ -37,13 +35,16 @@ export async function createUserSession(userId: string, redirectTo: string) {
 }
 
 export async function getUserSession(request: Request) {
-  return storage.getSession(request.headers.get('Cookie'))
+  const cookie = request.headers.get('Cookie');
+  return sessionStorage.getSession(cookie);
 }
 
 export async function getUserId(request: Request) {
   const session = await getUserSession(request)
   const userId = session.get('userId')
-  if (!userId || typeof userId !== 'string') return null
+  if (!userId || typeof userId !== 'string') {
+    return null
+  }
   return userId
 }
 
@@ -62,6 +63,7 @@ export async function requireUserId(
 
 export async function getUser(request: Request) {
   const userId = await getUserId(request)
+
   if (typeof userId !== 'string') {
     return null
   }
