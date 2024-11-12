@@ -10,15 +10,17 @@ import {
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
-interface CreateGroupDialogProps {
+interface AddStudentDialogProps {
+  groupId: string
   onOpenChange: (open: boolean) => void
   open: boolean
 }
 
-export function CreateGroupDialog({
+export function AddStudentDialog({
+  groupId,
   onOpenChange,
   open,
-}: CreateGroupDialogProps) {
+}: AddStudentDialogProps) {
   return (
     <Dialog
       onOpenChange={onOpenChange}
@@ -26,7 +28,7 @@ export function CreateGroupDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New Group</DialogTitle>
+          <DialogTitle>Add Student to Group</DialogTitle>
         </DialogHeader>
         <Form
           className="space-y-4"
@@ -35,18 +37,24 @@ export function CreateGroupDialog({
           <input
             name="action"
             type="hidden"
-            value="createGroup"
+            value="addStudent"
+          />
+          <input
+            name="groupId"
+            type="hidden"
+            value={groupId}
           />
           <div>
-            <Label htmlFor="groupName">Group Name</Label>
+            <Label htmlFor="studentEmail">Student Email</Label>
             <Input
-              id="groupName"
-              name="groupName"
-              placeholder="Enter group name"
+              id="studentEmail"
+              name="studentEmail"
+              placeholder="Enter student email"
               required
+              type="email"
             />
           </div>
-          <Button type="submit">Create Group</Button>
+          <Button type="submit">Add Student</Button>
         </Form>
       </DialogContent>
     </Dialog>
