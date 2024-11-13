@@ -142,9 +142,9 @@ export default function Practice() {
     generateQuestion()
   }, [generateQuestion])
 
-  function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!currentQuestion) return
+    if (!currentQuestion || !userAnswer.trim()) return
 
     const timeSpent = (Date.now() - startTime) / 1000
     const userAnswerNum = parseInt(userAnswer)
@@ -190,6 +190,13 @@ export default function Practice() {
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSubmit(e)
+    }
+  }
+
   const getOperationSymbol = () => {
     switch (operation) {
       case 'addition':
@@ -228,10 +235,10 @@ export default function Practice() {
                 onSubmit={handleSubmit}
               >
                 <Input
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                   className="text-center text-2xl"
                   onChange={(e) => setUserAnswer(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder="Enter your answer"
                   type="number"
                   value={userAnswer}
