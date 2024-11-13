@@ -6,12 +6,14 @@ import { useState } from 'react'
 
 import { AddStudentDialog } from '~/components/dashboard/add-student-dialog'
 import { CreateGroupDialog } from '~/components/dashboard/create-group-dialog'
+import { ViewProgressDialog } from '~/components/dashboard/view-progress-dialog'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { db } from '~/db'
 import { groupMembers } from '~/db/schema'
 // import { useToast } from '~/hooks/use-toast'
 import { createGroup, getGroupsByTeacherId } from '~/repositories/group'
+import { getStudentProgress } from '~/repositories/session'
 import { getUserByEmail } from '~/repositories/user'
 import { getUser } from '~/services/auth.server'
 
@@ -28,7 +30,22 @@ export async function loader({ request }: { request: Request }) {
 
   const teacherGroups = await getGroupsByTeacherId(db, user.id)
 
-  return json({ groups: teacherGroups, user })
+  // Get progress for all students in all groups
+  const studentsProgress = new Map()
+
+  for (const group of teacherGroups) {
+    for (const member of group.groupMembers) {
+      if (!studentsProgress.has(member.student.id)) {
+        const progress = await getStudentProgress(db, member.student.id)
+        studentsProgress.set(member.student.id, progress)
+      }
+    }
+  }
+
+  return json({
+    groups: teacherGroups,
+    studentsProgress: Object.fromEntries(studentsProgress),
+  })
 }
 
 export async function action({ request }: { request: Request }) {
@@ -106,13 +123,21 @@ export async function action({ request }: { request: Request }) {
 }
 
 export default function TeacherDashboard() {
-  const { groups } = useLoaderData<typeof loader>()
+  const { groups, studentsProgress } = useLoaderData<typeof loader>()
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<null | string>(null)
+  const [selectedStudent, setSelectedStudent] = useState<{
+    id: string
+    name: string
+  } | null>(null)
   // const { toast } = useToast()
 
   const handleAddStudent = (groupId: string) => {
     setSelectedGroupId(groupId)
+  }
+
+  const handleViewProgress = (studentId: string, studentName: string) => {
+    setSelectedStudent({ id: studentId, name: studentName })
   }
 
   return (
@@ -199,6 +224,12 @@ export default function TeacherDashboard() {
                           </p>
                         </div>
                         <Button
+                          onClick={() =>
+                            handleViewProgress(
+                              member.student.id,
+                              member.student.name,
+                            )
+                          }
                           size="sm"
                           variant="outline"
                         >
@@ -226,6 +257,17 @@ export default function TeacherDashboard() {
         }}
         open={!!selectedGroupId}
       />
+
+      {selectedStudent && (
+        <ViewProgressDialog
+          onOpenChange={(open) => {
+            if (!open) setSelectedStudent(null)
+          }}
+          open={!!selectedStudent}
+          studentName={selectedStudent.name}
+          studentProgress={studentsProgress[selectedStudent.id]}
+        />
+      )}
     </div>
   )
 }
