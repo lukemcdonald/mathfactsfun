@@ -1,7 +1,7 @@
 import { json, redirect } from '@remix-run/node'
 import { Form, useLoaderData, useSubmit } from '@remix-run/react'
 import { nanoid } from 'nanoid'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
@@ -100,6 +100,7 @@ export async function action({ request }: { request: Request }) {
 export default function Practice() {
   const { operation, userId } = useLoaderData<typeof loader>()
   const submit = useSubmit()
+  const inputRef = useRef<HTMLInputElement>(null)
   const [currentQuestion, setCurrentQuestion] = useState<null | Question>(null)
   const [userAnswer, setUserAnswer] = useState('')
   const [progress, setProgress] = useState(0)
@@ -107,6 +108,7 @@ export default function Practice() {
   const [correctAnswers, setCorrectAnswers] = useState<Question[]>([])
   const [wrongAnswers, setWrongAnswers] = useState<Question[]>([])
   const [questionResults, setQuestionResults] = useState<QuestionResult[]>([])
+  const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
 
   const generateQuestion = useCallback(() => {
     const num1 = Math.floor(Math.random() * 13)
@@ -142,6 +144,26 @@ export default function Practice() {
     generateQuestion()
   }, [generateQuestion])
 
+  // Auto-focus input after each submission
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [currentQuestion])
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Press 'r' to restart when practice is complete
+      if (e.key === 'r' && progress === 100) {
+        window.location.reload()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [progress])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!currentQuestion || !userAnswer.trim()) return
@@ -149,6 +171,10 @@ export default function Practice() {
     const timeSpent = (Date.now() - startTime) / 1000
     const userAnswerNum = parseInt(userAnswer)
     const isCorrect = userAnswerNum === currentQuestion.answer
+
+    // Show feedback
+    setFeedback(isCorrect ? 'correct' : 'incorrect')
+    setTimeout(() => setFeedback(null), 500)
 
     const questionResult: QuestionResult = {
       ...currentQuestion,
@@ -197,6 +223,14 @@ export default function Practice() {
     }
   }
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // Allow negative numbers and digits
+    if (/^-?\d*$/.test(value)) {
+      setUserAnswer(value)
+    }
+  }
+
   const getOperationSymbol = () => {
     switch (operation) {
       case 'addition':
@@ -221,7 +255,13 @@ export default function Practice() {
         />
 
         {progress < 100 ?
-          <Card className="mb-8">
+          <Card
+            className={`mb-8 transition-colors duration-200 ${
+              feedback === 'correct' ? 'bg-green-50'
+              : feedback === 'incorrect' ? 'bg-red-50'
+              : ''
+            }`}
+          >
             <CardContent className="pt-6">
               <div className="mb-8 text-center">
                 <p className="mb-4 text-4xl font-bold">
@@ -235,12 +275,13 @@ export default function Practice() {
                 onSubmit={handleSubmit}
               >
                 <Input
-                  autoFocus
+                  autoComplete="off"
                   className="text-center text-2xl"
-                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
                   placeholder="Enter your answer"
-                  type="number"
+                  ref={inputRef}
+                  type="text"
                   value={userAnswer}
                 />
                 <Button
@@ -259,6 +300,9 @@ export default function Practice() {
                 <p className="mb-4">
                   Correct: {correctAnswers.length} | Wrong:{' '}
                   {wrongAnswers.length}
+                </p>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Press 'R' or click below to start a new practice session
                 </p>
                 <Button onClick={() => window.location.reload()}>
                   Start New Practice
