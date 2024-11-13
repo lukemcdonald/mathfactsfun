@@ -1,4 +1,4 @@
-import { redirect } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { Brain, Clock, Target } from 'lucide-react'
 
@@ -21,7 +21,7 @@ export async function loader({ request }: { request: Request }) {
 
   const recentSessions = await getRecentSessionsByUserId(db, user.id, 5)
 
-  return { recentSessions, user }
+  return json({ recentSessions, user })
 }
 
 export default function StudentDashboard() {

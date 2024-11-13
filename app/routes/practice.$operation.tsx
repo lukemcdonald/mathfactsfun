@@ -43,7 +43,7 @@ export default function Practice() {
   const [currentQuestion, setCurrentQuestion] = useState<null | Question>(null)
   const [userAnswer, setUserAnswer] = useState('')
   const [progress, setProgress] = useState(0)
-  // const [startTime, setStartTime] = useState<number>(0)
+  const [, setStartTime] = useState<number>(0)
   const [correctAnswers, setCorrectAnswers] = useState<Question[]>([])
   const [wrongAnswers, setWrongAnswers] = useState<Question[]>([])
 
