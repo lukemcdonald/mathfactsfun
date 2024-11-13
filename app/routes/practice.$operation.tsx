@@ -414,7 +414,7 @@ export default function Practice() {
               </div>
 
               <p className="text-center text-sm text-muted-foreground">
-                Press 'R' to start a new practice session
+                {`Press "R" to start a new practice session`}
               </p>
             </CardContent>
           </Card>

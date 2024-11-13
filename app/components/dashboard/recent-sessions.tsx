@@ -1,12 +1,6 @@
 import { Card } from '~/components/ui/card'
 import { Progress } from '~/components/ui/progress'
-import { SelectSession } from '~/db/schemas/sessions'
-
-// Create a type that represents the JSON-serialized version of SelectSession
-type SerializedSession = {
-  completedAt: null | string
-  startedAt: string
-} & Omit<SelectSession, 'completedAt' | 'startedAt'>
+import { SerializedSession } from '~/repositories/session'
 
 interface RecentSessionsProps {
   sessions: SerializedSession[]

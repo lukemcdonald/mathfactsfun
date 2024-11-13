@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 import { Progress } from '~/components/ui/progress'
-import { SelectSession } from '~/db/schemas/sessions'
+import { SerializedSession } from '~/repositories/session'
 
 interface ViewProgressDialogProps {
   onOpenChange: (open: boolean) => void
@@ -16,7 +16,7 @@ interface ViewProgressDialogProps {
   studentProgress: {
     averageAccuracy: number
     averageTime: number
-    recentSessions: SelectSession[]
+    recentSessions: SerializedSession[]
     totalSessions: number
   }
 }

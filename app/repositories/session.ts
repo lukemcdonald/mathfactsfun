@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 
 import { sessions } from '~/db/schema'
+import { SelectSession } from '~/db/schemas/sessions'
 import { Database } from '~/utils/types'
 
 export type OperationStats = {
@@ -16,14 +17,20 @@ export type SessionStats = {
     averageTime: number
     totalSessions: number
   }
-  recentSessions: Awaited<ReturnType<typeof getRecentSessionsByUserId>>
+  recentSessions: Array<SerializedSession>
 }
+
+// Define the type for a serialized session with ISO date strings
+export type SerializedSession = {
+  completedAt: null | string
+  startedAt: string
+} & Omit<SelectSession, 'completedAt' | 'startedAt'>
 
 function formatDate(timestamp: null | number): null | string {
   if (!timestamp) return null
 
   try {
-    // Ensure timestamp is a valid number and convert to milliseconds if needed
+    // Convert timestamp to milliseconds if needed (SQLite stores as seconds)
     const ms = timestamp > 1e10 ? timestamp : timestamp * 1000
     return new Date(ms).toISOString()
   } catch (error) {
@@ -36,19 +43,18 @@ export async function getRecentSessionsByUserId(
   db: Database,
   userId: string,
   limit: number = 5,
-) {
+): Promise<Array<SerializedSession>> {
   const results = await db.query.sessions.findMany({
     limit,
     orderBy: (sessions, { desc }) => [desc(sessions.startedAt)],
     where: (sessions, { eq }) => eq(sessions.userId, userId),
   })
 
-  // Ensure dates are properly serialized
+  // Convert timestamps to ISO strings
   return results.map(session => ({
     ...session,
     completedAt: formatDate(session.completedAt),
-    // Fallback to current time if startedAt is invalid
-    startedAt: formatDate(session.startedAt) ?? new Date().toISOString(),
+    startedAt: formatDate(session.startedAt) || new Date().toISOString(),
   }))
 }
 
@@ -100,5 +106,33 @@ export async function getStudentStats(db: Database, userId: string): Promise<Ses
     byOperation,
     overall,
     recentSessions,
+  }
+}
+
+export async function getStudentProgress(db: Database, userId: string) {
+  const allSessions = await db.query.sessions.findMany({
+    where: eq(sessions.userId, userId),
+  })
+
+  const recentSessions = await getRecentSessionsByUserId(db, userId, 5)
+  const totalSessions = allSessions.length
+
+  // Calculate average accuracy and time
+  const averageAccuracy = totalSessions === 0 ? 0 : Math.round(
+    (allSessions.reduce(
+      (acc, session) => acc + (session.correctAnswers / session.totalQuestions),
+      0,
+    ) / totalSessions) * 100,
+  )
+
+  const averageTime = totalSessions === 0 ? 0 : Math.round(
+    allSessions.reduce((acc, session) => acc + session.averageTime, 0) / totalSessions,
+  )
+
+  return {
+    averageAccuracy,
+    averageTime,
+    recentSessions,
+    totalSessions,
   }
 }
