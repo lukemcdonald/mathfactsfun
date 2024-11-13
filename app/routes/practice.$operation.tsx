@@ -1,10 +1,10 @@
 import { json, redirect } from '@remix-run/node'
-import { Form, useLoaderData, useSubmit } from '@remix-run/react'
+import { Form, Link, useLoaderData, useSubmit } from '@remix-run/react'
 import { nanoid } from 'nanoid'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/ui/button'
-import { Card, CardContent } from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Progress } from '~/components/ui/progress'
 import { db } from '~/db'
@@ -53,48 +53,54 @@ export async function action({ request }: { request: Request }) {
   if (!user) return redirect('/login')
 
   const formData = await request.formData()
-  const sessionData = formData.get('sessionData')
+  const intent = formData.get('intent')
 
-  if (typeof sessionData !== 'string') {
-    return json({ error: 'Invalid session data' }, { status: 400 })
+  if (intent === 'save') {
+    const sessionData = formData.get('sessionData')
+
+    if (typeof sessionData !== 'string') {
+      return json({ error: 'Invalid session data' }, { status: 400 })
+    }
+
+    const {
+      averageTime,
+      correctAnswers,
+      operation,
+      questionResults,
+      totalQuestions,
+    } = JSON.parse(sessionData)
+
+    const sessionId = nanoid()
+
+    // Create session record
+    await db.insert(sessions).values({
+      averageTime,
+      correctAnswers,
+      id: sessionId,
+      level: 1, // Default level for now
+      operation,
+      totalQuestions,
+      userId: user.id,
+    })
+
+    // Create question records
+    await db.insert(questions).values(
+      questionResults.map((q: QuestionResult) => ({
+        correct: q.correct,
+        id: nanoid(),
+        num1: q.num1,
+        num2: q.num2,
+        operation,
+        sessionId,
+        timeSpent: q.timeSpent,
+        userAnswer: q.userAnswer,
+      })),
+    )
+
+    return json({ success: true })
   }
 
-  const {
-    averageTime,
-    correctAnswers,
-    operation,
-    questionResults,
-    totalQuestions,
-  } = JSON.parse(sessionData)
-
-  const sessionId = nanoid()
-
-  // Create session record
-  await db.insert(sessions).values({
-    averageTime,
-    correctAnswers,
-    id: sessionId,
-    level: 1, // Default level for now
-    operation,
-    totalQuestions,
-    userId: user.id,
-  })
-
-  // Create question records
-  await db.insert(questions).values(
-    questionResults.map((q: QuestionResult) => ({
-      correct: q.correct,
-      id: nanoid(),
-      num1: q.num1,
-      num2: q.num2,
-      operation,
-      sessionId,
-      timeSpent: q.timeSpent,
-      userAnswer: q.userAnswer,
-    })),
-  )
-
-  return redirect('/dashboard/student')
+  return null
 }
 
 export default function Practice() {
@@ -109,6 +115,8 @@ export default function Practice() {
   const [wrongAnswers, setWrongAnswers] = useState<Question[]>([])
   const [questionResults, setQuestionResults] = useState<QuestionResult[]>([])
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
+  const [averageTime, setAverageTime] = useState<number>(0)
+  const [sessionSaved, setSessionSaved] = useState(false)
 
   const generateQuestion = useCallback(() => {
     const num1 = Math.floor(Math.random() * 13)
@@ -198,12 +206,13 @@ export default function Practice() {
       generateQuestion()
     } else {
       // Calculate session statistics
-      const averageTime =
+      const avgTime =
         questionResults.reduce((acc, q) => acc + q.timeSpent, 0) /
         (questionResults.length + 1)
+      setAverageTime(avgTime)
 
       const sessionData = {
-        averageTime,
+        averageTime: avgTime,
         correctAnswers: correctAnswers.length + (isCorrect ? 1 : 0),
         operation,
         questionResults: [...questionResults, questionResult],
@@ -212,7 +221,14 @@ export default function Practice() {
       }
 
       // Submit session data to the server
-      submit({ sessionData: JSON.stringify(sessionData) }, { method: 'post' })
+      submit(
+        {
+          intent: 'save',
+          sessionData: JSON.stringify(sessionData),
+        },
+        { method: 'post' },
+      )
+      setSessionSaved(true)
     }
   }
 
@@ -294,20 +310,54 @@ export default function Practice() {
             </CardContent>
           </Card>
         : <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <h2 className="mb-4 text-2xl font-bold">Practice Complete!</h2>
-                <p className="mb-4">
-                  Correct: {correctAnswers.length} | Wrong:{' '}
-                  {wrongAnswers.length}
-                </p>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Press 'R' or click below to start a new practice session
-                </p>
-                <Button onClick={() => window.location.reload()}>
-                  Start New Practice
-                </Button>
+            <CardHeader>
+              <CardTitle className="text-center">Practice Complete!</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-lg border p-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Correct Answers
+                  </p>
+                  <p className="mt-1 text-3xl font-bold text-green-600">
+                    {correctAnswers.length}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-4 text-center">
+                  <p className="text-sm text-muted-foreground">Wrong Answers</p>
+                  <p className="mt-1 text-3xl font-bold text-red-600">
+                    {wrongAnswers.length}
+                  </p>
+                </div>
               </div>
+
+              <div className="rounded-lg border p-4 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Average Time per Question
+                </p>
+                <p className="mt-1 text-3xl font-bold">
+                  {Math.round(averageTime)}s
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                >
+                  Try Again
+                </Button>
+                <Link
+                  className="w-full"
+                  to="/dashboard/student"
+                >
+                  <Button className="w-full">Back to Dashboard</Button>
+                </Link>
+              </div>
+
+              <p className="text-center text-sm text-muted-foreground">
+                Press 'R' to start a new practice session
+              </p>
             </CardContent>
           </Card>
         }
