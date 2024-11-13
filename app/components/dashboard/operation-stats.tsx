@@ -1,5 +1,7 @@
+import { Link } from '@remix-run/react'
 import { Divide, Minus, Plus, X } from 'lucide-react'
 
+import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Progress } from '~/components/ui/progress'
 
@@ -39,10 +41,15 @@ export function OperationStats({ stats }: OperationStatsProps) {
           return (
             <Card key={operation}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon className="h-5 w-5" />
-                  {name}
-                </CardTitle>
+                <div className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon className="h-5 w-5" />
+                    {name}
+                  </CardTitle>
+                  <Link to={`/practice/${operation}`}>
+                    <Button>Start Practice</Button>
+                  </Link>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
