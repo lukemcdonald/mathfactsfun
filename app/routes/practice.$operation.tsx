@@ -1,10 +1,24 @@
 import { json, redirect } from '@remix-run/node'
-import { Form, Link, useLoaderData, useSubmit } from '@remix-run/react'
+import {
+  Form,
+  Link,
+  useLoaderData,
+  useNavigate,
+  useSubmit,
+} from '@remix-run/react'
 import { nanoid } from 'nanoid'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { Progress } from '~/components/ui/progress'
 import { db } from '~/db'
@@ -55,7 +69,7 @@ export async function action({ request }: { request: Request }) {
   const formData = await request.formData()
   const intent = formData.get('intent')
 
-  if (intent === 'save') {
+  if (intent === 'save' || intent === 'cancel') {
     const sessionData = formData.get('sessionData')
 
     if (typeof sessionData !== 'string') {
@@ -79,6 +93,7 @@ export async function action({ request }: { request: Request }) {
       id: sessionId,
       level: 1, // Default level for now
       operation,
+      status: intent === 'cancel' ? 'cancelled' : 'completed',
       totalQuestions,
       userId: user.id,
     })
@@ -106,6 +121,7 @@ export async function action({ request }: { request: Request }) {
 export default function Practice() {
   const { operation, userId } = useLoaderData<typeof loader>()
   const submit = useSubmit()
+  const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
   const [currentQuestion, setCurrentQuestion] = useState<null | Question>(null)
   const [userAnswer, setUserAnswer] = useState('')
@@ -117,6 +133,7 @@ export default function Practice() {
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
   const [averageTime, setAverageTime] = useState<number>(0)
   const [sessionSaved, setSessionSaved] = useState(false)
+  const [showCancelDialog, setShowCancelDialog] = useState(false)
 
   const generateQuestion = useCallback(() => {
     const num1 = Math.floor(Math.random() * 13)
@@ -166,11 +183,43 @@ export default function Practice() {
       if (e.key === 'r' && progress === 100) {
         window.location.reload()
       }
+      // Press 'Escape' to show cancel dialog
+      if (e.key === 'Escape' && progress < 100) {
+        setShowCancelDialog(true)
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [progress])
+
+  const handleCancel = () => {
+    const avgTime =
+      questionResults.length > 0 ?
+        questionResults.reduce((acc, q) => acc + q.timeSpent, 0) /
+        questionResults.length
+      : 0
+
+    const sessionData = {
+      averageTime: avgTime,
+      correctAnswers: correctAnswers.length,
+      operation,
+      questionResults,
+      totalQuestions: Math.max(questionResults.length, 1),
+      userId,
+    }
+
+    // Submit session data with cancel intent
+    submit(
+      {
+        intent: 'cancel',
+        sessionData: JSON.stringify(sessionData),
+      },
+      { method: 'post' },
+    )
+
+    navigate('/dashboard/student')
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -265,10 +314,19 @@ export default function Practice() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-2xl">
-        <Progress
-          className="mb-8"
-          value={progress}
-        />
+        <div className="mb-8 flex items-center justify-between">
+          <Progress
+            className="flex-1"
+            value={progress}
+          />
+          <Button
+            className="ml-4"
+            onClick={() => setShowCancelDialog(true)}
+            variant="outline"
+          >
+            Cancel
+          </Button>
+        </div>
 
         {progress < 100 ?
           <Card
@@ -362,6 +420,35 @@ export default function Practice() {
           </Card>
         }
       </div>
+
+      <Dialog
+        onOpenChange={setShowCancelDialog}
+        open={showCancelDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Practice Session?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this practice session? Your
+              progress will be saved as a cancelled session.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setShowCancelDialog(false)}
+              variant="outline"
+            >
+              Continue Practice
+            </Button>
+            <Button
+              onClick={handleCancel}
+              variant="destructive"
+            >
+              Cancel Session
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

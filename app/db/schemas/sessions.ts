@@ -15,6 +15,11 @@ export const sessions = sqliteTable('sessions', {
   startedAt: integer('started_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
+  status: text('status', {
+    enum: ['completed', 'cancelled'],
+  })
+    .notNull()
+    .default('completed'),
   totalQuestions: integer('total_questions').notNull(),
   userId: text('user_id')
     .notNull()
