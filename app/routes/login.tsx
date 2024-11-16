@@ -1,7 +1,7 @@
 import { getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { json, redirect } from '@remix-run/node'
-import { Form, useActionData } from '@remix-run/react'
+import { Form, useActionData, useNavigation } from '@remix-run/react'
 import { z } from 'zod'
 
 import { Button } from '~/components/ui/button'
@@ -29,7 +29,6 @@ export async function action({ request }: { request: Request }) {
 
   if (submission.status !== 'success') {
     return json(submission.reply(), {
-      // You can also use the status to determine the HTTP status code
       status: submission.status === 'error' ? 400 : 200,
     })
   }
@@ -52,12 +51,14 @@ export async function action({ request }: { request: Request }) {
 
 export default function Login() {
   const lastResult = useActionData<typeof action>()
+  const navigation = useNavigation()
+  const isLoading = navigation.state === 'submitting'
+
   const [form, fields] = useForm({
     constraint: getZodConstraint(loginSchema),
     id: 'login-form',
-    lastResult, // Sync the result of last submission
+    lastResult,
     onValidate({ formData }) {
-      // Reuse the validation logic on the client
       return parseWithZod(formData, { schema: loginSchema })
     },
     shouldRevalidate: 'onBlur',
@@ -115,6 +116,8 @@ export default function Login() {
           <div>
             <Button
               className="w-full"
+              isLoading={isLoading}
+              loadingText="Signing in..."
               type="submit"
             >
               Sign in

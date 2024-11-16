@@ -1,7 +1,7 @@
 import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { json, redirect } from '@remix-run/node'
-import { Form, useActionData } from '@remix-run/react'
+import { Form, useActionData, useNavigation } from '@remix-run/react'
 import bcrypt from 'bcryptjs'
 import { nanoid } from 'nanoid'
 import { z } from 'zod'
@@ -78,6 +78,9 @@ export async function action({ request }: { request: Request }) {
 
 export default function Signup() {
   const lastResult = useActionData<typeof action>()
+  const navigation = useNavigation()
+  const isLoading = navigation.state === 'submitting'
+
   const [form, fields] = useForm({
     constraint: getZodConstraint(signupSchema),
     id: 'signup-form',
@@ -176,6 +179,8 @@ export default function Signup() {
           <div>
             <Button
               className="w-full"
+              isLoading={isLoading}
+              loadingText=""
               type="submit"
             >
               Sign up

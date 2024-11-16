@@ -11,7 +11,7 @@ type NavbarProps = {
 export function Navbar({ userRole }: NavbarProps) {
   return (
     <nav className="border-b bg-background">
-      <div className="container flex h-16 items-center px-4">
+      <div className="container mx-auto flex h-16 items-center px-4">
         <Link
           className="flex items-center space-x-2"
           to="/"
@@ -20,29 +20,37 @@ export function Navbar({ userRole }: NavbarProps) {
           <span className="font-bold">MathFacts.fun</span>
         </Link>
 
-        <div className="ml-auto flex items-center space-x-4">
+        <ul className="ml-auto flex items-center space-x-4">
           {userRole ?
             <>
-              <Link to={`/dashboard/${userRole}`}>
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
-              <Form
-                action="/logout"
-                method="post"
-              >
-                <Button type="submit">Logout</Button>
-              </Form>
+              <li>
+                <Link to={`/dashboard/${userRole}`}>
+                  <Button variant="ghost">Dashboard</Button>
+                </Link>
+              </li>
+              <li>
+                <Form
+                  action="/logout"
+                  method="post"
+                >
+                  <Button type="submit">Logout</Button>
+                </Form>
+              </li>
             </>
           : <>
-              <Link to="/login">
-                <Button variant="ghost">Login</Button>
-              </Link>
-              <Link to="/signup">
-                <Button>Sign Up</Button>
-              </Link>
+              <li>
+                <Link to="/login">
+                  <Button variant="ghost">Login</Button>
+                </Link>
+              </li>
+              <li>
+                <Link to="/signup">
+                  <Button>Sign Up</Button>
+                </Link>
+              </li>
             </>
           }
-        </div>
+        </ul>
       </div>
     </nav>
   )
