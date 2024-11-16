@@ -6,7 +6,6 @@ import {
   useNavigate,
   useSubmit,
 } from '@remix-run/react'
-import { nanoid } from 'nanoid'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/ui/button'
@@ -22,32 +21,24 @@ import {
 import { Input } from '~/components/ui/input'
 import { Progress } from '~/components/ui/progress'
 import { db } from '~/db'
-import { questions, sessions } from '~/db/schema'
+import { createQuestions } from '~/repositories/question'
+import { createSession } from '~/repositories/session'
 import { getUser } from '~/services/auth.server'
-
-interface Question {
-  answer: number
-  num1: number
-  num2: number
-  operation: string
-  timeSpent?: number
-}
-
-interface QuestionResult extends Question {
-  correct: boolean
-  timeSpent: number
-  userAnswer: number
-}
+import { Question } from '~/types/question'
+import { Operation, QuestionResult } from '~/types/session'
 
 export async function loader({
   params,
   request,
 }: {
-  params: { operation: string }
+  params: { operation: Operation }
   request: Request
 }) {
   const user = await getUser(request)
-  if (!user) return redirect('/login')
+
+  if (!user) {
+    return redirect('/login')
+  }
 
   const validOperations = [
     'addition',
@@ -64,7 +55,10 @@ export async function loader({
 
 export async function action({ request }: { request: Request }) {
   const user = await getUser(request)
-  if (!user) return redirect('/login')
+
+  if (!user) {
+    return redirect('/login')
+  }
 
   const formData = await request.formData()
   const intent = formData.get('intent')
@@ -84,33 +78,20 @@ export async function action({ request }: { request: Request }) {
       totalQuestions,
     } = JSON.parse(sessionData)
 
-    const sessionId = nanoid()
-
-    // Create session record
-    await db.insert(sessions).values({
+    // Create session and get its ID
+    const sessionId = await createSession(db, {
       averageTime,
       correctAnswers,
-      id: sessionId,
-      level: 1, // Default level for now
+      level: 1,
       operation,
+      questionResults,
       status: intent === 'cancel' ? 'cancelled' : 'completed',
       totalQuestions,
       userId: user.id,
     })
 
-    // Create question records
-    await db.insert(questions).values(
-      questionResults.map((q: QuestionResult) => ({
-        correct: q.correct,
-        id: nanoid(),
-        num1: q.num1,
-        num2: q.num2,
-        operation,
-        sessionId,
-        timeSpent: q.timeSpent,
-        userAnswer: q.userAnswer,
-      })),
-    )
+    // Create associated questions
+    await createQuestions(db, sessionId, operation, questionResults)
 
     return json({ success: true })
   }
@@ -222,7 +203,10 @@ export default function Practice() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!currentQuestion || !userAnswer.trim()) return
+
+    if (!currentQuestion || !userAnswer.trim()) {
+      return
+    }
 
     const timeSpent = (Date.now() - startTime) / 1000
     const userAnswerNum = parseInt(userAnswer)

@@ -1,6 +1,7 @@
 import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm'
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
+import { OPERATIONS } from '~/constants/operations'
 import { users } from '~/db/schema'
 
 export const sessions = sqliteTable('sessions', {
@@ -9,15 +10,12 @@ export const sessions = sqliteTable('sessions', {
   correctAnswers: integer('correct_answers').notNull(),
   id: text('id').primaryKey(),
   level: integer('level').notNull(),
-  operation: text('operation', {
-    enum: ['addition', 'subtraction', 'multiplication', 'division'],
-  }).notNull(),
+  operation: text('operation', { enum: OPERATIONS })
+    .notNull(),
   startedAt: integer('started_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
-  status: text('status', {
-    enum: ['completed', 'cancelled'],
-  })
+  status: text('status', { enum: ['completed', 'cancelled'] })
     .notNull()
     .default('completed'),
   totalQuestions: integer('total_questions').notNull(),

@@ -3,10 +3,11 @@ import { Divide, Minus, Plus, X } from 'lucide-react'
 
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { Operation } from '~/types/session'
 
 interface PracticeCardProps {
   description: string
-  operation: 'addition' | 'division' | 'multiplication' | 'subtraction'
+  operation: Operation
   title: string
 }
 

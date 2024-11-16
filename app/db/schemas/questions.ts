@@ -1,6 +1,7 @@
 import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm'
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
+import { OPERATIONS } from '~/constants/operations'
 import { sessions } from '~/db/schema'
 
 export const questions = sqliteTable('questions', {
@@ -11,9 +12,8 @@ export const questions = sqliteTable('questions', {
   id: text('id').primaryKey(),
   num1: integer('num1').notNull(),
   num2: integer('num2').notNull(),
-  operation: text('operation', {
-    enum: ['addition', 'subtraction', 'multiplication', 'division'],
-  }).notNull(),
+  operation: text('operation', { enum: OPERATIONS })
+    .notNull(),
   sessionId: text('session_id')
     .notNull()
     .references(() => sessions.id, { onDelete: 'cascade' }),

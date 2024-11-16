@@ -10,11 +10,11 @@ import { ViewProgressDialog } from '~/components/dashboard/view-progress-dialog'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { db } from '~/db'
+import { getUserByEmail } from '~/repositories/user'
 // import { useToast } from '~/hooks/use-toast'
 import { createGroup, getGroupsByTeacherId } from '~/repositories/group'
-import { addGroupMember, getGroupMember } from '~/repositories/groupMember'
+import { addGroupMember, getGroupMember } from '~/repositories/group-member'
 import { getStudentProgress } from '~/repositories/session'
-import { getUserByEmail } from '~/repositories/user'
 import { getUser } from '~/services/auth.server'
 
 export async function loader({ request }: { request: Request }) {
