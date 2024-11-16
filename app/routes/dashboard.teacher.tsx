@@ -10,9 +10,9 @@ import { ViewProgressDialog } from '~/components/dashboard/view-progress-dialog'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { db } from '~/db'
-import { groupMembers } from '~/db/schema'
 // import { useToast } from '~/hooks/use-toast'
 import { createGroup, getGroupsByTeacherId } from '~/repositories/group'
+import { addGroupMember, getGroupMember } from '~/repositories/groupMember'
 import { getStudentProgress } from '~/repositories/session'
 import { getUserByEmail } from '~/repositories/user'
 import { getUser } from '~/services/auth.server'
@@ -96,13 +96,7 @@ export async function action({ request }: { request: Request }) {
     }
 
     // Check if student is already in the group
-    const existingMember = await db.query.groupMembers.findFirst({
-      where: (groupMembers, { and, eq }) =>
-        and(
-          eq(groupMembers.groupId, groupId),
-          eq(groupMembers.studentId, student.id),
-        ),
-    })
+    const existingMember = await getGroupMember(db, groupId, student.id)
 
     if (existingMember) {
       return json(
@@ -112,7 +106,7 @@ export async function action({ request }: { request: Request }) {
     }
 
     // Add student to group
-    await db.insert(groupMembers).values({
+    await addGroupMember(db, {
       groupId,
       id: nanoid(),
       studentId: student.id,

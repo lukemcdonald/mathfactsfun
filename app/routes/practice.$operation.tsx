@@ -132,7 +132,6 @@ export default function Practice() {
   const [questionResults, setQuestionResults] = useState<QuestionResult[]>([])
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
   const [averageTime, setAverageTime] = useState<number>(0)
-  const [sessionSaved, setSessionSaved] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
 
   const generateQuestion = useCallback(() => {
@@ -277,7 +276,6 @@ export default function Practice() {
         },
         { method: 'post' },
       )
-      setSessionSaved(true)
     }
   }
 
