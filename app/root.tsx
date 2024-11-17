@@ -1,3 +1,4 @@
+import { captureRemixErrorBoundaryError } from '@sentry/remix'
 import { json, LinksFunction } from '@remix-run/node'
 import {
   Links,
@@ -6,6 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
 } from '@remix-run/react'
 
 import { Navbar } from '~/components/layout/navbar'
@@ -42,6 +44,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   )
+}
+
+export const ErrorBoundary = () => {
+  const error = useRouteError()
+  captureRemixErrorBoundaryError(error)
+  return <div>Something went wrong</div>
 }
 
 export default function App() {
