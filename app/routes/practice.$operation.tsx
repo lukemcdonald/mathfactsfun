@@ -23,9 +23,9 @@ import { Progress } from '~/components/ui/progress'
 import { db } from '~/db'
 import { createQuestions } from '~/repositories/question'
 import { createSession } from '~/repositories/session'
-import { getUser } from '~/services/auth.server'
 import { Question } from '~/types/question'
 import { Operation, QuestionResult } from '~/types/session'
+import { getUser } from '~/utils/auth.server'
 
 export async function loader({
   params,

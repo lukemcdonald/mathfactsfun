@@ -15,7 +15,7 @@ import { getUserByEmail } from '~/repositories/user'
 import { createGroup, getGroupsByTeacherId } from '~/repositories/group'
 import { addGroupMember, getGroupMember } from '~/repositories/group-member'
 import { getStudentProgress } from '~/repositories/session'
-import { getUser } from '~/services/auth.server'
+import { getUser } from '~/utils/auth.server'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)

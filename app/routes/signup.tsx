@@ -18,7 +18,7 @@ import {
 } from '~/components/ui/select'
 import { db } from '~/db'
 import { createUser, getUserByEmail } from '~/repositories/user'
-import { createUserSession, getUser } from '~/services/auth.server'
+import { createUserSession, getUser } from '~/utils/auth.server'
 import { handleError } from '~/utils/errors'
 
 const signupSchema = z.object({

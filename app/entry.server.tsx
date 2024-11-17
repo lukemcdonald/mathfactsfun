@@ -4,7 +4,12 @@
  * For more information, see https://remix.run/file-conventions/entry.server
  */
 
-import type { AppLoadContext, EntryContext } from '@remix-run/node'
+import type {
+  ActionFunctionArgs,
+  AppLoadContext,
+  EntryContext,
+  LoaderFunctionArgs,
+} from '@remix-run/node'
 
 import { createReadableStreamFromReadable } from '@remix-run/node'
 import { RemixServer } from '@remix-run/react'
@@ -15,31 +20,7 @@ import { renderToPipeableStream } from 'react-dom/server'
 
 const ABORT_DELAY = 5_000
 
-export const handleError = Sentry.wrapHandleErrorWithSentry(
-  (error: unknown, args: { request: unknown }) => {
-    console.error('Server error:', error)
-
-    const request = args.request as Request
-
-    // Report to Sentry with request context
-    Sentry.captureException(error, {
-      tags: {
-        method: request.method,
-        url: request.url,
-      },
-    })
-
-    // Return response based on client type
-    if (isbot(request.headers.get('user-agent'))) {
-      throw new Response('Internal Server Error', { status: 500 })
-    }
-
-    throw new Response('Internal Server Error', {
-      headers: { 'Content-Type': 'text/html' },
-      status: 500,
-    })
-  },
-)
+export const handleError = Sentry.wrapHandleErrorWithSentry
 
 export default function handleRequest(
   request: Request,

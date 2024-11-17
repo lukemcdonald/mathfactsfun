@@ -11,7 +11,8 @@ import {
 import { captureRemixErrorBoundaryError } from '@sentry/remix'
 
 import { Navbar } from '~/components/layout/navbar'
-import { getUser } from '~/services/auth.server'
+import { getUser } from '~/utils/auth.server'
+import { useNonce } from '~/utils/nonce-provider'
 
 import styles from './assets/globals.css?url'
 
@@ -22,27 +23,64 @@ export async function loader({ request }: { request: Request }) {
   return json({ user })
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+function Document({
+  children,
+  env = {},
+  nonce,
+}: {
+  children: React.ReactNode
+  env?: Record<string, string>
+  nonce: string
+}) {
   const { user } = useLoaderData<typeof loader>() ?? {}
-
+  const allowIndexing = ENV.ALLOW_INDEXING !== 'false'
   return (
-    <html lang="en">
+    <html
+      className={`h-full overflow-x-hidden`}
+      lang="en"
+    >
       <head>
+        <Meta />
         <meta charSet="utf-8" />
         <meta
           content="width=device-width, initial-scale=1"
           name="viewport"
         />
-        <Meta />
+        {allowIndexing ? null : (
+          <meta
+            content="noindex, nofollow"
+            name="robots"
+          />
+        )}
         <Links />
       </head>
       <body>
         <Navbar userRole={user?.role} />
         {children}
-        <ScrollRestoration />
-        <Scripts />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(env)}`,
+          }}
+          nonce={nonce}
+        />
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
       </body>
     </html>
+  )
+}
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  // if there was an error running the loader, data could be missing
+  const data = useLoaderData<null | typeof loader>()
+  const nonce = useNonce()
+  return (
+    <Document
+      env={data?.ENV}
+      nonce={nonce}
+    >
+      {children}
+    </Document>
   )
 }
 

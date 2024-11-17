@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { createUserSession, getUser, verifyLogin } from '~/services/auth.server'
+import { createUserSession, getUser, verifyLogin } from '~/utils/auth.server'
 import { handleError } from '~/utils/errors'
 
 const loginSchema = z.object({
