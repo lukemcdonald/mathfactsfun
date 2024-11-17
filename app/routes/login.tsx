@@ -8,6 +8,7 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { createUserSession, getUser, verifyLogin } from '~/services/auth.server'
+import { handleError } from '~/utils/errors'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -24,29 +25,31 @@ export async function loader({ request }: { request: Request }) {
 }
 
 export async function action({ request }: { request: Request }) {
-  const formData = await request.formData()
-  const submission = parseWithZod(formData, { schema: loginSchema })
+  try {
+    const formData = await request.formData()
+    const submission = parseWithZod(formData, { schema: loginSchema })
 
-  if (submission.status !== 'success') {
-    return json(submission.reply(), {
-      status: submission.status === 'error' ? 400 : 200,
-    })
+    if (submission.status !== 'success') {
+      return json(submission.reply(), { status: 400 })
+    }
+
+    const { email, password, redirectTo } = submission.value
+    const user = await verifyLogin(email, password)
+
+    if (!user) {
+      return json(
+        {
+          ...submission,
+          error: { '': ['Invalid email or password'] },
+        },
+        { status: 400 },
+      )
+    }
+
+    return createUserSession(user.id, redirectTo)
+  } catch (error) {
+    return handleError(error, { path: '/login' })
   }
-
-  const { email, password, redirectTo } = submission.value
-  const user = await verifyLogin(email, password)
-
-  if (!user) {
-    return json(
-      {
-        ...submission,
-        error: { '': ['Invalid email or password'] },
-      },
-      { status: 400 },
-    )
-  }
-
-  return createUserSession(user.id, redirectTo)
 }
 
 export default function Login() {

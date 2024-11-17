@@ -13,13 +13,33 @@ import { isbot } from 'isbot'
 import { PassThrough } from 'node:stream'
 import { renderToPipeableStream } from 'react-dom/server'
 
+const ABORT_DELAY = 5_000
+
 export const handleError = Sentry.wrapHandleErrorWithSentry(
-  (error, { request }) => {
-    // Custom handleError implementation
+  (error: unknown, args: { request: unknown }) => {
+    console.error('Server error:', error)
+
+    const request = args.request as Request
+
+    // Report to Sentry with request context
+    Sentry.captureException(error, {
+      tags: {
+        method: request.method,
+        url: request.url,
+      },
+    })
+
+    // Return response based on client type
+    if (isbot(request.headers.get('user-agent'))) {
+      throw new Response('Internal Server Error', { status: 500 })
+    }
+
+    throw new Response('Internal Server Error', {
+      headers: { 'Content-Type': 'text/html' },
+      status: 500,
+    })
   },
 )
-
-const ABORT_DELAY = 5_000
 
 export default function handleRequest(
   request: Request,

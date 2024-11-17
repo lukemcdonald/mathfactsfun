@@ -1,4 +1,4 @@
-import { getErrorMessage } from "~/utils/getErrorMessage";
+import { getErrorMessage } from "~/utils/errors";
 
 /**
  * Converts a timestamp to milliseconds.

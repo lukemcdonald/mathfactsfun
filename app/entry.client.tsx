@@ -3,20 +3,20 @@ import * as Sentry from '@sentry/remix'
 import { startTransition, StrictMode, useEffect } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 
-if (process.env.SENTRY_DSN) {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV,
-    integrations: [
-      Sentry.browserTracingIntegration({
-        useEffect,
-        useLocation,
-        useMatches,
-      }),
-    ],
-    tracesSampleRate: 1,
-  })
-}
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.MODE,
+  integrations: [
+    Sentry.browserTracingIntegration({
+      useEffect,
+      useLocation,
+      useMatches,
+    }),
+  ],
+  // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+  // Adjust this value in production as needed.
+  tracesSampleRate: 1.0,
+})
 
 startTransition(() => {
   hydrateRoot(

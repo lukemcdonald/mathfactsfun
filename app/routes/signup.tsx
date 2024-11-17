@@ -1,7 +1,7 @@
 import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { json, redirect } from '@remix-run/node'
-import { Form, useActionData, useNavigation } from '@remix-run/react'
+import { Form, Link, useActionData, useNavigation } from '@remix-run/react'
 import bcrypt from 'bcryptjs'
 import { nanoid } from 'nanoid'
 import { z } from 'zod'
@@ -19,6 +19,7 @@ import {
 import { db } from '~/db'
 import { createUser, getUserByEmail } from '~/repositories/user'
 import { createUserSession, getUser } from '~/services/auth.server'
+import { handleError } from '~/utils/errors'
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -38,42 +39,42 @@ export async function loader({ request }: { request: Request }) {
 }
 
 export async function action({ request }: { request: Request }) {
-  const formData = await request.formData()
-  const submission = parseWithZod(formData, { schema: signupSchema })
+  try {
+    const formData = await request.formData()
+    const submission = parseWithZod(formData, { schema: signupSchema })
 
-  if (submission.status !== 'success') {
-    return json(submission.reply(), {
-      // You can also use the status to determine the HTTP status code
-      status: submission.status === 'error' ? 400 : 200,
+    if (submission.status !== 'success') {
+      return json(submission.reply(), { status: 400 })
+    }
+
+    const { email, name, password, role } = submission.value
+    const existingUser = await getUserByEmail(db, email)
+
+    if (existingUser) {
+      return json(
+        {
+          ...submission,
+          error: { email: ['A user with this email already exists'] },
+        },
+        { status: 400 },
+      )
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+    const userId = nanoid()
+
+    await createUser(db, {
+      email,
+      hashedPassword,
+      id: userId,
+      name,
+      role,
     })
+
+    return createUserSession(userId, '/')
+  } catch (error) {
+    return handleError(error, { path: '/signup' })
   }
-
-  const { email, name, password, role } = submission.value
-
-  const existingUser = await getUserByEmail(db, email)
-
-  if (existingUser) {
-    return json(
-      {
-        ...submission,
-        error: { email: ['A user with this email already exists'] },
-      },
-      { status: 400 },
-    )
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10)
-  const userId = nanoid()
-
-  await createUser(db, {
-    email,
-    hashedPassword,
-    id: userId,
-    name,
-    role,
-  })
-
-  return createUserSession(userId, '/')
 }
 
 export default function Signup() {
@@ -84,9 +85,7 @@ export default function Signup() {
   const [form, fields] = useForm({
     constraint: getZodConstraint(signupSchema),
     id: 'signup-form',
-    // Sync the result of last submission
     lastResult,
-    // Reuse the validation logic on the client
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: signupSchema })
     },
@@ -99,9 +98,19 @@ export default function Signup() {
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account!
+            Create your account
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link
+              className="font-medium text-primary hover:text-primary/90"
+              to="/login"
+            >
+              sign in to your account
+            </Link>
+          </p>
         </div>
+
         <Form
           className="mt-8 space-y-6"
           id={form.id}
@@ -109,6 +118,12 @@ export default function Signup() {
           noValidate
           onSubmit={form.onSubmit}
         >
+          {form.errors && (
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="text-sm text-red-700">{form.errors}</div>
+            </div>
+          )}
+
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
               <Label htmlFor={fields.name.id}>Full Name</Label>
@@ -174,13 +189,11 @@ export default function Signup() {
             </div>
           </div>
 
-          {form.errors && <p className="text-sm text-red-600">{form.errors}</p>}
-
           <div>
             <Button
               className="w-full"
               isLoading={isLoading}
-              loadingText=""
+              loadingText="Creating account..."
               type="submit"
             >
               Sign up

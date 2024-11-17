@@ -2,6 +2,9 @@ import * as Sentry from '@sentry/remix'
 
 type ExtraContext = Record<string, unknown>
 
+/**
+ * Captures an exception in Sentry with optional context
+ */
 export function captureException(error: unknown, context?: ExtraContext) {
   if (process.env.SENTRY_DSN) {
     Sentry.captureException(error, {
@@ -13,22 +16,24 @@ export function captureException(error: unknown, context?: ExtraContext) {
   }
 }
 
+/**
+ * Captures a message in Sentry with optional context
+ */
 export function captureMessage(message: string, context?: ExtraContext) {
-  if (process.env.SENTRY_DSN) {
-    Sentry.captureMessage(message, {
-      extra: context,
-      tags: {
-        source: 'server',
-      },
-    })
-  }
+  Sentry.captureMessage(message, {
+    extra: context,
+    tags: {
+      source: 'server',
+    },
+  })
 }
 
+/**
+ * Sets the user context in Sentry
+ */
 export function setUser(id: string, data?: Record<string, unknown>) {
-  if (process.env.SENTRY_DSN) {
-    Sentry.setUser({
-      id,
-      ...data,
-    })
-  }
+  Sentry.setUser({
+    id,
+    ...data,
+  })
 }

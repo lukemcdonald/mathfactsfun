@@ -65,23 +65,21 @@ export async function requireUserId(
 }
 
 export async function getUser(request: Request) {
-  const userId = await getUserId(request)
-
-  if (typeof userId !== 'string') {
-    return null
-  }
-
   try {
-    const user = await getUserById(db, userId)
-    return user
-  } catch {
-    throw logout(request)
+    const userId = await getUserId(request)
+    if (!userId) {
+      return null
+    }
+
+    return await getUserById(db, userId)
+  } catch (error) {
+    const logoutResponse = await logout(request)
+    throw logoutResponse
   }
 }
 
 export async function logout(request: Request) {
   const session = await getUserSession(request)
-
   return redirect('/', {
     headers: {
       'Set-Cookie': await storage.destroySession(session),
@@ -91,13 +89,11 @@ export async function logout(request: Request) {
 
 export async function verifyLogin(email: string, password: string) {
   const user = await getUserByEmail(db, email)
-
   if (!user) {
     return null
   }
 
   const isValid = await bcrypt.compare(password, user.hashedPassword)
-
   if (!isValid) {
     return null
   }
