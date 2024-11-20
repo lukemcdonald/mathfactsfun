@@ -1,6 +1,6 @@
 import { redirect } from '@remix-run/node'
 
-import { logout } from '~/services/auth.server'
+import { logout } from '~/features/auth/auth.api'
 
 export async function loader() {
   return redirect('/')

@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 import { Progress } from '~/components/ui/progress'
-import { SerializedSession } from '~/repositories/session'
+import { SerializedSession } from '~/features/sessions'
 
 interface ViewProgressDialogProps {
   onOpenChange: (open: boolean) => void

@@ -21,11 +21,9 @@ import {
 import { Input } from '~/components/ui/input'
 import { Progress } from '~/components/ui/progress'
 import { db } from '~/db'
-import { createQuestions } from '~/repositories/question'
-import { createSession } from '~/repositories/session'
-import { getUser } from '~/services/auth.server'
-import { Question } from '~/types/question'
-import { Operation, QuestionResult } from '~/types/session'
+import { getUser } from '~/features/auth/auth.api'
+import { createQuestions, Question, QuestionResult } from '~/features/questions'
+import { createSession, Operation } from '~/features/sessions'
 
 export async function loader({
   params,

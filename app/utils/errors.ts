@@ -2,10 +2,26 @@ import { json } from '@remix-run/node'
 import { ZodError } from 'zod'
 
 import { IS_DEVELOPMENT } from '~/constants'
+import { MonitoringContext } from '~/features/monitoring'
 
 type ErrorResponse = {
   error: Record<string, string[]>
   submission?: unknown
+}
+
+/**
+ * Custom error class for database-related errors.
+ * Includes support for cause and context information.
+ */
+export class DatabaseError extends Error {
+  constructor(
+    message: string,
+    public readonly cause?: unknown,
+    public readonly context?: MonitoringContext
+  ) {
+    super(message)
+    this.name = 'DatabaseError'
+  }
 }
 
 /**
@@ -47,26 +63,11 @@ function normalizeZodErrors(fieldErrors: Record<string, string[] | undefined>): 
 }
 
 /**
- * Custom error class for database-related errors.
- * Includes support for cause and context information.
- */
-export class DatabaseError extends Error {
-  constructor(
-    message: string,
-    public readonly cause?: unknown,
-    public readonly context?: Record<string, unknown>
-  ) {
-    super(message)
-    this.name = 'DatabaseError'
-  }
-}
-
-/**
  * Handles errors in route actions and loaders.
  * Returns appropriate JSON responses with status codes.
  * Note: Global server-side error reporting is handled by Sentry's error boundary
  */
-export function handleError(error: unknown, context?: Record<string, unknown>): Response {
+export function handleError(error: unknown, context?: MonitoringContext): Response {
   if (IS_DEVELOPMENT) {
     console.error('Error:', error, context)
   }

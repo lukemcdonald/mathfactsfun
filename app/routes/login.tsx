@@ -7,9 +7,14 @@ import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { createUserSession, getUser, verifyLogin } from '~/services/auth.server'
+import {
+  createUserSession,
+  getUser,
+  verifyLogin,
+} from '~/features/auth/auth.api'
 import { handleError } from '~/utils/errors'
 
+// TODO: Split these out into separate ZOD objects to be imported. See epic stack
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
@@ -46,6 +51,7 @@ export async function action({ request }: { request: Request }) {
       )
     }
 
+    // TODO: Redirect to user role dashboard
     return createUserSession(user.id, redirectTo)
   } catch (error) {
     return handleError(error, { path: '/login' })

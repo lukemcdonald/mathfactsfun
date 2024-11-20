@@ -1,1 +1,0 @@
-export { createQuestions } from './createQuestion'

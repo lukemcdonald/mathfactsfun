@@ -11,7 +11,7 @@ import {
 import { captureRemixErrorBoundaryError } from '@sentry/remix'
 
 import { Navbar } from '~/components/layout/navbar'
-import { getUser } from '~/services/auth.server'
+import { getUser } from '~/features/auth/auth.api'
 
 import styles from './assets/globals.css?url'
 

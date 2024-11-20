@@ -11,7 +11,7 @@ export default defineConfig({
   },
   dialect: 'turso',
   out: './app/db/migrations',
-  schema: './app/db/schemas/*',
+  schema: './app/db/schemas',
   strict: true,
   verbose: true,
 }) satisfies Config

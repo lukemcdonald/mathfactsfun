@@ -2,7 +2,6 @@ import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { json, redirect } from '@remix-run/node'
 import { Form, Link, useActionData, useNavigation } from '@remix-run/react'
-import bcrypt from 'bcryptjs'
 import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
@@ -17,8 +16,9 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { db } from '~/db'
-import { createUser, getUserByEmail } from '~/repositories/user'
-import { createUserSession, getUser } from '~/services/auth.server'
+import { createUserSession, getUser } from '~/features/auth/auth.api'
+import { hashPassword } from '~/features/auth/auth.utils'
+import { createUser, getUserByEmail } from '~/features/users'
 import { handleError } from '~/utils/errors'
 
 const signupSchema = z.object({
@@ -60,7 +60,7 @@ export async function action({ request }: { request: Request }) {
       )
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await hashPassword(password)
     const userId = nanoid()
 
     await createUser(db, {

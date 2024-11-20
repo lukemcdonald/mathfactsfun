@@ -5,8 +5,8 @@ import { OperationStats } from '~/components/dashboard/operation-stats'
 import { RecentSessions } from '~/components/dashboard/recent-sessions'
 import { StatsCards } from '~/components/dashboard/stats-cards'
 import { db } from '~/db'
-import { getStudentStats } from '~/repositories/session'
-import { getUser } from '~/services/auth.server'
+import { getStudentStats } from '~/features/sessions'
+import { getUser } from '~/features/auth/auth.api'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)

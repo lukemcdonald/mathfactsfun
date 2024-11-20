@@ -4,7 +4,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Progress } from '~/components/ui/progress'
 import { OPERATION } from '~/constants/operations'
-import { type OperationStats as OperationStatsType } from '~/types/session'
+import { type OperationStats as OperationStatsType } from '~/features/sessions'
 
 interface OperationStatsProps {
   stats: Record<string, OperationStatsType>

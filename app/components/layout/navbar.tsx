@@ -2,7 +2,7 @@ import { Form, Link } from '@remix-run/react'
 import { Calculator } from 'lucide-react'
 
 import { Button } from '~/components/ui/button'
-import { SelectUser } from '~/db/schemas/users'
+import { SelectUser } from '~/features/users'
 
 type NavbarProps = {
   userRole?: SelectUser['role']
