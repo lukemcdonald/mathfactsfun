@@ -1,10 +1,10 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
-import bcrypt from 'bcryptjs'
+import { compare } from 'bcryptjs'
 import invariant from 'tiny-invariant'
 
-import { db } from '~/db'
-import { getUserByEmail, getUserById } from '~/features/users'
-import { getErrorMessage } from '~/utils/errors'
+import { db } from '#app/db'
+import { getUserByEmail, getUserById } from '#app/features/users'
+import { getErrorMessage } from '#app/utils/errors'
 
 const sessionSecret = process.env.SESSION_SECRET
 invariant(sessionSecret, 'SESSION_SECRET must be set')
@@ -34,9 +34,19 @@ export async function createUserSession(userId: string, redirectTo: string) {
   })
 }
 
-export async function getUserSession(request: Request) {
-  const cookie = request.headers.get('Cookie')
-  return storage.getSession(cookie)
+export async function getUser(request: Request) {
+  try {
+    const userId = await getUserId(request)
+    if (!userId) {
+      return null
+    }
+
+    return await getUserById(db, userId)
+  } catch (error) {
+    const logoutResponse = await logout(request)
+    console.error('Error getting user:', getErrorMessage(error))
+    throw logoutResponse
+  }
 }
 
 export async function getUserId(request: Request) {
@@ -48,6 +58,20 @@ export async function getUserId(request: Request) {
   }
 
   return userId
+}
+
+export async function getUserSession(request: Request) {
+  const cookie = request.headers.get('Cookie')
+  return storage.getSession(cookie)
+}
+
+export async function logout(request: Request) {
+  const session = await getUserSession(request)
+  return redirect('/', {
+    headers: {
+      'Set-Cookie': await storage.destroySession(session),
+    },
+  })
 }
 
 export async function requireUserId(
@@ -65,37 +89,13 @@ export async function requireUserId(
   return userId
 }
 
-export async function getUser(request: Request) {
-  try {
-    const userId = await getUserId(request)
-    if (!userId) {
-      return null
-    }
-
-    return await getUserById(db, userId)
-  } catch (error) {
-    const logoutResponse = await logout(request)
-    console.error('Error getting user:', getErrorMessage(error))
-    throw logoutResponse
-  }
-}
-
-export async function logout(request: Request) {
-  const session = await getUserSession(request)
-  return redirect('/', {
-    headers: {
-      'Set-Cookie': await storage.destroySession(session),
-    },
-  })
-}
-
 export async function verifyLogin(email: string, password: string) {
   const user = await getUserByEmail(db, email)
   if (!user) {
     return null
   }
 
-  const isValid = await bcrypt.compare(password, user.hashedPassword)
+  const isValid = await compare(password, user.hashedPassword)
   if (!isValid) {
     return null
   }

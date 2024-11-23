@@ -11,7 +11,7 @@ declare module '@remix-run/node' {
 
 export default defineConfig(({ mode }) => {
   // Load environment variables based on the current mode.
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, process.cwd(), '')
 
   return {
     build: {
@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
           v3_singleFetch: true,
           v3_throwAbortReason: true,
         },
-        ignoredRouteFiles: ['**/.*', '**/*.css'],
+        ignoredRouteFiles: ['**/.*'],
       }),
       tsconfigPaths(),
       sentryVitePlugin({
@@ -36,5 +36,10 @@ export default defineConfig(({ mode }) => {
         telemetry: false,
       }),
     ],
+    resolve: {
+      alias: {
+        '#app': '/app',
+      },
+    },
   }
 })

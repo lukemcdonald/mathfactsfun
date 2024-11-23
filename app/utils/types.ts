@@ -15,4 +15,5 @@ export type Database = LibSQLDatabase<typeof import('app/db/schema')>
 export type EnhancedComponentProps<T extends React.ElementType, P> = Omit<
   React.ComponentPropsWithoutRef<T>,
   keyof P
-> & P
+> &
+  P

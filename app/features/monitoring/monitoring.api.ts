@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/remix'
 
-import { MonitoringContext, MonitoringUser } from '~/features/monitoring/monitoring.types'
+import { MonitoringContext, MonitoringUser } from '#app/features/monitoring/monitoring.types'
 
 /**
  * Captures an exception in Sentry with optional context

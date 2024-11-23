@@ -1,14 +1,9 @@
-import { MetaFunction } from '@remix-run/node'
 import { Brain, Calculator, School, Users } from 'lucide-react'
 
-import { Button } from '~/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card'
+import { MetaFunction } from '@remix-run/node'
+
+import { Button } from '#app/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#app/components/ui/card'
 
 export const meta: MetaFunction = () => {
   return [
@@ -25,9 +20,7 @@ export default function Index() {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <main className="container mx-auto px-4 py-16">
         <div className="mb-16 text-center">
-          <h1 className="mb-4 text-5xl font-bold text-gray-900 dark:text-white">
-            MathFacts.fun
-          </h1>
+          <h1 className="mb-4 text-5xl font-bold text-gray-900 dark:text-white">MathFacts.fun</h1>
           <p className="text-xl text-gray-600 dark:text-gray-300">
             Master math facts through fun and engaging practice!
           </p>
@@ -41,8 +34,8 @@ export default function Index() {
                 Practice Math Facts
               </CardTitle>
               <CardDescription>
-                Master addition, subtraction, multiplication, and division
-                through interactive exercises
+                Master addition, subtraction, multiplication, and division through interactive
+                exercises
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -105,9 +98,7 @@ export default function Index() {
             </div>
             <div className="p-6">
               <Calculator className="mx-auto mb-4 h-12 w-12 text-green-500" />
-              <h3 className="mb-2 text-xl font-semibold">
-                Comprehensive Practice
-              </h3>
+              <h3 className="mb-2 text-xl font-semibold">Comprehensive Practice</h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Cover all basic operations with customizable difficulty levels
               </p>

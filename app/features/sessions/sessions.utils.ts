@@ -1,4 +1,6 @@
-import { SelectSession } from "./sessions.types";
+import { getErrorMessage } from '#app/utils/errors'
+
+import { SelectSession } from './sessions.types'
 
 /**
  * Calculates the average accuracy from a list of sessions.
@@ -7,14 +9,14 @@ import { SelectSession } from "./sessions.types";
  * @returns {number} - The average accuracy as a percentage.
  */
 export function calculateAverageAccuracy(sessions: SelectSession[]) {
-  const totalSessions = sessions.length;
-  if (totalSessions === 0) return 0;
+  const totalSessions = sessions.length
+  if (totalSessions === 0) return 0
 
   const totalAccuracy = sessions.reduce((acc, session) => {
-    return acc + (session.correctAnswers / session.totalQuestions);
-  }, 0);
+    return acc + session.correctAnswers / session.totalQuestions
+  }, 0)
 
-  return Math.round((totalAccuracy / totalSessions) * 100);
+  return Math.round((totalAccuracy / totalSessions) * 100)
 }
 
 /**
@@ -24,26 +26,12 @@ export function calculateAverageAccuracy(sessions: SelectSession[]) {
  * @returns {number} - The average time.
  */
 export function calculateAverageTime(sessions: SelectSession[]) {
-  const totalSessions = sessions.length;
-  if (totalSessions === 0) return 0;
+  const totalSessions = sessions.length
+  if (totalSessions === 0) return 0
 
-  const totalTime = sessions.reduce((acc, session) => acc + session.averageTime, 0);
+  const totalTime = sessions.reduce((acc, session) => acc + session.averageTime, 0)
 
-  return Math.round(totalTime / totalSessions);
-}
-
-import { getErrorMessage } from "~/utils/errors";
-
-/**
- * Converts a timestamp to milliseconds.
- * Assumes timestamps greater than 10 billion are already in milliseconds,
- * otherwise treats them as seconds and converts to milliseconds.
- *
- * @param {number} timestamp - The timestamp to convert.
- * @returns {number} - The timestamp in milliseconds.
- */
-function convertTimestampToMilliseconds(timestamp: number) {
-  return timestamp > 1e10 ? timestamp : timestamp * 1000;
+  return Math.round(totalTime / totalSessions)
 }
 
 /**
@@ -56,7 +44,19 @@ function convertTimestampToMilliseconds(timestamp: number) {
  * @returns {string} - The ISO formatted date string or the default value if the timestamp is null or invalid.
  */
 export function formatDate(timestamp: null | number, defaultValue: string): string {
-  return timestampToISOString(timestamp) || defaultValue;
+  return timestampToISOString(timestamp) || defaultValue
+}
+
+/**
+ * Converts a timestamp to milliseconds.
+ * Assumes timestamps greater than 10 billion are already in milliseconds,
+ * otherwise treats them as seconds and converts to milliseconds.
+ *
+ * @param {number} timestamp - The timestamp to convert.
+ * @returns {number} - The timestamp in milliseconds.
+ */
+function convertTimestampToMilliseconds(timestamp: number) {
+  return timestamp > 1e10 ? timestamp : timestamp * 1000
 }
 
 /**
@@ -69,14 +69,14 @@ export function formatDate(timestamp: null | number, defaultValue: string): stri
  */
 function timestampToISOString(timestamp: null | number): null | string {
   if (!timestamp) {
-    return null;
+    return null
   }
 
   try {
-    const ms = convertTimestampToMilliseconds(timestamp);
-    return new Date(ms).toISOString();
+    const ms = convertTimestampToMilliseconds(timestamp)
+    return new Date(ms).toISOString()
   } catch (error) {
-    console.error('Invalid timestamp:', timestamp, 'Error:', getErrorMessage(error));
-    return null;
+    console.error('Invalid timestamp:', timestamp, 'Error:', getErrorMessage(error))
+    return null
   }
 }

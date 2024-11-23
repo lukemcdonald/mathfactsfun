@@ -1,6 +1,6 @@
 import { Brain, Clock, Target } from 'lucide-react'
 
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 
 interface StatsCardsProps {
   accuracy: number
@@ -8,11 +8,7 @@ interface StatsCardsProps {
   totalSessions: number
 }
 
-export function StatsCards({
-  accuracy,
-  averageTime,
-  totalSessions,
-}: StatsCardsProps) {
+export function StatsCards({ accuracy, averageTime, totalSessions }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       <Card>

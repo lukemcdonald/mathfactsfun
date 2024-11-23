@@ -1,8 +1,8 @@
 import { json } from '@remix-run/node'
 import { ZodError } from 'zod'
 
-import { IS_DEVELOPMENT } from '~/constants'
-import { MonitoringContext } from '~/features/monitoring'
+import { IS_DEVELOPMENT } from '#app/constants'
+import { MonitoringContext } from '#app/features/monitoring'
 
 type ErrorResponse = {
   error: Record<string, string[]>
@@ -17,7 +17,7 @@ export class DatabaseError extends Error {
   constructor(
     message: string,
     public readonly cause?: unknown,
-    public readonly context?: MonitoringContext
+    public readonly context?: MonitoringContext,
   ) {
     super(message)
     this.name = 'DatabaseError'
@@ -49,20 +49,6 @@ export function getErrorMessage(error: unknown): string {
 }
 
 /**
- * Converts Zod field errors to our error response format,
- * ensuring all values are string arrays
- */
-function normalizeZodErrors(fieldErrors: Record<string, string[] | undefined>): Record<string, string[]> {
-  const normalized: Record<string, string[]> = {}
-
-  for (const [key, value] of Object.entries(fieldErrors)) {
-    normalized[key] = value || []
-  }
-
-  return normalized
-}
-
-/**
  * Handles errors in route actions and loaders.
  * Returns appropriate JSON responses with status codes.
  * Note: Global server-side error reporting is handled by Sentry's error boundary
@@ -73,11 +59,13 @@ export function handleError(error: unknown, context?: MonitoringContext): Respon
   }
 
   const response: ErrorResponse = {
-    error: { '': ['An unexpected error occurred. Please try again later.'] }
+    error: { '': ['An unexpected error occurred. Please try again later.'] },
   }
 
   if (error instanceof DatabaseError) {
-    response.error = { '': ['A database error occurred. Please try again later.'] }
+    response.error = {
+      '': ['A database error occurred. Please try again later.'],
+    }
     return json(response, { status: 500 })
   }
 
@@ -87,4 +75,20 @@ export function handleError(error: unknown, context?: MonitoringContext): Respon
   }
 
   return json(response, { status: 500 })
+}
+
+/**
+ * Converts Zod field errors to our error response format,
+ * ensuring all values are string arrays
+ */
+function normalizeZodErrors(
+  fieldErrors: Record<string, string[] | undefined>,
+): Record<string, string[]> {
+  const normalized: Record<string, string[]> = {}
+
+  for (const [key, value] of Object.entries(fieldErrors)) {
+    normalized[key] = value || []
+  }
+
+  return normalized
 }

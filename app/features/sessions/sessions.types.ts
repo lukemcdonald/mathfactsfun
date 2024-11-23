@@ -1,17 +1,15 @@
-import { InferInsertModel, InferSelectModel } from "drizzle-orm"
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 
-import { QuestionResult } from '~/features/questions'
+import { QuestionResult } from '#app/features/questions'
 
-import { sessions } from "./sessions.db"
+import { sessions } from './sessions.db'
 
+export type CreateSessionData = Omit<InsertSession, 'completedAt' | 'id' | 'startedAt'> & {
+  questionResults: QuestionResult[]
+}
 export type InsertSession = InferInsertModel<typeof sessions>
-export type SelectSession = InferSelectModel<typeof sessions>
 
-export type CreateSessionData = {
-  questionResults: QuestionResult[];
-} & Omit<InsertSession, 'completedAt' | 'id' | 'startedAt'>
-
-export type Operation = SelectSession['operation'];
+export type Operation = SelectSession['operation']
 
 export type OperationStats = {
   accuracy: number
@@ -19,10 +17,12 @@ export type OperationStats = {
   totalSessions: number
 }
 
-export type SerializedSession = {
+export type SelectSession = InferSelectModel<typeof sessions>
+
+export type SerializedSession = Omit<SelectSession, 'completedAt' | 'startedAt'> & {
   completedAt: null | string
   startedAt: string
-} & Omit<SelectSession, 'completedAt' | 'startedAt'>
+}
 
 export type SessionStats = {
   byOperation: Record<string, OperationStats>

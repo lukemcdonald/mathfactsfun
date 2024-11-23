@@ -1,18 +1,15 @@
 import { getInputProps, useForm } from '@conform-to/react'
+import { Form, useActionData, useNavigation } from '@remix-run/react'
+
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { json, redirect } from '@remix-run/node'
-import { Form, useActionData, useNavigation } from '@remix-run/react'
 import { z } from 'zod'
 
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import {
-  createUserSession,
-  getUser,
-  verifyLogin,
-} from '~/features/auth/auth.api'
-import { handleError } from '~/utils/errors'
+import { Button } from '#app/components/ui/button'
+import { Input } from '#app/components/ui/input'
+import { Label } from '#app/components/ui/label'
+import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.api'
+import { handleError } from '#app/utils/errors'
 
 // TODO: Split these out into separate ZOD objects to be imported. See epic stack
 const loginSchema = z.object({
@@ -20,14 +17,6 @@ const loginSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
   redirectTo: z.string().default('/'),
 })
-
-export async function loader({ request }: { request: Request }) {
-  const user = await getUser(request)
-  if (user) {
-    return redirect(`/dashboard/${user.role}`)
-  }
-  return json({})
-}
 
 export async function action({ request }: { request: Request }) {
   try {
@@ -56,6 +45,14 @@ export async function action({ request }: { request: Request }) {
   } catch (error) {
     return handleError(error, { path: '/login' })
   }
+}
+
+export async function loader({ request }: { request: Request }) {
+  const user = await getUser(request)
+  if (user) {
+    return redirect(`/dashboard/${user.role}`)
+  }
+  return json({})
 }
 
 export default function Login() {
@@ -97,9 +94,7 @@ export default function Login() {
                 type="email"
               />
               {fields.email.errors && (
-                <p className="mt-1 text-sm text-red-600">
-                  {fields.email.errors}
-                </p>
+                <p className="mt-1 text-sm text-red-600">{fields.email.errors}</p>
               )}
             </div>
 
@@ -111,16 +106,12 @@ export default function Login() {
                 type="password"
               />
               {fields.password.errors && (
-                <p className="mt-1 text-sm text-red-600">
-                  {fields.password.errors}
-                </p>
+                <p className="mt-1 text-sm text-red-600">{fields.password.errors}</p>
               )}
             </div>
           </div>
 
-          {form.errors && (
-            <div className="text-sm text-red-600">{form.errors}</div>
-          )}
+          {form.errors && <div className="text-sm text-red-600">{form.errors}</div>}
 
           <div>
             <Button

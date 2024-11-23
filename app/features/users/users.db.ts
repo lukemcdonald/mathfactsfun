@@ -1,7 +1,7 @@
 import { relations, sql } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-import { groupMembers } from '~/db/schema'
+import { groupMembers } from '#app/db/schema'
 
 export const users = sqliteTable('users', {
   createdAt: integer('created_at', { mode: 'timestamp' })

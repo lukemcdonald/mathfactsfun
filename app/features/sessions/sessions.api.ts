@@ -1,12 +1,17 @@
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 
-import { OPERATIONS } from '~/constants/operations';
-import { CreateSessionData, OperationStats, SerializedSession, SessionStats } from '~/features/sessions/sessions.types';
-import { Database } from '~/utils/types'
+import { OPERATIONS } from '#app/constants/operations'
+import {
+  CreateSessionData,
+  OperationStats,
+  SerializedSession,
+  SessionStats,
+} from '#app/features/sessions/sessions.types'
+import { Database } from '#app/utils/types'
 
-import { sessions } from './sessions.db';
-import { calculateAverageAccuracy, calculateAverageTime, formatDate } from './sessions.utils';
+import { sessions } from './sessions.db'
+import { calculateAverageAccuracy, calculateAverageTime, formatDate } from './sessions.utils'
 
 export async function createSession(db: Database, data: CreateSessionData) {
   const sessionId = nanoid()
@@ -36,15 +41,15 @@ export async function getRecentSessionsByUserId(
     where: eq(sessions.userId, userId),
   })
 
-  return results.map(session => ({
+  return results.map((session) => ({
     ...session,
     completedAt: formatDate(
       typeof session.completedAt === 'number' ? session.completedAt : null,
-      new Date().toISOString()
+      new Date().toISOString(),
     ),
     startedAt: formatDate(
       typeof session.startedAt === 'number' ? session.startedAt : null,
-      new Date().toISOString()
+      new Date().toISOString(),
     ),
   }))
 }
@@ -52,52 +57,52 @@ export async function getRecentSessionsByUserId(
 export async function getStudentProgress(db: Database, userId: string) {
   const allSessions = await db.query.sessions.findMany({
     where: eq(sessions.userId, userId),
-  });
+  })
 
-  const recentSessions = await getRecentSessionsByUserId(db, userId, 5);
-  const totalSessions = allSessions.length;
+  const recentSessions = await getRecentSessionsByUserId(db, userId, 5)
+  const totalSessions = allSessions.length
 
-  const averageAccuracy = calculateAverageAccuracy(allSessions);
-  const averageTime = calculateAverageTime(allSessions);
+  const averageAccuracy = calculateAverageAccuracy(allSessions)
+  const averageTime = calculateAverageTime(allSessions)
 
   return {
     averageAccuracy,
     averageTime,
     recentSessions,
     totalSessions,
-  };
+  }
 }
 
 export async function getStudentStats(db: Database, userId: string): Promise<SessionStats> {
   const allSessions = await db.query.sessions.findMany({
     where: eq(sessions.userId, userId),
-  });
+  })
 
-  const recentSessions = await getRecentSessionsByUserId(db, userId);
+  const recentSessions = await getRecentSessionsByUserId(db, userId)
 
   // Initialize stats for each operation
-  const byOperation: Record<string, OperationStats> = {};
+  const byOperation: Record<string, OperationStats> = {}
 
   OPERATIONS.forEach((op) => {
-    const opSessions = allSessions.filter((s) => s.operation === op);
+    const opSessions = allSessions.filter((s) => s.operation === op)
 
     byOperation[op] = {
       accuracy: calculateAverageAccuracy(opSessions),
       averageTime: calculateAverageTime(opSessions),
       totalSessions: opSessions.length,
-    };
-  });
+    }
+  })
 
   // Calculate overall stats
   const overall = {
     accuracy: calculateAverageAccuracy(allSessions),
     averageTime: calculateAverageTime(allSessions),
     totalSessions: allSessions.length,
-  };
+  }
 
   return {
     byOperation,
     overall,
     recentSessions,
-  };
+  }
 }

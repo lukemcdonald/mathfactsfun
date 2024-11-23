@@ -1,4 +1,3 @@
-import { json, LinksFunction } from '@remix-run/node'
 import {
   Links,
   Meta,
@@ -8,42 +7,19 @@ import {
   useLoaderData,
   useRouteError,
 } from '@remix-run/react'
+
+import { json, LinksFunction } from '@remix-run/node'
 import { captureRemixErrorBoundaryError } from '@sentry/remix'
 
-import { Navbar } from '~/components/layout/navbar'
-import { getUser } from '~/features/auth/auth.api'
+import { Navbar } from '#app/components/layout/navbar'
+import { getUser } from '#app/features/auth/auth.api'
 
 import styles from './assets/globals.css?url'
 
 export const links: LinksFunction = () => [{ href: styles, rel: 'stylesheet' }]
 
-export async function loader({ request }: { request: Request }) {
-  const user = await getUser(request)
-  return json({ user })
-}
-
-export function Layout({ children }: { children: React.ReactNode }) {
-  const { user } = useLoaderData<typeof loader>() ?? {}
-
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta
-          content="width=device-width, initial-scale=1"
-          name="viewport"
-        />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Navbar userRole={user?.role} />
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
-  )
+export default function App() {
+  return <Outlet />
 }
 
 export function ErrorBoundary() {
@@ -75,6 +51,31 @@ export function ErrorBoundary() {
   )
 }
 
-export default function App() {
-  return <Outlet />
+export function Layout({ children }: { children: React.ReactNode }) {
+  const { user } = useLoaderData<typeof loader>() ?? {}
+
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta
+          content="width=device-width, initial-scale=1"
+          name="viewport"
+        />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Navbar userRole={user?.role} />
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+
+export async function loader({ request }: { request: Request }) {
+  const user = await getUser(request)
+  return json({ user })
 }

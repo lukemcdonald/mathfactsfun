@@ -1,5 +1,5 @@
-import bcrypt from 'bcryptjs'
+import { hash } from 'bcryptjs'
 
 export async function hashPassword(password: string) {
-  return bcrypt.hash(password, 10)
+  return hash(password, 10)
 }

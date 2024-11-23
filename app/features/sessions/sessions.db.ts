@@ -1,8 +1,8 @@
 import { relations, sql } from 'drizzle-orm'
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-import { OPERATIONS } from '~/constants/operations'
-import { users } from '~/db/schema'
+import { OPERATIONS } from '#app/constants/operations'
+import { users } from '#app/db/schema'
 
 export const sessions = sqliteTable('sessions', {
   averageTime: real('average_time').notNull(),
@@ -10,8 +10,7 @@ export const sessions = sqliteTable('sessions', {
   correctAnswers: integer('correct_answers').notNull(),
   id: text('id').primaryKey(),
   level: integer('level').notNull(),
-  operation: text('operation', { enum: OPERATIONS })
-    .notNull(),
+  operation: text('operation', { enum: OPERATIONS }).notNull(),
   startedAt: integer('started_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),

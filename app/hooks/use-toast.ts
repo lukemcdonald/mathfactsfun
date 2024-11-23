@@ -1,16 +1,16 @@
 import * as React from 'react'
 
-import type { ToastActionElement, ToastProps } from '~/components/ui/toast'
+import type { ToastActionElement, ToastProps } from '#app/components/ui/toast'
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
-type ToasterToast = {
+type ToasterToast = ToastProps & {
   action?: ToastActionElement
   description?: React.ReactNode
   id: string
   title?: React.ReactNode
-} & ToastProps
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const actionTypes = {
@@ -21,13 +21,6 @@ const actionTypes = {
 } as const
 
 let count = 0
-
-function genId() {
-  count = (count + 1) % Number.MAX_SAFE_INTEGER
-  return count.toString()
-}
-
-type ActionType = typeof actionTypes
 
 type Action =
   | {
@@ -47,8 +40,15 @@ type Action =
       type: ActionType['REMOVE_TOAST']
     }
 
+type ActionType = typeof actionTypes
+
 interface State {
   toasts: ToasterToast[]
+}
+
+function genId() {
+  count = (count + 1) % Number.MAX_SAFE_INTEGER
+  return count.toString()
 }
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
@@ -117,9 +117,7 @@ export const reducer = (state: State, action: Action): State => {
     case 'UPDATE_TOAST':
       return {
         ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t,
-        ),
+        toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
       }
   }
 }
@@ -128,14 +126,14 @@ const listeners: Array<(state: State) => void> = []
 
 let memoryState: State = { toasts: [] }
 
+type Toast = Omit<ToasterToast, 'id'>
+
 function dispatch(action: Action) {
   memoryState = reducer(memoryState, action)
   listeners.forEach((listener) => {
     listener(memoryState)
   })
 }
-
-type Toast = Omit<ToasterToast, 'id'>
 
 function toast({ ...props }: Toast) {
   const id = genId()

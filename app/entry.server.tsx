@@ -4,14 +4,15 @@
  * For more information, see https://remix.run/file-conventions/entry.server
  */
 
+import { RemixServer } from '@remix-run/react'
+import { renderToPipeableStream } from 'react-dom/server'
+
 import type { AppLoadContext, EntryContext } from '@remix-run/node'
 
 import { createReadableStreamFromReadable } from '@remix-run/node'
-import { RemixServer } from '@remix-run/react'
 import * as Sentry from '@sentry/remix'
 import { isbot } from 'isbot'
 import { PassThrough } from 'node:stream'
-import { renderToPipeableStream } from 'react-dom/server'
 
 const ABORT_DELAY = 5_000
 
@@ -52,18 +53,8 @@ export default function handleRequest(
   loadContext: AppLoadContext,
 ) {
   return isbot(request.headers.get('user-agent') || '') ?
-      handleBotRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext,
-      )
-    : handleBrowserRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext,
-      )
+      handleBotRequest(request, responseStatusCode, responseHeaders, remixContext)
+    : handleBrowserRequest(request, responseStatusCode, responseHeaders, remixContext)
 }
 
 function handleBotRequest(

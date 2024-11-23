@@ -1,4 +1,3 @@
-
 export type MonitoringContext = {
   [key: string]: unknown
 }

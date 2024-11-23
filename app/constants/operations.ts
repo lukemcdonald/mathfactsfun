@@ -41,4 +41,4 @@ export const OPERATIONS = [
   OPERATION.division.value,
   OPERATION.multiplication.value,
   OPERATION.subtraction.value,
-] as const;
+] as const

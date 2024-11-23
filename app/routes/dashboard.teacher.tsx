@@ -1,56 +1,26 @@
-import { json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { BookOpen, TrendingUp, Users } from 'lucide-react'
-import { nanoid } from 'nanoid'
 import { useState } from 'react'
 
-import { AddStudentDialog } from '~/components/dashboard/add-student-dialog'
-import { CreateGroupDialog } from '~/components/dashboard/create-group-dialog'
-import { ViewProgressDialog } from '~/components/dashboard/view-progress-dialog'
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { db } from '~/db'
+import { json, redirect } from '@remix-run/node'
+import { nanoid } from 'nanoid'
+
+import { AddStudentDialog } from '#app/components/dashboard/add-student-dialog'
+import { CreateGroupDialog } from '#app/components/dashboard/create-group-dialog'
+import { ViewProgressDialog } from '#app/components/dashboard/view-progress-dialog'
+import { Button } from '#app/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
+import { db } from '#app/db'
+// import { useToast } from '#app/hooks/use-toast'
+import { getUser } from '#app/features/auth/auth.api'
 import {
   addGroupMember,
   createGroup,
   getGroupMember,
   getGroupsByTeacherId,
-} from '~/features/groups'
-import { getStudentProgress } from '~/features/sessions'
-import { getUserByEmail } from '~/features/users'
-// import { useToast } from '~/hooks/use-toast'
-import { getUser } from '~/features/auth/auth.api'
-
-export async function loader({ request }: { request: Request }) {
-  const user = await getUser(request)
-
-  if (!user) {
-    return redirect('/login')
-  }
-
-  if (user.role !== 'teacher') {
-    return redirect('/dashboard/student')
-  }
-
-  const teacherGroups = await getGroupsByTeacherId(db, user.id)
-
-  // Get progress for all students in all groups
-  const studentsProgress = new Map()
-
-  for (const group of teacherGroups) {
-    for (const member of group.groupMembers) {
-      if (!studentsProgress.has(member.student.id)) {
-        const progress = await getStudentProgress(db, member.student.id)
-        studentsProgress.set(member.student.id, progress)
-      }
-    }
-  }
-
-  return json({
-    groups: teacherGroups,
-    studentsProgress: Object.fromEntries(studentsProgress),
-  })
-}
+} from '#app/features/groups'
+import { getStudentProgress } from '#app/features/sessions'
+import { getUserByEmail } from '#app/features/users'
 
 export async function action({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -89,10 +59,7 @@ export async function action({ request }: { request: Request }) {
     const student = await getUserByEmail(db, studentEmail)
 
     if (!student) {
-      return json(
-        { error: 'No student found with this email' },
-        { status: 404 },
-      )
+      return json({ error: 'No student found with this email' }, { status: 404 })
     }
 
     if (student.role !== 'student') {
@@ -103,10 +70,7 @@ export async function action({ request }: { request: Request }) {
     const existingMember = await getGroupMember(db, groupId, student.id)
 
     if (existingMember) {
-      return json(
-        { error: 'Student is already in this group' },
-        { status: 400 },
-      )
+      return json({ error: 'Student is already in this group' }, { status: 400 })
     }
 
     // Add student to group
@@ -120,14 +84,45 @@ export async function action({ request }: { request: Request }) {
   return redirect('/dashboard/teacher')
 }
 
+export async function loader({ request }: { request: Request }) {
+  const user = await getUser(request)
+
+  if (!user) {
+    return redirect('/login')
+  }
+
+  if (user.role !== 'teacher') {
+    return redirect('/dashboard/student')
+  }
+
+  const teacherGroups = await getGroupsByTeacherId(db, user.id)
+
+  // Get progress for all students in all groups
+  const studentsProgress = new Map()
+
+  for (const group of teacherGroups) {
+    for (const member of group.groupMembers) {
+      if (!studentsProgress.has(member.student.id)) {
+        const progress = await getStudentProgress(db, member.student.id)
+        studentsProgress.set(member.student.id, progress)
+      }
+    }
+  }
+
+  return json({
+    groups: teacherGroups,
+    studentsProgress: Object.fromEntries(studentsProgress),
+  })
+}
+
 export default function TeacherDashboard() {
   const { groups, studentsProgress } = useLoaderData<typeof loader>()
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<null | string>(null)
-  const [selectedStudent, setSelectedStudent] = useState<{
+  const [selectedStudent, setSelectedStudent] = useState<null | {
     id: string
     name: string
-  } | null>(null)
+  }>(null)
   // const { toast } = useToast()
 
   const handleAddStudent = (groupId: string) => {
@@ -142,9 +137,7 @@ export default function TeacherDashboard() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
-        <Button onClick={() => setIsCreateGroupOpen(true)}>
-          Create New Group
-        </Button>
+        <Button onClick={() => setIsCreateGroupOpen(true)}>Create New Group</Button>
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -169,10 +162,7 @@ export default function TeacherDashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {groups.reduce(
-                (acc, group) => acc + group.groupMembers.length,
-                0,
-              )}
+              {groups.reduce((acc, group) => acc + group.groupMembers.length, 0)}
             </p>
           </CardContent>
         </Card>
@@ -206,9 +196,7 @@ export default function TeacherDashboard() {
               <div className="space-y-4">
                 <h4 className="font-semibold">Students</h4>
                 {group.groupMembers.length === 0 ?
-                  <p className="text-sm text-gray-500">
-                    No students in this group yet
-                  </p>
+                  <p className="text-sm text-gray-500">No students in this group yet</p>
                 : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {group.groupMembers.map((member) => (
                       <div
@@ -217,17 +205,10 @@ export default function TeacherDashboard() {
                       >
                         <div>
                           <p className="font-medium">{member.student.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {member.student.email}
-                          </p>
+                          <p className="text-sm text-gray-500">{member.student.email}</p>
                         </div>
                         <Button
-                          onClick={() =>
-                            handleViewProgress(
-                              member.student.id,
-                              member.student.name,
-                            )
-                          }
+                          onClick={() => handleViewProgress(member.student.id, member.student.name)}
                           size="sm"
                           variant="outline"
                         >

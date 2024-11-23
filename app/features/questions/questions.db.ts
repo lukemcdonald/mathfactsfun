@@ -1,8 +1,8 @@
 import { relations, sql } from 'drizzle-orm'
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-import { OPERATIONS } from '~/constants/operations'
-import { sessions } from '~/db/schema'
+import { OPERATIONS } from '#app/constants/operations'
+import { sessions } from '#app/db/schema'
 
 export const questions = sqliteTable('questions', {
   correct: integer('correct', { mode: 'boolean' }),
@@ -12,8 +12,7 @@ export const questions = sqliteTable('questions', {
   id: text('id').primaryKey(),
   num1: integer('num1').notNull(),
   num2: integer('num2').notNull(),
-  operation: text('operation', { enum: OPERATIONS })
-    .notNull(),
+  operation: text('operation', { enum: OPERATIONS }).notNull(),
   sessionId: text('session_id')
     .notNull()
     .references(() => sessions.id, { onDelete: 'cascade' }),

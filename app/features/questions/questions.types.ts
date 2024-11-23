@@ -1,12 +1,10 @@
-import { InferInsertModel, InferSelectModel } from "drizzle-orm"
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 
-import { Operation } from "~/features/sessions"
+import { Operation } from '#app/features/sessions'
 
-import { questions } from "./questions.db"
+import { questions } from './questions.db'
 
 export type InsertQuestion = InferInsertModel<typeof questions>
-export type SelectQuestion = InferSelectModel<typeof questions>
-
 export interface Question {
   answer: number
   num1: number
@@ -23,3 +21,5 @@ export type QuestionResult = {
   timeSpent: number
   userAnswer: number
 }
+
+export type SelectQuestion = InferSelectModel<typeof questions>

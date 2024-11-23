@@ -1,13 +1,8 @@
 import { Clock, Target, TrendingUp } from 'lucide-react'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog'
-import { Progress } from '~/components/ui/progress'
-import { SerializedSession } from '~/features/sessions'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/components/ui/dialog'
+import { Progress } from '#app/components/ui/progress'
+import { SerializedSession } from '#app/features/sessions'
 
 interface ViewProgressDialogProps {
   onOpenChange: (open: boolean) => void
@@ -42,12 +37,8 @@ export function ViewProgressDialog({
             <div className="flex items-center gap-2 rounded-lg border p-4">
               <Target className="h-5 w-5 text-blue-500" />
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Average Accuracy
-                </p>
-                <p className="text-2xl font-bold">
-                  {studentProgress.averageAccuracy}%
-                </p>
+                <p className="text-sm text-muted-foreground">Average Accuracy</p>
+                <p className="text-2xl font-bold">{studentProgress.averageAccuracy}%</p>
               </div>
             </div>
 
@@ -55,9 +46,7 @@ export function ViewProgressDialog({
               <Clock className="h-5 w-5 text-green-500" />
               <div>
                 <p className="text-sm text-muted-foreground">Average Time</p>
-                <p className="text-2xl font-bold">
-                  {studentProgress.averageTime}s
-                </p>
+                <p className="text-2xl font-bold">{studentProgress.averageTime}s</p>
               </div>
             </div>
 
@@ -65,9 +54,7 @@ export function ViewProgressDialog({
               <TrendingUp className="h-5 w-5 text-purple-500" />
               <div>
                 <p className="text-sm text-muted-foreground">Total Sessions</p>
-                <p className="text-2xl font-bold">
-                  {studentProgress.totalSessions}
-                </p>
+                <p className="text-2xl font-bold">{studentProgress.totalSessions}</p>
               </div>
             </div>
           </div>
@@ -80,30 +67,20 @@ export function ViewProgressDialog({
                 key={session.id}
               >
                 <div className="flex items-center justify-between">
-                  <p className="font-medium capitalize">
-                    {session.operation} Practice
-                  </p>
+                  <p className="font-medium capitalize">{session.operation} Practice</p>
                   <p className="text-sm text-muted-foreground">
                     {new Date(session.startedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
                   <p className="text-sm text-muted-foreground">
-                    Accuracy:{' '}
-                    {Math.round(
-                      (session.correctAnswers / session.totalQuestions) * 100,
-                    )}
-                    %
+                    Accuracy: {Math.round((session.correctAnswers / session.totalQuestions) * 100)}%
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    Time: {session.averageTime}s
-                  </p>
+                  <p className="text-sm text-muted-foreground">Time: {session.averageTime}s</p>
                 </div>
                 <Progress
                   className="h-2"
-                  value={
-                    (session.correctAnswers / session.totalQuestions) * 100
-                  }
+                  value={(session.correctAnswers / session.totalQuestions) * 100}
                 />
               </div>
             ))}

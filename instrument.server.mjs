@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/remix';
+import * as Sentry from '@sentry/remix'
 
 Sentry.init({
   // To use Sentry OpenTelemetry auto-instrumentation
@@ -11,12 +11,12 @@ Sentry.init({
     key_y: true,
   },
 
-  dsn: "https://006e2f63e7d84cbd8d313f40c2d532ca@o4504369029120000.ingest.us.sentry.io/4508314099777536",
+  dsn: 'https://006e2f63e7d84cbd8d313f40c2d532ca@o4504369029120000.ingest.us.sentry.io/4508314099777536',
 
   // To capture action formData attributes.
   sendDefaultPii: true,
 
   // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
   // Consider adjusting this value in production
-  tracesSampleRate: 1.0
-});
+  tracesSampleRate: 1.0,
+})

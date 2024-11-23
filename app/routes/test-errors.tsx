@@ -1,18 +1,15 @@
-import { json } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
+
+import { json } from '@remix-run/node'
 import { z } from 'zod'
 
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { DatabaseError, handleError } from '~/utils/errors'
+import { Button } from '#app/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
+import { DatabaseError, handleError } from '#app/utils/errors'
 
 const testSchema = z.object({
   name: z.string().min(3),
 })
-
-export async function loader() {
-  return json({ timestamp: Date.now() })
-}
 
 export async function action({ request }: { request: Request }) {
   const formData = await request.formData()
@@ -20,9 +17,7 @@ export async function action({ request }: { request: Request }) {
 
   switch (type) {
     case 'async': {
-      await new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Test async error')), 100),
-      )
+      await new Promise((_, reject) => setTimeout(() => reject(new Error('Test async error')), 100))
       break
     }
 
@@ -46,6 +41,10 @@ export async function action({ request }: { request: Request }) {
   }
 
   return json({ success: true })
+}
+
+export async function loader() {
+  return json({ timestamp: Date.now() })
 }
 
 export default function TestErrors() {
@@ -161,18 +160,9 @@ export default function TestErrors() {
             </a>
           </li>
           <li>Click each button above to trigger different types of errors</li>
-          <li>
-            Verify that errors appear in Sentry with proper context and stack
-            traces
-          </li>
-          <li>
-            Check that validation errors are handled locally and not sent to
-            Sentry
-          </li>
-          <li>
-            Confirm that database errors trigger the appropriate error handling
-            flow
-          </li>
+          <li>Verify that errors appear in Sentry with proper context and stack traces</li>
+          <li>Check that validation errors are handled locally and not sent to Sentry</li>
+          <li>Confirm that database errors trigger the appropriate error handling flow</li>
         </ol>
       </div>
     </div>

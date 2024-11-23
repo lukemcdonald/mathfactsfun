@@ -1,25 +1,26 @@
 import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
+import { Form, Link, useActionData, useNavigation } from '@remix-run/react'
+
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { json, redirect } from '@remix-run/node'
-import { Form, Link, useActionData, useNavigation } from '@remix-run/react'
 import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
+import { Button } from '#app/components/ui/button'
+import { Input } from '#app/components/ui/input'
+import { Label } from '#app/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '~/components/ui/select'
-import { db } from '~/db'
-import { createUserSession, getUser } from '~/features/auth/auth.api'
-import { hashPassword } from '~/features/auth/auth.utils'
-import { createUser, getUserByEmail } from '~/features/users'
-import { handleError } from '~/utils/errors'
+} from '#app/components/ui/select'
+import { db } from '#app/db'
+import { createUserSession, getUser } from '#app/features/auth/auth.api'
+import { hashPassword } from '#app/features/auth/auth.utils'
+import { createUser, getUserByEmail } from '#app/features/users'
+import { handleError } from '#app/utils/errors'
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -29,14 +30,6 @@ const signupSchema = z.object({
     required_error: 'Please select a role',
   }),
 })
-
-export async function loader({ request }: { request: Request }) {
-  const user = await getUser(request)
-  if (user) {
-    return redirect(`/dashboard/${user.role}`)
-  }
-  return json({})
-}
 
 export async function action({ request }: { request: Request }) {
   try {
@@ -75,6 +68,14 @@ export async function action({ request }: { request: Request }) {
   } catch (error) {
     return handleError(error, { path: '/signup' })
   }
+}
+
+export async function loader({ request }: { request: Request }) {
+  const user = await getUser(request)
+  if (user) {
+    return redirect(`/dashboard/${user.role}`)
+  }
+  return json({})
 }
 
 export default function Signup() {
@@ -133,9 +134,7 @@ export default function Signup() {
                 type="text"
               />
               {fields.name.errors && (
-                <p className="mt-1 text-sm text-red-600">
-                  {fields.name.errors}
-                </p>
+                <p className="mt-1 text-sm text-red-600">{fields.name.errors}</p>
               )}
             </div>
 
@@ -147,9 +146,7 @@ export default function Signup() {
                 type="email"
               />
               {fields.email.errors && (
-                <p className="mt-1 text-sm text-red-600">
-                  {fields.email.errors}
-                </p>
+                <p className="mt-1 text-sm text-red-600">{fields.email.errors}</p>
               )}
             </div>
 
@@ -161,9 +158,7 @@ export default function Signup() {
                 type="password"
               />
               {fields.password.errors && (
-                <p className="mt-1 text-sm text-red-600">
-                  {fields.password.errors}
-                </p>
+                <p className="mt-1 text-sm text-red-600">{fields.password.errors}</p>
               )}
             </div>
 
@@ -182,9 +177,7 @@ export default function Signup() {
                 </SelectContent>
               </Select>
               {fields.role.errors && (
-                <p className="mt-1 text-sm text-red-600">
-                  {fields.role.errors}
-                </p>
+                <p className="mt-1 text-sm text-red-600">{fields.role.errors}</p>
               )}
             </div>
           </div>

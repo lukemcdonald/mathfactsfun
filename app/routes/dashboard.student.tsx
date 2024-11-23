@@ -1,12 +1,13 @@
-import { json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import { OperationStats } from '~/components/dashboard/operation-stats'
-import { RecentSessions } from '~/components/dashboard/recent-sessions'
-import { StatsCards } from '~/components/dashboard/stats-cards'
-import { db } from '~/db'
-import { getStudentStats } from '~/features/sessions'
-import { getUser } from '~/features/auth/auth.api'
+import { json, redirect } from '@remix-run/node'
+
+import { OperationStats } from '#app/components/dashboard/operation-stats'
+import { RecentSessions } from '#app/components/dashboard/recent-sessions'
+import { StatsCards } from '#app/components/dashboard/stats-cards'
+import { db } from '#app/db'
+import { getUser } from '#app/features/auth/auth.api'
+import { getStudentStats } from '#app/features/sessions'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)

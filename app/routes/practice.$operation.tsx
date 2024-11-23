@@ -1,15 +1,10 @@
-import { json, redirect } from '@remix-run/node'
-import {
-  Form,
-  Link,
-  useLoaderData,
-  useNavigate,
-  useSubmit,
-} from '@remix-run/react'
+import { Form, Link, useLoaderData, useNavigate, useSubmit } from '@remix-run/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { json, redirect } from '@remix-run/node'
+
+import { Button } from '#app/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -17,39 +12,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '~/components/ui/dialog'
-import { Input } from '~/components/ui/input'
-import { Progress } from '~/components/ui/progress'
-import { db } from '~/db'
-import { getUser } from '~/features/auth/auth.api'
-import { createQuestions, Question, QuestionResult } from '~/features/questions'
-import { createSession, Operation } from '~/features/sessions'
-
-export async function loader({
-  params,
-  request,
-}: {
-  params: { operation: Operation }
-  request: Request
-}) {
-  const user = await getUser(request)
-
-  if (!user) {
-    return redirect('/login')
-  }
-
-  const validOperations = [
-    'addition',
-    'subtraction',
-    'multiplication',
-    'division',
-  ]
-  if (!validOperations.includes(params.operation)) {
-    return redirect('/dashboard/student')
-  }
-
-  return json({ operation: params.operation, userId: user.id })
-}
+} from '#app/components/ui/dialog'
+import { Input } from '#app/components/ui/input'
+import { Progress } from '#app/components/ui/progress'
+import { db } from '#app/db'
+import { getUser } from '#app/features/auth/auth.api'
+import { createQuestions, Question, QuestionResult } from '#app/features/questions'
+import { createSession, Operation } from '#app/features/sessions'
 
 export async function action({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -68,13 +37,8 @@ export async function action({ request }: { request: Request }) {
       return json({ error: 'Invalid session data' }, { status: 400 })
     }
 
-    const {
-      averageTime,
-      correctAnswers,
-      operation,
-      questionResults,
-      totalQuestions,
-    } = JSON.parse(sessionData)
+    const { averageTime, correctAnswers, operation, questionResults, totalQuestions } =
+      JSON.parse(sessionData)
 
     // Create session and get its ID
     const sessionId = await createSession(db, {
@@ -95,6 +59,27 @@ export async function action({ request }: { request: Request }) {
   }
 
   return null
+}
+
+export async function loader({
+  params,
+  request,
+}: {
+  params: { operation: Operation }
+  request: Request
+}) {
+  const user = await getUser(request)
+
+  if (!user) {
+    return redirect('/login')
+  }
+
+  const validOperations = ['addition', 'subtraction', 'multiplication', 'division']
+  if (!validOperations.includes(params.operation)) {
+    return redirect('/dashboard/student')
+  }
+
+  return json({ operation: params.operation, userId: user.id })
 }
 
 export default function Practice() {
@@ -174,8 +159,7 @@ export default function Practice() {
   const handleCancel = () => {
     const avgTime =
       questionResults.length > 0 ?
-        questionResults.reduce((acc, q) => acc + q.timeSpent, 0) /
-        questionResults.length
+        questionResults.reduce((acc, q) => acc + q.timeSpent, 0) / questionResults.length
       : 0
 
     const sessionData = {
@@ -237,8 +221,7 @@ export default function Practice() {
     } else {
       // Calculate session statistics
       const avgTime =
-        questionResults.reduce((acc, q) => acc + q.timeSpent, 0) /
-        (questionResults.length + 1)
+        questionResults.reduce((acc, q) => acc + q.timeSpent, 0) / (questionResults.length + 1)
       setAverageTime(avgTime)
 
       const sessionData = {
@@ -319,8 +302,7 @@ export default function Practice() {
             <CardContent className="pt-6">
               <div className="mb-8 text-center">
                 <p className="mb-4 text-4xl font-bold">
-                  {currentQuestion?.num1} {getOperationSymbol()}{' '}
-                  {currentQuestion?.num2} = ?
+                  {currentQuestion?.num1} {getOperationSymbol()} {currentQuestion?.num2} = ?
                 </p>
               </div>
 
@@ -354,28 +336,18 @@ export default function Practice() {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-lg border p-4 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    Correct Answers
-                  </p>
-                  <p className="mt-1 text-3xl font-bold text-green-600">
-                    {correctAnswers.length}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Correct Answers</p>
+                  <p className="mt-1 text-3xl font-bold text-green-600">{correctAnswers.length}</p>
                 </div>
                 <div className="rounded-lg border p-4 text-center">
                   <p className="text-sm text-muted-foreground">Wrong Answers</p>
-                  <p className="mt-1 text-3xl font-bold text-red-600">
-                    {wrongAnswers.length}
-                  </p>
+                  <p className="mt-1 text-3xl font-bold text-red-600">{wrongAnswers.length}</p>
                 </div>
               </div>
 
               <div className="rounded-lg border p-4 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Average Time per Question
-                </p>
-                <p className="mt-1 text-3xl font-bold">
-                  {Math.round(averageTime)}s
-                </p>
+                <p className="text-sm text-muted-foreground">Average Time per Question</p>
+                <p className="mt-1 text-3xl font-bold">{Math.round(averageTime)}s</p>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -409,8 +381,8 @@ export default function Practice() {
           <DialogHeader>
             <DialogTitle>Cancel Practice Session?</DialogTitle>
             <DialogDescription>
-              Are you sure you want to cancel this practice session? Your
-              progress will be saved as a cancelled session.
+              Are you sure you want to cancel this practice session? Your progress will be saved as
+              a cancelled session.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
