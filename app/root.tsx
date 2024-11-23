@@ -12,6 +12,7 @@ import { json, LinksFunction } from '@remix-run/node'
 import { captureRemixErrorBoundaryError } from '@sentry/remix'
 
 import { Navbar } from '#app/components/layout/navbar'
+import { Toaster } from '#app/components/ui/toaster'
 import { getUser } from '#app/features/auth/auth.api'
 
 import styles from './assets/globals.css?url'
@@ -68,6 +69,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <Navbar userRole={user?.role} />
         {children}
+        <Toaster />
         <ScrollRestoration />
         <Scripts />
       </body>

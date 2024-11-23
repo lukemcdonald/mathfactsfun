@@ -1,4 +1,4 @@
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData, useActionData, useNavigation } from '@remix-run/react'
 import { BookOpen, TrendingUp, Users } from 'lucide-react'
 import { useState } from 'react'
 
@@ -10,17 +10,23 @@ import { CreateGroupDialog } from '#app/components/dashboard/create-group-dialog
 import { ViewProgressDialog } from '#app/components/dashboard/view-progress-dialog'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
+import * as ROUTES from '#app/constants/routes'
 import { db } from '#app/db'
-// import { useToast } from '#app/hooks/use-toast'
 import { getUser } from '#app/features/auth/auth.api'
 import {
   addGroupMember,
   createGroup,
   getGroupMember,
   getGroupsByTeacherId,
+  GroupWithMembers,
+  GroupWithStudentMembers,
+  GroupWithStudents,
 } from '#app/features/groups'
 import { getStudentProgress } from '#app/features/sessions'
 import { getUserByEmail } from '#app/features/users'
+import { useToast } from '#app/hooks/use-toast'
+import { DatabaseError, handleError } from '#app/utils/errors'
+import { captureException } from '#app/utils/sentry.server'
 
 export async function action({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -39,11 +45,28 @@ export async function action({ request }: { request: Request }) {
       return json({ error: 'Group name is required' }, { status: 400 })
     }
 
-    await createGroup(db, {
-      id: nanoid(),
-      name: groupName,
-      teacherId: user.id,
-    })
+    try {
+      await createGroup(db, {
+        id: nanoid(),
+        name: groupName,
+        teacherId: user.id,
+      })
+
+      return json({ message: 'Group created successfully' })
+    } catch (error) {
+      captureException(
+        new DatabaseError('Failed to create group', error, {
+          groupName,
+          teacherId: user.id,
+          userId: user.id,
+        }),
+      )
+
+      return handleError(error, {
+        path: ROUTES.DASHBOARD_TEACHER,
+        userId: user.id,
+      })
+    }
   } else if (action === 'addStudent') {
     const studentEmail = formData.get('studentEmail')
     const groupId = formData.get('groupId')
@@ -56,63 +79,93 @@ export async function action({ request }: { request: Request }) {
       return json({ error: 'Group ID is required' }, { status: 400 })
     }
 
-    const student = await getUserByEmail(db, studentEmail)
+    try {
+      const student = await getUserByEmail(db, studentEmail)
 
-    if (!student) {
-      return json({ error: 'No student found with this email' }, { status: 404 })
+      if (!student) {
+        return json({ error: 'No student found with this email' }, { status: 404 })
+      }
+
+      if (student.role !== 'student') {
+        return json({ error: 'This user is not a student' }, { status: 400 })
+      }
+
+      // Check if student is already in the group
+      const existingMember = await getGroupMember(db, groupId, student.id)
+
+      if (existingMember) {
+        return json({ error: 'Student is already in this group' }, { status: 400 })
+      }
+
+      // Add student to group
+      await addGroupMember(db, {
+        groupId,
+        id: nanoid(),
+        studentId: student.id,
+      })
+
+      return json({ message: 'Student added successfully' })
+    } catch (error) {
+      captureException(
+        new DatabaseError('Failed to add student to group', error, {
+          groupId,
+          studentEmail,
+          userId: user.id,
+        }),
+      )
+
+      return handleError(error, {
+        path: ROUTES.DASHBOARD_TEACHER,
+        userId: user.id,
+      })
     }
-
-    if (student.role !== 'student') {
-      return json({ error: 'This user is not a student' }, { status: 400 })
-    }
-
-    // Check if student is already in the group
-    const existingMember = await getGroupMember(db, groupId, student.id)
-
-    if (existingMember) {
-      return json({ error: 'Student is already in this group' }, { status: 400 })
-    }
-
-    // Add student to group
-    await addGroupMember(db, {
-      groupId,
-      id: nanoid(),
-      studentId: student.id,
-    })
   }
 
-  return redirect('/dashboard/teacher')
+  return redirect(ROUTES.DASHBOARD_TEACHER)
 }
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
 
   if (!user) {
-    return redirect('/login')
+    return redirect(ROUTES.LOGIN)
   }
 
   if (user.role !== 'teacher') {
-    return redirect('/dashboard/student')
+    return redirect(ROUTES.DASHBOARD_STUDENT)
   }
 
-  const teacherGroups = await getGroupsByTeacherId(db, user.id)
+  try {
+    const teacherGroups = await getGroupsByTeacherId(db, user.id)
 
-  // Get progress for all students in all groups
-  const studentsProgress = new Map()
+    // Get progress for all students in all groups
+    const studentsProgress = new Map()
 
-  for (const group of teacherGroups) {
-    for (const member of group.groupMembers) {
-      if (!studentsProgress.has(member.student.id)) {
-        const progress = await getStudentProgress(db, member.student.id)
-        studentsProgress.set(member.student.id, progress)
+    for (const group of teacherGroups) {
+      for (const member of group.groupMembers) {
+        if (!studentsProgress.has(member.student.id)) {
+          const progress = await getStudentProgress(db, member.student.id)
+          studentsProgress.set(member.student.id, progress)
+        }
       }
     }
-  }
 
-  return json({
-    groups: teacherGroups,
-    studentsProgress: Object.fromEntries(studentsProgress),
-  })
+    return json({
+      groups: teacherGroups,
+      studentsProgress: Object.fromEntries(studentsProgress),
+    })
+  } catch (error) {
+    captureException(
+      new DatabaseError('Failed to load teacher dashboard', error, {
+        userId: user.id,
+      }),
+    )
+
+    return handleError(error, {
+      path: ROUTES.DASHBOARD_TEACHER,
+      userId: user.id,
+    })
+  }
 }
 
 export default function TeacherDashboard() {
@@ -123,7 +176,23 @@ export default function TeacherDashboard() {
     id: string
     name: string
   }>(null)
-  // const { toast } = useToast()
+  const { toast } = useToast()
+  const actionData = useActionData<{ error?: string; message?: string }>()
+  const navigation = useNavigation()
+
+  // Handle toast notifications based on action data and navigation state
+  if (actionData?.message && navigation.state === 'idle') {
+    toast({
+      description: actionData.message,
+      title: 'Success',
+    })
+  } else if (actionData?.error && navigation.state === 'idle') {
+    toast({
+      description: actionData.error,
+      title: 'Error',
+      variant: 'destructive',
+    })
+  }
 
   const handleAddStudent = (groupId: string) => {
     setSelectedGroupId(groupId)
@@ -131,6 +200,14 @@ export default function TeacherDashboard() {
 
   const handleViewProgress = (studentId: string, studentName: string) => {
     setSelectedStudent({ id: studentId, name: studentName })
+  }
+
+  const handleCreateGroupSuccess = () => {
+    setIsCreateGroupOpen(false)
+  }
+
+  const handleAddStudentSuccess = () => {
+    setSelectedGroupId(null)
   }
 
   return (
@@ -162,7 +239,10 @@ export default function TeacherDashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {groups.reduce((acc, group) => acc + group.groupMembers.length, 0)}
+              {groups.reduce(
+                (acc: number, group: GroupWithMembers) => acc + group.groupMembers.length,
+                0,
+              )}
             </p>
           </CardContent>
         </Card>
@@ -181,7 +261,7 @@ export default function TeacherDashboard() {
       </div>
 
       <div className="space-y-6">
-        {groups.map((group) => (
+        {groups.map((group: GroupWithStudentMembers) => (
           <Card key={group.id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>{group.name}</CardTitle>
@@ -226,6 +306,7 @@ export default function TeacherDashboard() {
 
       <CreateGroupDialog
         onOpenChange={setIsCreateGroupOpen}
+        onSuccess={handleCreateGroupSuccess}
         open={isCreateGroupOpen}
       />
 
@@ -234,6 +315,7 @@ export default function TeacherDashboard() {
         onOpenChange={(open) => {
           if (!open) setSelectedGroupId(null)
         }}
+        onSuccess={handleAddStudentSuccess}
         open={!!selectedGroupId}
       />
 

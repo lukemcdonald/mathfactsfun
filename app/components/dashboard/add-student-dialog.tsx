@@ -1,4 +1,4 @@
-import { Form } from '@remix-run/react'
+import { Form, useActionData, useNavigation } from '@remix-run/react'
 
 import { Button } from '#app/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/components/ui/dialog'
@@ -8,10 +8,25 @@ import { Label } from '#app/components/ui/label'
 interface AddStudentDialogProps {
   groupId: string
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
   open: boolean
 }
 
-export function AddStudentDialog({ groupId, onOpenChange, open }: AddStudentDialogProps) {
+export function AddStudentDialog({
+  groupId,
+  onOpenChange,
+  onSuccess,
+  open,
+}: AddStudentDialogProps) {
+  const navigation = useNavigation()
+  const actionData = useActionData<{ error?: string; message?: string }>()
+  const isSubmitting = navigation.state === 'submitting'
+
+  // Handle successful submission
+  if (actionData?.message && !isSubmitting && onSuccess) {
+    onSuccess()
+  }
+
   return (
     <Dialog
       onOpenChange={onOpenChange}
@@ -44,8 +59,16 @@ export function AddStudentDialog({ groupId, onOpenChange, open }: AddStudentDial
               required
               type="email"
             />
+            {actionData?.error && <p className="mt-1 text-sm text-red-600">{actionData.error}</p>}
           </div>
-          <Button type="submit">Add Student</Button>
+          <Button
+            disabled={isSubmitting}
+            isLoading={isSubmitting}
+            loadingText="Adding..."
+            type="submit"
+          >
+            Add Student
+          </Button>
         </Form>
       </DialogContent>
     </Dialog>

@@ -1,5 +1,5 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
-import { compare } from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 import invariant from 'tiny-invariant'
 
 import { db } from '#app/db'
@@ -95,7 +95,7 @@ export async function verifyLogin(email: string, password: string) {
     return null
   }
 
-  const isValid = await compare(password, user.hashedPassword)
+  const isValid = await bcrypt.compare(password, user.hashedPassword)
   if (!isValid) {
     return null
   }
