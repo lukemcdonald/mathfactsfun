@@ -1,3 +1,4 @@
+import { json, LinksFunction } from '@remix-run/node'
 import {
   Links,
   Meta,
@@ -7,8 +8,6 @@ import {
   useLoaderData,
   useRouteError,
 } from '@remix-run/react'
-
-import { json, LinksFunction } from '@remix-run/node'
 import { captureRemixErrorBoundaryError } from '@sentry/remix'
 
 import { Navbar } from '#app/components/layout/navbar'

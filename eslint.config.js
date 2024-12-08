@@ -60,7 +60,7 @@ export default [
           customGroups: {
             value: {
               internal: ['^#app/.*'],
-              react: ['react', 'react-*', 'prop-types'],
+              react: ['^react$', '^react-.+', '^prop-types$'],
             },
           },
 

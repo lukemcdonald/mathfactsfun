@@ -1,6 +1,5 @@
-import { Brain, Calculator, School, Users } from 'lucide-react'
-
 import { MetaFunction } from '@remix-run/node'
+import { Brain, Calculator, School, Users } from 'lucide-react'
 
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#app/components/ui/card'

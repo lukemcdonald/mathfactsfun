@@ -1,8 +1,8 @@
-import { useLoaderData, useActionData, useNavigation } from '@remix-run/react'
-import { BookOpen, TrendingUp, Users } from 'lucide-react'
 import { useState } from 'react'
 
 import { json, redirect } from '@remix-run/node'
+import { useLoaderData, useActionData, useNavigation } from '@remix-run/react'
+import { BookOpen, TrendingUp, Users } from 'lucide-react'
 import { nanoid } from 'nanoid'
 
 import { AddStudentDialog } from '#app/components/dashboard/add-student-dialog'
@@ -20,7 +20,6 @@ import {
   getGroupsByTeacherId,
   GroupWithMembers,
   GroupWithStudentMembers,
-  GroupWithStudents,
 } from '#app/features/groups'
 import { getStudentProgress } from '#app/features/sessions'
 import { getUserByEmail } from '#app/features/users'
