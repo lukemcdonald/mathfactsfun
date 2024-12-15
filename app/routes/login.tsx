@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { Button } from '#app/components/ui/button'
 import { Input } from '#app/components/ui/input'
 import { Label } from '#app/components/ui/label'
+import { getRoute } from '#app/config/routes.js'
 import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.api'
 import { handleError } from '#app/utils/errors'
 
@@ -42,14 +43,14 @@ export async function action({ request }: { request: Request }) {
     // TODO: Redirect to user role dashboard
     return createUserSession(user.id, redirectTo)
   } catch (error) {
-    return handleError(error, { path: '/login' })
+    return handleError(error, { path: getRoute.auth.login() })
   }
 }
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
   if (user) {
-    return redirect(`/dashboard/${user.role}`)
+    return redirect(getRoute.dashboard.byRole(user.role))
   }
   return json({})
 }

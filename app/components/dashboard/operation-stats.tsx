@@ -3,17 +3,20 @@ import { Link } from '@remix-run/react'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 import { Progress } from '#app/components/ui/progress'
+import { getRoute } from '#app/config/routes'
 import { OPERATION } from '#app/constants/operations'
-import { type OperationStats as OperationStatsType } from '#app/features/sessions'
+import { type Operation, type OperationStats } from '#app/features/sessions'
 
 interface OperationStatsProps {
-  stats: Record<string, OperationStatsType>
+  stats: Record<Operation, OperationStats>
 }
 
-export function OperationStats({ stats }: OperationStatsProps) {
+export function OperationStats({ stats: inStats }: OperationStatsProps) {
+  const stats = Object.entries(inStats) as [Operation, OperationStats][]
+
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      {Object.entries(stats).map(([operation, operationStats]) => {
+      {stats.map(([operation, operationStats]) => {
         const { accuracy, averageTime, totalSessions } = operationStats
         const Icon = OPERATION[operation as keyof typeof OPERATION].icon
         const name = OPERATION[operation as keyof typeof OPERATION].label
@@ -26,7 +29,7 @@ export function OperationStats({ stats }: OperationStatsProps) {
                   <Icon className="h-5 w-5" />
                   {name}
                 </CardTitle>
-                <Link to={`/practice/${operation}`}>
+                <Link to={getRoute.practice.byOperation(operation)}>
                   <Button>Start Practice</Button>
                 </Link>
               </div>

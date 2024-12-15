@@ -2,7 +2,11 @@ import { useState } from 'react'
 
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData, useNavigation } from '@remix-run/react'
-import { BookOpen as BookOpenIcon, TrendingUp as TrendingUpIcon, Users as UsersIcon } from 'lucide-react'
+import {
+  BookOpen as BookOpenIcon,
+  TrendingUp as TrendingUpIcon,
+  Users as UsersIcon,
+} from 'lucide-react'
 import { nanoid } from 'nanoid'
 
 import { AddStudentDialog } from '#app/components/dashboard/add-student-dialog'
@@ -10,7 +14,7 @@ import { CreateGroupDialog } from '#app/components/dashboard/create-group-dialog
 import { ViewProgressDialog } from '#app/components/dashboard/view-progress-dialog'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
-import * as ROUTES from '#app/constants/routes'
+import { getRoute } from '#app/config/routes.js'
 import { db } from '#app/db'
 import { getUser } from '#app/features/auth/auth.api'
 import {
@@ -62,7 +66,7 @@ export async function action({ request }: { request: Request }) {
       )
 
       return handleError(error, {
-        path: ROUTES.DASHBOARD_TEACHER,
+        path: getRoute.dashboard.byRole('teacher'),
         userId: user.id,
       })
     }
@@ -114,24 +118,24 @@ export async function action({ request }: { request: Request }) {
       )
 
       return handleError(error, {
-        path: ROUTES.DASHBOARD_TEACHER,
+        path: getRoute.dashboard.byRole('teacher'),
         userId: user.id,
       })
     }
   }
 
-  return redirect(ROUTES.DASHBOARD_TEACHER)
+  return redirect(getRoute.dashboard.root())
 }
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
 
   if (!user) {
-    return redirect(ROUTES.LOGIN)
+    return redirect(getRoute.auth.login())
   }
 
   if (user.role !== 'teacher') {
-    return redirect(ROUTES.DASHBOARD_STUDENT)
+    return redirect(getRoute.dashboard.root())
   }
 
   try {
@@ -161,7 +165,7 @@ export async function loader({ request }: { request: Request }) {
     )
 
     return handleError(error, {
-      path: ROUTES.DASHBOARD_TEACHER,
+      path: getRoute.dashboard.byRole('teacher'),
       userId: user.id,
     })
   }

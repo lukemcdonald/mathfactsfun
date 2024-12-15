@@ -95,6 +95,7 @@ export async function verifyLogin(email: string, password: string) {
     return null
   }
 
+  // eslint-disable-next-line import/no-named-as-default-member
   const isValid = await bcrypt.compare(password, user.hashedPassword)
   if (!isValid) {
     return null

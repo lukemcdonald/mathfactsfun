@@ -15,6 +15,7 @@ import {
 } from '#app/components/ui/dialog'
 import { Input } from '#app/components/ui/input'
 import { Progress } from '#app/components/ui/progress'
+import { getRoute } from '#app/config/routes'
 import { db } from '#app/db'
 import { getUser } from '#app/features/auth/auth.api'
 import { createQuestions, Question, QuestionResult } from '#app/features/questions'
@@ -24,7 +25,7 @@ export async function action({ request }: { request: Request }) {
   const user = await getUser(request)
 
   if (!user) {
-    return redirect('/login')
+    return redirect(getRoute.auth.login())
   }
 
   const formData = await request.formData()
@@ -71,12 +72,12 @@ export async function loader({
   const user = await getUser(request)
 
   if (!user) {
-    return redirect('/login')
+    return redirect(getRoute.auth.login())
   }
 
   const validOperations = ['addition', 'subtraction', 'multiplication', 'division']
   if (!validOperations.includes(params.operation)) {
-    return redirect('/dashboard/student')
+    return redirect(getRoute.dashboard.byRole('student'))
   }
 
   return json({ operation: params.operation, userId: user.id })
@@ -180,7 +181,7 @@ export default function Practice() {
       { method: 'post' },
     )
 
-    navigate('/dashboard/student')
+    navigate(getRoute.dashboard.byRole('student'))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -359,7 +360,7 @@ export default function Practice() {
                 </Button>
                 <Link
                   className="w-full"
-                  to="/dashboard/student"
+                  to={getRoute.dashboard.byRole('student')}
                 >
                   <Button className="w-full">Back to Dashboard</Button>
                 </Link>

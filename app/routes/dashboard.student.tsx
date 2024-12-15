@@ -4,6 +4,7 @@ import { useLoaderData } from '@remix-run/react'
 import { OperationStats } from '#app/components/dashboard/operation-stats'
 import { RecentSessions } from '#app/components/dashboard/recent-sessions'
 import { StatsCards } from '#app/components/dashboard/stats-cards'
+import { getRoute } from '#app/config/routes.js'
 import { db } from '#app/db'
 import { getUser } from '#app/features/auth/auth.api'
 import { getStudentStats } from '#app/features/sessions'
@@ -12,11 +13,11 @@ export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
 
   if (!user) {
-    return redirect('/login')
+    return redirect(getRoute.auth.login())
   }
 
   if (user.role !== 'student') {
-    return redirect('/dashboard/teacher')
+    return redirect(getRoute.dashboard.byRole('teacher'))
   }
 
   const stats = await getStudentStats(db, user.id)

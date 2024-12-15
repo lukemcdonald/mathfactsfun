@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#app/components/ui/select'
+import { getRoute } from '#app/config/routes'
 import { db } from '#app/db'
 import { createUserSession, getUser } from '#app/features/auth/auth.api'
 import { hashPassword } from '#app/features/auth/auth.utils'
@@ -63,16 +64,16 @@ export async function action({ request }: { request: Request }) {
       role,
     })
 
-    return createUserSession(userId, '/')
+    return createUserSession(userId, getRoute.home())
   } catch (error) {
-    return handleError(error, { path: '/signup' })
+    return handleError(error, { path: getRoute.auth.signup() })
   }
 }
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
   if (user) {
-    return redirect(`/dashboard/${user.role}`)
+    return redirect(getRoute.dashboard.byRole(user.role))
   }
   return json({})
 }
@@ -104,7 +105,7 @@ export default function Signup() {
             Or{' '}
             <Link
               className="font-medium text-primary hover:text-primary/90"
-              to="/login"
+              to={getRoute.auth.login()}
             >
               sign in to your account
             </Link>

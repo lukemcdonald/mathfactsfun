@@ -1,8 +1,14 @@
 import { Link } from '@remix-run/react'
-import { Divide as DivideIcon, Minus as MinusIcon, Plus as PlusIcon, X as XIcon } from 'lucide-react'
+import {
+  Divide as DivideIcon,
+  Minus as MinusIcon,
+  Plus as PlusIcon,
+  X as XIcon,
+} from 'lucide-react'
 
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
+import { getRoute } from '#app/config/routes'
 import { Operation } from '#app/features/sessions'
 
 interface PracticeCardProps {
@@ -31,7 +37,7 @@ export function PracticeCard({ description, operation, title }: PracticeCardProp
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-gray-500">{description}</p>
-        <Link to={`/practice/${operation}`}>
+        <Link to={getRoute.practice.byOperation(operation)}>
           <Button className="w-full">Start Practice</Button>
         </Link>
       </CardContent>
