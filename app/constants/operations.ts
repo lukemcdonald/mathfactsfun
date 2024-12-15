@@ -1,4 +1,4 @@
-import { Icons } from '#app/components/icons.js'
+import { Icons } from '#app/components/icons'
 
 export const OPERATION = {
   addition: {

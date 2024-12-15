@@ -19,10 +19,7 @@ export const groups = sqliteTable(
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
   },
-  (table) => ({
-    nameIdx: index('name_idx').on(table.name),
-    teacherIdx: index('teacher_idx').on(table.teacherId),
-  }),
+  (table) => [index('name_idx').on(table.name), index('teacher_idx').on(table.teacherId)],
 )
 
 export const groupsRelations = relations(groups, ({ many, one }) => ({
@@ -50,11 +47,11 @@ export const groupMembers = sqliteTable(
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
   },
-  (table) => ({
-    groupIdx: index('group_idx').on(table.groupId),
-    pk: primaryKey({ columns: [table.groupId, table.studentId] }),
-    studentIdx: index('student_idx').on(table.studentId),
-  }),
+  (table) => [
+    index('group_idx').on(table.groupId),
+    primaryKey({ columns: [table.groupId, table.studentId] }),
+    index('student_idx').on(table.studentId),
+  ],
 )
 
 export const groupMembersRelations = relations(groupMembers, ({ one }) => ({
