@@ -1,10 +1,11 @@
 import { json } from '@remix-run/node'
-import { Form, useLoaderData } from '@remix-run/react'
+import { Form, useActionData, useLoaderData, useNavigation } from '@remix-run/react'
 import { z } from 'zod'
 
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
-import { DatabaseError, handleError } from '#app/utils/errors'
+import { useToast } from '#app/hooks/use-toast'
+import { DatabaseError } from '#app/utils/errors'
 
 const testSchema = z.object({
   name: z.string().min(3),
@@ -14,32 +15,55 @@ export async function action({ request }: { request: Request }) {
   const formData = await request.formData()
   const type = formData.get('type')
 
-  switch (type) {
-    case 'async': {
-      await new Promise((_, reject) => setTimeout(() => reject(new Error('Test async error')), 100))
-      break
-    }
-
-    case 'database': {
-      throw new DatabaseError('Test database error', null, {
-        context: 'Testing database error handling',
-      })
-    }
-
-    case 'unhandled': {
-      throw new Error('Test unhandled error')
-    }
-
-    case 'validation': {
-      const result = testSchema.safeParse({ name: 'a' })
-      if (!result.success) {
-        return handleError(result.error)
+  try {
+    switch (type) {
+      case 'async': {
+        throw new Error('Test async error')
       }
-      break
-    }
-  }
 
-  return json({ success: true })
+      case 'database': {
+        throw new DatabaseError('Test database error', null, {
+          context: 'Testing database error handling',
+        })
+      }
+
+      case 'unhandled': {
+        throw new Error('Test unhandled error')
+      }
+
+      case 'validation': {
+        const result = testSchema.safeParse({ name: 'a' })
+        if (!result.success) {
+          return json(
+            {
+              details: result.error.errors,
+              error: 'Validation failed',
+            },
+            { status: 400 },
+          )
+        }
+        return json({ message: 'Validation passed', success: true })
+      }
+
+      case 'toast': {
+        return json({ message: 'This is a test toast message!', success: true })
+      }
+
+      default: {
+        return json({ message: 'Operation completed successfully', success: true })
+      }
+    }
+  } catch (error: unknown) {
+    if (error instanceof DatabaseError) {
+      return json({ details: error.message, error: 'Database error occurred' }, { status: 500 })
+    }
+
+    if (error instanceof Error) {
+      return json({ error: error.message }, { status: 500 })
+    }
+
+    return json({ error: 'An unexpected error occurred' }, { status: 500 })
+  }
 }
 
 export async function loader() {
@@ -48,6 +72,33 @@ export async function loader() {
 
 export default function TestErrors() {
   const { timestamp } = useLoaderData<typeof loader>()
+  const actionData = useActionData<{
+    error?: string
+    message?: string
+    details?: unknown
+    success?: boolean
+  }>()
+  const navigation = useNavigation()
+  const { toast } = useToast()
+
+  // Handle toast notifications based on action data and navigation state
+  if (actionData?.message && navigation.state === 'idle') {
+    toast({
+      description: actionData.message,
+      title: 'Success',
+    })
+  } else if (actionData?.error && navigation.state === 'idle') {
+    const description =
+      actionData.details ?
+        `${actionData.error}: ${JSON.stringify(actionData.details)}`
+      : actionData.error
+
+    toast({
+      description,
+      title: 'Error',
+      variant: 'destructive',
+    })
+  }
 
   return (
     <div className="container mx-auto p-8">
@@ -59,6 +110,18 @@ export default function TestErrors() {
             <CardTitle>Client-Side Errors</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <Button
+              onClick={() => {
+                toast({
+                  description: 'This is a client-side toast notification',
+                  title: 'Client Toast',
+                })
+              }}
+              variant="outline"
+            >
+              Show Client Toast
+            </Button>
+
             <Button
               onClick={() => {
                 throw new Error('Test client-side error')
@@ -81,6 +144,21 @@ export default function TestErrors() {
             <CardTitle>Server-Side Errors</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <Form method="post">
+              <input
+                name="type"
+                type="hidden"
+                value="toast"
+              />
+              <Button
+                className="w-full"
+                type="submit"
+                variant="outline"
+              >
+                Test Toast Message
+              </Button>
+            </Form>
+
             <Form method="post">
               <input
                 name="type"
@@ -158,10 +236,11 @@ export default function TestErrors() {
               Sentry Issues
             </a>
           </li>
-          <li>Click each button above to trigger different types of errors</li>
+          <li>Click each button above to trigger different types of errors and toasts</li>
           <li>Verify that errors appear in Sentry with proper context and stack traces</li>
-          <li>Check that validation errors are handled locally and not sent to Sentry</li>
+          <li>Check that validation errors show up as toast messages</li>
           <li>Confirm that database errors trigger the appropriate error handling flow</li>
+          <li>Test that client-side toast notifications work as expected</li>
         </ol>
       </div>
     </div>
