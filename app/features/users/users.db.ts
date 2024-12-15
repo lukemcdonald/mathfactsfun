@@ -21,7 +21,9 @@ export const users = sqliteTable(
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
   },
-  (table) => [index('email_idx').on(table.email)],
+  (table) => ({
+    emailIdx: index('email_idx').on(table.email),
+  }),
 )
 
 export const usersRelations = relations(users, ({ many }) => ({

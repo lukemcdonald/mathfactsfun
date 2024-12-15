@@ -30,11 +30,11 @@ export const sessions = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
   },
-  (table) => [
-    index('operation_idx').on(table.operation),
-    index('status_idx').on(table.status),
-    index('user_idx').on(table.userId),
-  ],
+  (table) => ({
+    operationIdx: index('operation_idx').on(table.operation),
+    statusIdx: index('status_idx').on(table.status),
+    userIdx: index('user_idx').on(table.userId),
+  }),
 )
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({

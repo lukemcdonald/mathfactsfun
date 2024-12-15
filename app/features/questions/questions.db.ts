@@ -24,7 +24,10 @@ export const questions = sqliteTable(
       .default(sql`CURRENT_TIMESTAMP`),
     userAnswer: integer('user_answer'),
   },
-  (table) => [index('operation_idx').on(table.operation), index('session_idx').on(table.sessionId)],
+  (table) => ({
+    operationIdx: index('operation_idx').on(table.operation),
+    sessionIdx: index('session_idx').on(table.sessionId),
+  }),
 )
 
 export const questionsRelations = relations(questions, ({ one }) => ({

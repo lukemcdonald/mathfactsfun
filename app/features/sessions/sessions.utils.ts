@@ -1,5 +1,5 @@
 import { getErrorMessage } from '#app/utils/errors'
-import { calculatePercentage, calculateRatio } from '#app/utils/misc.js'
+import { calculatePercentage, calculateRatio } from '#app/utils/misc'
 
 import { Session, SerializedSession } from './sessions.types'
 

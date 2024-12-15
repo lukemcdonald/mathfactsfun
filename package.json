@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "NODE_ENV=production remix vite:build",
+    "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "dev": "NODE_ENV=development remix vite:dev",
