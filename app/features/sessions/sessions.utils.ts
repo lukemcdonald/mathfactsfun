@@ -1,29 +1,7 @@
 import { getErrorMessage } from '#app/utils/errors'
+import { calculatePercentage, calculateRatio } from '#app/utils/misc.js'
 
 import { Session } from './sessions.types'
-
-/**
- * Calculates the accuracy ratio for a single session.
- *
- * @param {number} correctAnswers - The number of correct answers.
- * @param {number} totalQuestions - The total number of questions.
- * @returns {number} - The accuracy as a decimal between 0 and 1.
- */
-function calculateAccuracy(correctAnswers: number, totalQuestions: number) {
-  return totalQuestions > 0 ? correctAnswers / totalQuestions : 0
-}
-
-/**
- * Calculates the accuracy percentage for a single session.
- *
- * @param {number} correctAnswers - The number of correct answers.
- * @param {number} totalQuestions - The total number of questions.
- * @returns {number} - The accuracy as a percentage (0-100).
- */
-function calculateAccuracyPercentage(correctAnswers: number, totalQuestions: number) {
-  const ratio = calculateAccuracy(correctAnswers, totalQuestions)
-  return Math.round(ratio * 100)
-}
 
 /**
  * Calculates the accuracy ratio for a single session.
@@ -36,7 +14,7 @@ export function calculateSessionAccuracy(session: {
   totalQuestions: number
 }) {
   const { correctAnswers, totalQuestions } = session
-  return calculateAccuracy(correctAnswers, totalQuestions)
+  return calculateRatio(correctAnswers, totalQuestions)
 }
 
 /**
@@ -50,7 +28,7 @@ export function calculateSessionAccuracyPercentage(session: {
   totalQuestions: number
 }) {
   const { correctAnswers, totalQuestions } = session
-  return calculateAccuracyPercentage(correctAnswers, totalQuestions)
+  return calculatePercentage(correctAnswers, totalQuestions)
 }
 
 /**
@@ -71,7 +49,7 @@ export function calculateAverageAccuracy(sessions: Session[]) {
     0,
   )
 
-  return calculateAccuracyPercentage(totalAccuracy, totalSessions)
+  return calculatePercentage(totalAccuracy, totalSessions)
 }
 
 /**
@@ -89,7 +67,7 @@ export function calculateAverageTime(sessions: Session[]) {
 
   const totalTime = sessions.reduce((acc, session) => acc + session.averageTime, 0)
 
-  return Math.round(totalTime / totalSessions)
+  return Math.round(calculateRatio(totalTime, totalSessions))
 }
 
 /**
