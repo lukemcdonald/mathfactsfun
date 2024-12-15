@@ -17,7 +17,7 @@
     "format:fix": "prettier ./app --write --ignore-unknown",
     "lint": "eslint ./app --report-unused-disable-directives",
     "lint:fix": "eslint ./app --fix --report-unused-disable-directives",
-    "start": "NODE_OPTIONS='--import ./instrument.server.mjs' remix-serve ./build/server/index.js",
+    "start": "NODE_ENV=production NODE_OPTIONS='--import ./instrument.server.js' remix-serve ./build/server/index.js",
     "style": "npm run lint:fix && npm run format:fix",
     "test": "jest",
     "test:e2e": "playwright test",

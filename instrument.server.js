@@ -11,7 +11,7 @@ Sentry.init({
     key_y: true,
   },
 
-  dsn: 'https://006e2f63e7d84cbd8d313f40c2d532ca@o4504369029120000.ingest.us.sentry.io/4508314099777536',
+  dsn: process.env.SENTRY_DSN,
 
   // To capture action formData attributes.
   sendDefaultPii: true,
