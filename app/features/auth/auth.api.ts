@@ -37,6 +37,7 @@ export async function createUserSession(userId: string, redirectTo: string) {
 export async function getUser(request: Request) {
   try {
     const userId = await getUserId(request)
+
     if (!userId) {
       return null
     }
