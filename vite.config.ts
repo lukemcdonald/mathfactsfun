@@ -15,11 +15,15 @@ export default defineConfig(({ mode }) => {
 
   return {
     build: {
+      rollupOptions: {
+        external: [/node:.*/, 'fsevents'],
+      },
       sourcemap: mode === 'development',
     },
     plugins: [
       remix({
         future: {
+          unstable_optimizeDeps: true,
           v3_fetcherPersist: true,
           v3_lazyRouteDiscovery: true,
           v3_relativeSplatPath: true,
@@ -27,6 +31,7 @@ export default defineConfig(({ mode }) => {
           v3_throwAbortReason: true,
         },
         ignoredRouteFiles: ['**/.*'],
+        serverModuleFormat: 'esm',
       }),
       tsconfigPaths(),
       sentryVitePlugin({

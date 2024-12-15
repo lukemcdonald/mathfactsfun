@@ -2,11 +2,10 @@
   "name": "mathfacts",
   "private": true,
   "sideEffects": false,
+  "author": "Luke McDonald <thelukemcdonald@gmail.com> (https://lukemcdonald.com/)",
   "type": "module",
   "imports": {
-    "#app/*": {
-      "default": "./app/*"
-    }
+    "#app/*": "./app/*"
   },
   "scripts": {
     "build": "NODE_ENV=production remix vite:build",
