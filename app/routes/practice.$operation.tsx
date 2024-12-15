@@ -18,6 +18,7 @@ import { Progress } from '#app/components/ui/progress'
 import { getRoute } from '#app/config/routes'
 import { db } from '#app/db'
 import { getUser } from '#app/features/auth/auth.api'
+import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
 import { createQuestions, Question, QuestionResult } from '#app/features/questions'
 import { createSession, Operation } from '#app/features/sessions'
 
@@ -100,9 +101,9 @@ export default function Practice() {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
 
   const generateQuestion = useCallback(() => {
+    let answer
     const num1 = Math.floor(Math.random() * 13)
     const num2 = Math.floor(Math.random() * 13)
-    let answer
     const product = num1 * num2
 
     switch (operation) {
@@ -110,7 +111,6 @@ export default function Practice() {
         answer = num1 + num2
         break
       case 'division':
-        // Ensure clean division
         answer = num1
         setCurrentQuestion({ answer, num1: product, num2, operation })
         setStartTime(Date.now())
@@ -131,7 +131,14 @@ export default function Practice() {
 
   useEffect(() => {
     generateQuestion()
-  }, [generateQuestion])
+    // Add breadcrumb for session start
+    addBreadcrumb({
+      category: 'practice',
+      data: { operation, userId },
+      level: 'info',
+      message: 'Started practice session',
+    })
+  }, [generateQuestion, operation, userId])
 
   // Auto-focus input after each submission
   useEffect(() => {
@@ -158,13 +165,25 @@ export default function Practice() {
   }, [progress])
 
   const handleCancel = () => {
-    const avgTime =
+    const averageTime =
       questionResults.length > 0 ?
         questionResults.reduce((acc, q) => acc + q.timeSpent, 0) / questionResults.length
       : 0
 
+    // Add breadcrumb for session cancellation
+    addBreadcrumb({
+      category: 'practice',
+      data: {
+        averageTime: averageTime,
+        operation,
+        questionsAnswered: questionResults.length,
+      },
+      level: 'info',
+      message: 'Cancelled practice session',
+    })
+
     const sessionData = {
-      averageTime: avgTime,
+      averageTime: averageTime,
       correctAnswers: correctAnswers.length,
       operation,
       questionResults,
@@ -195,6 +214,20 @@ export default function Practice() {
     const userAnswerNum = parseInt(userAnswer)
     const isCorrect = userAnswerNum === currentQuestion.answer
 
+    // Add breadcrumb for question answer
+    addBreadcrumb({
+      category: 'practice',
+      data: {
+        correctAnswer: currentQuestion.answer,
+        operation,
+        questionNumber: questionResults.length + 1,
+        timeSpent,
+        userAnswer: userAnswerNum,
+      },
+      level: isCorrect ? 'info' : 'warning',
+      message: `Question ${isCorrect ? 'correct' : 'incorrect'}`,
+    })
+
     // Show feedback
     setFeedback(isCorrect ? 'correct' : 'incorrect')
     setTimeout(() => setFeedback(null), 500)
@@ -221,12 +254,13 @@ export default function Practice() {
       generateQuestion()
     } else {
       // Calculate session statistics
-      const avgTime =
+      const averageTime =
         questionResults.reduce((acc, q) => acc + q.timeSpent, 0) / (questionResults.length + 1)
-      setAverageTime(avgTime)
+
+      setAverageTime(averageTime)
 
       const sessionData = {
-        averageTime: avgTime,
+        averageTime,
         correctAnswers: correctAnswers.length + (isCorrect ? 1 : 0),
         operation,
         questionResults: [...questionResults, questionResult],

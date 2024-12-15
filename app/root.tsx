@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { json, LinksFunction } from '@remix-run/node'
 import {
   Links,
@@ -7,18 +9,37 @@ import {
   ScrollRestoration,
   useLoaderData,
   useRouteError,
+  useLocation,
+  useMatches,
 } from '@remix-run/react'
 import { captureRemixErrorBoundaryError } from '@sentry/remix'
 
 import { Navbar } from '#app/components/layout/navbar'
 import { Toaster } from '#app/components/ui/toaster'
 import { getUser } from '#app/features/auth/auth.api'
+import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
 
 import styles from './assets/globals.css?url'
 
 export const links: LinksFunction = () => [{ href: styles, rel: 'stylesheet' }]
 
 export default function App() {
+  const matches = useMatches()
+  const location = useLocation()
+
+  useEffect(() => {
+    addBreadcrumb({
+      category: 'navigation',
+      data: {
+        handle: matches.map((match) => match.handle),
+        pathname: location.pathname,
+        search: location.search,
+      },
+      level: 'info',
+      message: 'Route changed',
+    })
+  }, [location.pathname, location.search, matches])
+
   return <Outlet />
 }
 

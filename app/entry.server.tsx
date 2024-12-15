@@ -21,12 +21,18 @@ export const handleError = Sentry.wrapHandleErrorWithSentry(
     console.error('Server error:', error)
 
     const request = args.request as Request
+    const url = new URL(request.url)
 
-    // Report to Sentry with request context
+    // Report to Sentry with enhanced context
     Sentry.captureException(error, {
+      extra: {
+        headers: Object.fromEntries(request.headers),
+        query: Object.fromEntries(url.searchParams),
+      },
       tags: {
+        host: url.host,
         method: request.method,
-        url: request.url,
+        pathname: url.pathname,
       },
     })
 

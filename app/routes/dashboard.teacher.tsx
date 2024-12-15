@@ -25,7 +25,7 @@ import { getStudentProgress } from '#app/features/sessions'
 import { getUserByEmail } from '#app/features/users'
 import { useToast } from '#app/hooks/use-toast'
 import { DatabaseError, handleError } from '#app/utils/errors'
-import { captureException } from '#app/utils/sentry.server'
+import { captureException } from '#app/features/monitoring/monitoring.api'
 
 export async function action({ request }: { request: Request }) {
   const user = await getUser(request)

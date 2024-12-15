@@ -9,6 +9,7 @@ import { Input } from '#app/components/ui/input'
 import { Label } from '#app/components/ui/label'
 import { getRoute } from '#app/config/routes.js'
 import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.api'
+import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
 import { handleError } from '#app/utils/errors'
 
 // TODO: Split these out into separate ZOD objects to be imported. See epic stack
@@ -24,6 +25,12 @@ export async function action({ request }: { request: Request }) {
     const submission = parseWithZod(formData, { schema: loginSchema })
 
     if (submission.status !== 'success') {
+      addBreadcrumb({
+        category: 'auth',
+        data: { errors: submission.error },
+        level: 'warning',
+        message: 'Login validation failed',
+      })
       return json(submission.reply(), { status: 400 })
     }
 
@@ -31,6 +38,15 @@ export async function action({ request }: { request: Request }) {
     const user = await verifyLogin(email, password)
 
     if (!user) {
+      addBreadcrumb({
+        category: 'auth',
+        data: {
+          email,
+          reason: 'Invalid credentials',
+        },
+        level: 'warning',
+        message: 'Login failed',
+      })
       return json(
         {
           ...submission,
@@ -39,6 +55,16 @@ export async function action({ request }: { request: Request }) {
         { status: 400 },
       )
     }
+
+    addBreadcrumb({
+      category: 'auth',
+      data: {
+        email: user.email,
+        userId: user.id,
+      },
+      level: 'info',
+      message: 'Login successful',
+    })
 
     // TODO: Redirect to user role dashboard
     return createUserSession(user.id, redirectTo)

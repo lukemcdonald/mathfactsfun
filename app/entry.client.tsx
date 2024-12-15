@@ -13,10 +13,15 @@ Sentry.init({
       useLocation,
       useMatches,
     }),
+    // Add session replay if you want to capture user interactions
+    // new Sentry.Replay(),
   ],
-  // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-  // Adjust this value in production as needed.
-  tracesSampleRate: 1.0,
+  // Capture 100% of transactions in development, 10% in production
+  tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
+
+  // Optional: Configure Session Replay
+  // replaysSessionSampleRate: 0.1, // Sample 10% of sessions
+  // replaysOnErrorSampleRate: 1.0, // Sample 100% of sessions with errors
 })
 
 startTransition(() => {

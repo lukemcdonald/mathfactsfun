@@ -19,6 +19,7 @@ import { getRoute } from '#app/config/routes'
 import { db } from '#app/db'
 import { createUserSession, getUser } from '#app/features/auth/auth.api'
 import { hashPassword } from '#app/features/auth/auth.utils'
+import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
 import { createUser, getUserByEmail } from '#app/features/users'
 import { handleError } from '#app/utils/errors'
 
@@ -37,6 +38,12 @@ export async function action({ request }: { request: Request }) {
     const submission = parseWithZod(formData, { schema: signupSchema })
 
     if (submission.status !== 'success') {
+      addBreadcrumb({
+        category: 'auth',
+        data: { errors: submission.error },
+        level: 'warning',
+        message: 'Signup validation failed',
+      })
       return json(submission.reply(), { status: 400 })
     }
 
@@ -44,6 +51,15 @@ export async function action({ request }: { request: Request }) {
     const existingUser = await getUserByEmail(db, email)
 
     if (existingUser) {
+      addBreadcrumb({
+        category: 'auth',
+        data: {
+          email,
+          reason: 'Email already exists',
+        },
+        level: 'warning',
+        message: 'Signup failed',
+      })
       return json(
         {
           ...submission,
@@ -62,6 +78,17 @@ export async function action({ request }: { request: Request }) {
       id: userId,
       name,
       role,
+    })
+
+    addBreadcrumb({
+      category: 'auth',
+      data: {
+        email,
+        role,
+        userId,
+      },
+      level: 'info',
+      message: 'Signup successful',
     })
 
     return createUserSession(userId, getRoute.home())
