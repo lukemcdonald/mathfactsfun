@@ -9,10 +9,10 @@
     }
   },
   "scripts": {
-    "build": "remix vite:build",
+    "build": "NODE_ENV=production remix vite:build",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "dev": "remix vite:dev",
+    "dev": "NODE_ENV=development remix vite:dev",
     "format": "prettier ./app",
     "format:fix": "prettier ./app --write --ignore-unknown",
     "lint": "eslint ./app --report-unused-disable-directives",
