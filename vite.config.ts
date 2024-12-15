@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     build: {
-      sourcemap: true,
+      sourcemap: mode === 'development',
     },
     plugins: [
       remix({
