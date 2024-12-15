@@ -24,6 +24,7 @@ import styles from './assets/globals.css?url'
 export const links: LinksFunction = () => [{ href: styles, rel: 'stylesheet' }]
 
 export default function App() {
+  const { user } = useLoaderData<typeof loader>()
   const matches = useMatches()
   const location = useLocation()
 
@@ -40,7 +41,26 @@ export default function App() {
     })
   }, [location.pathname, location.search, matches])
 
-  return <Outlet />
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta
+          content="width=device-width, initial-scale=1"
+          name="viewport"
+        />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Navbar userRole={user?.role} />
+        <Outlet />
+        <Toaster />
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  )
 }
 
 export function ErrorBoundary() {
@@ -66,31 +86,6 @@ export function ErrorBoundary() {
             )}
           </div>
         </div>
-        <Scripts />
-      </body>
-    </html>
-  )
-}
-
-export function Layout({ children }: { children: React.ReactNode }) {
-  const { user } = useLoaderData<typeof loader>() ?? {}
-
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta
-          content="width=device-width, initial-scale=1"
-          name="viewport"
-        />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Navbar userRole={user?.role} />
-        {children}
-        <Toaster />
-        <ScrollRestoration />
         <Scripts />
       </body>
     </html>
