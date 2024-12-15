@@ -1,35 +1,30 @@
-import {
-  Plus as AddIcon,
-  Divide as DivideIcon,
-  X as MultiplyIcon,
-  Minus as SubtractIcon,
-} from 'lucide-react'
+import { Icons } from '#app/components/icons.js'
 
 export const OPERATION = {
   addition: {
     actionLabel: 'Add',
-    icon: AddIcon,
+    icon: Icons.Plus,
     label: 'Addition',
     operator: '+',
     value: 'addition',
   },
   division: {
     actionLabel: 'Divide',
-    icon: DivideIcon,
+    icon: Icons.Divide,
     label: 'Division',
     operator: '÷',
     value: 'division',
   },
   multiplication: {
     actionLabel: 'Multiply',
-    icon: MultiplyIcon,
+    icon: Icons.Multiply,
     label: 'Multiplication',
     operator: '×',
     value: 'multiplication',
   },
   subtraction: {
     actionLabel: 'Subtract',
-    icon: SubtractIcon,
+    icon: Icons.Minus,
     label: 'Subtraction',
     operator: '-',
     value: 'subtraction',

@@ -1,12 +1,7 @@
-import {
-  Clock as ClockIcon,
-  Target as TargetIcon,
-  TrendingUp as TrendingUpIcon,
-} from 'lucide-react'
-
+import { Icons } from '#app/components/icons.js'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/components/ui/dialog'
 import { Progress } from '#app/components/ui/progress'
-import { SerializedSession } from '#app/features/sessions'
+import { type SerializedSession } from '#app/features/sessions/sessions.types'
 import { calculateSessionAccuracyPercentage } from '#app/features/sessions/sessions.utils'
 
 interface ViewProgressDialogProps {
@@ -40,7 +35,7 @@ export function ViewProgressDialog({
         <div className="grid gap-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="flex items-center gap-2 rounded-lg border p-4">
-              <TargetIcon className="h-5 w-5 text-blue-500" />
+              <Icons.Brain className="h-5 w-5 text-blue-500" />
               <div>
                 <p className="text-sm text-muted-foreground">Average Accuracy</p>
                 <p className="text-2xl font-bold">{studentProgress.averageAccuracy}%</p>
@@ -48,7 +43,7 @@ export function ViewProgressDialog({
             </div>
 
             <div className="flex items-center gap-2 rounded-lg border p-4">
-              <ClockIcon className="h-5 w-5 text-green-500" />
+              <Icons.Target className="h-5 w-5 text-green-500" />
               <div>
                 <p className="text-sm text-muted-foreground">Average Time</p>
                 <p className="text-2xl font-bold">{studentProgress.averageTime}s</p>
@@ -56,7 +51,7 @@ export function ViewProgressDialog({
             </div>
 
             <div className="flex items-center gap-2 rounded-lg border p-4">
-              <TrendingUpIcon className="h-5 w-5 text-purple-500" />
+              <Icons.TrendingUp className="h-5 w-5 text-purple-500" />
               <div>
                 <p className="text-sm text-muted-foreground">Total Sessions</p>
                 <p className="text-2xl font-bold">{studentProgress.totalSessions}</p>

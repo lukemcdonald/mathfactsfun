@@ -2,16 +2,12 @@ import { useState } from 'react'
 
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData, useNavigation } from '@remix-run/react'
-import {
-  BookOpen as BookOpenIcon,
-  TrendingUp as TrendingUpIcon,
-  Users as UsersIcon,
-} from 'lucide-react'
 import { nanoid } from 'nanoid'
 
 import { AddStudentDialog } from '#app/components/dashboard/add-student-dialog'
 import { CreateGroupDialog } from '#app/components/dashboard/create-group-dialog'
 import { ViewProgressDialog } from '#app/components/dashboard/view-progress-dialog'
+import { Icons } from '#app/components/icons.js'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 import { getRoute } from '#app/config/routes.js'
@@ -224,7 +220,7 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <UsersIcon className="h-5 w-5 text-blue-500" />
+              <Icons.Users className="h-5 w-5 text-blue-500" />
               Total Groups
             </CardTitle>
           </CardHeader>
@@ -236,7 +232,7 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BookOpenIcon className="h-5 w-5 text-green-500" />
+              <Icons.Book className="h-5 w-5 text-green-500" />
               Active Students
             </CardTitle>
           </CardHeader>
@@ -253,7 +249,7 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUpIcon className="h-5 w-5 text-purple-500" />
+              <Icons.TrendingUp className="h-5 w-5 text-purple-500" />
               Practice Sessions Today
             </CardTitle>
           </CardHeader>

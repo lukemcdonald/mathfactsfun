@@ -2,8 +2,8 @@ import * as React from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { Loader2 as LoaderIcon } from 'lucide-react'
 
+import { Icons } from '#app/components/icons'
 import { cn } from '#app/utils/misc'
 
 const buttonVariants = cva(
@@ -53,7 +53,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         {...props}
       >
-        {isLoading && <LoaderIcon className="animate-spin" />}
+        {isLoading && <Icons.Loader className="animate-spin" />}
         {isLoading && (loadingText ?? children)}
         {!isLoading && children}
       </Comp>
