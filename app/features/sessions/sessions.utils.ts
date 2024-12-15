@@ -1,6 +1,6 @@
 import { getErrorMessage } from '#app/utils/errors'
 
-import { SelectSession } from './sessions.types'
+import { Session } from './sessions.types'
 
 /**
  * Calculates the accuracy ratio for a single session.
@@ -59,7 +59,7 @@ export function calculateSessionAccuracyPercentage(session: {
  * @param {Array} sessions - The list of session objects.
  * @returns {number} - The average accuracy as a percentage.
  */
-export function calculateAverageAccuracy(sessions: SelectSession[]) {
+export function calculateAverageAccuracy(sessions: Session[]) {
   const totalSessions = sessions.length
 
   if (totalSessions === 0) {
@@ -80,7 +80,7 @@ export function calculateAverageAccuracy(sessions: SelectSession[]) {
  * @param {Array} sessions - The list of session objects.
  * @returns {number} - The average time.
  */
-export function calculateAverageTime(sessions: SelectSession[]) {
+export function calculateAverageTime(sessions: Session[]) {
   const totalSessions = sessions.length
 
   if (totalSessions === 0) {

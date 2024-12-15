@@ -1,16 +1,16 @@
 import { nanoid } from 'nanoid'
 
 import { questions } from '#app/db/schema'
-import { type InsertQuestion, type QuestionResult } from '#app/features/questions'
+import { type NewQuestion, type QuestionResult } from '#app/features/questions'
 import { Database } from '#app/utils/types'
 
 export async function createQuestions(
   db: Database,
   sessionId: string,
-  operation: InsertQuestion['operation'],
+  operation: NewQuestion['operation'],
   questionResults: QuestionResult[],
 ) {
-  const questionData: InsertQuestion[] = questionResults.map((q) => ({
+  const questionData: NewQuestion[] = questionResults.map((q) => ({
     correct: q.correct,
     id: nanoid(),
     num1: q.num1,

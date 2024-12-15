@@ -10,9 +10,7 @@ export const users = sqliteTable(
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
     deletedAt: integer('deleted_at', { mode: 'timestamp' }),
-    email: text('email')
-      .notNull()
-      .unique(),
+    email: text('email').notNull().unique(),
     hashedPassword: text('hashed_password').notNull(),
     id: text('id').primaryKey(),
     name: text('name').notNull(),

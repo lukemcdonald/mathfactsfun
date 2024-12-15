@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
 
 import { users } from '#app/db/schema'
-import { InsertUser } from '#app/features/users/users.types'
+import { NewUser } from '#app/features/users/users.types'
 import { Database } from '#app/utils/types'
 
-export async function createUser(db: Database, user: InsertUser) {
+export async function createUser(db: Database, user: NewUser) {
   await db.insert(users).values({
     email: user.email,
     hashedPassword: user.hashedPassword,
@@ -24,4 +24,12 @@ export async function getUserById(db: Database, userId: string) {
   return await db.query.users.findFirst({
     where: eq(users.id, userId),
   })
+}
+
+export async function deleteUser(db: Database, userId: string) {
+  return db.delete(users).where(eq(users.id, userId)).execute()
+}
+
+export async function updateUser(db: Database, userId: string, user: Partial<NewUser>) {
+  return db.update(users).set(user).where(eq(users.id, userId)).execute()
 }

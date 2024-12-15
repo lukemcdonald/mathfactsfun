@@ -4,10 +4,11 @@ import { Operation } from '#app/features/sessions'
 
 import { questions } from './questions.db'
 
-export type SelectQuestion = InferSelectModel<typeof questions>
-export type InsertQuestion = InferInsertModel<typeof questions>
+export type Question = InferSelectModel<typeof questions>
+export type NewQuestion = InferInsertModel<typeof questions>
 
-export interface Question {
+// Domain model for a question
+export interface QuestionPrompt {
   answer: number
   num1: number
   num2: number
@@ -15,6 +16,7 @@ export interface Question {
   timeSpent?: number
 }
 
+// Result of a completed question
 export type QuestionResult = {
   correct: boolean
   num1: number

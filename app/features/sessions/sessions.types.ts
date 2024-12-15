@@ -4,12 +4,14 @@ import { QuestionResult } from '#app/features/questions'
 
 import { sessions } from './sessions.db'
 
-export type CreateSessionData = Omit<InsertSession, 'completedAt' | 'id' | 'startedAt'> & {
+export type Session = InferSelectModel<typeof sessions>
+export type NewSession = InferInsertModel<typeof sessions>
+
+export type CreateSessionData = Omit<NewSession, 'completedAt' | 'id' | 'startedAt'> & {
   questionResults: QuestionResult[]
 }
-export type InsertSession = InferInsertModel<typeof sessions>
 
-export type Operation = SelectSession['operation']
+export type Operation = Session['operation']
 
 export type OperationStats = {
   accuracy: number
@@ -17,15 +19,13 @@ export type OperationStats = {
   totalSessions: number
 }
 
-export type SelectSession = InferSelectModel<typeof sessions>
-
-export type SerializedSession = Omit<SelectSession, 'completedAt' | 'startedAt'> & {
-  completedAt: null | string
-  startedAt: string
-}
-
 export type SessionStats = {
   byOperation: Record<string, OperationStats>
   overall: OperationStats
-  recentSessions: Array<SerializedSession>
+  recentSessions: Array<Session>
+}
+
+export type SerializedSession = Omit<Session, 'completedAt' | 'startedAt'> & {
+  completedAt: null | string
+  startedAt: string
 }

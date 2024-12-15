@@ -1,3 +1,9 @@
+/**
+ * Central export point for all database tables and their relations.
+ * This file prevents circular dependencies between feature modules
+ * and provides a single source of truth for database schema imports.
+ */
+
 export { groupMembers, groupMembersRelations } from '#app/features/groups'
 export { groups, groupsRelations } from '#app/features/groups'
 export { questions, questionsRelations } from '#app/features/questions'
