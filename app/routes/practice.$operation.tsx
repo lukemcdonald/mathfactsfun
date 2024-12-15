@@ -19,8 +19,8 @@ import { getRoute } from '#app/config/routes'
 import { db } from '#app/db'
 import { getUser } from '#app/features/auth/auth.api'
 import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
-import { createQuestions, Question, QuestionResult } from '#app/features/questions'
-import { createSession, Operation } from '#app/features/sessions'
+import { createQuestions, type QuestionPrompt, type QuestionResult } from '#app/features/questions'
+import { createSession, type Operation } from '#app/features/sessions'
 
 export async function action({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -89,12 +89,12 @@ export default function Practice() {
   const submit = useSubmit()
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
-  const [currentQuestion, setCurrentQuestion] = useState<null | Question>(null)
+  const [currentQuestion, setCurrentQuestion] = useState<null | QuestionPrompt>(null)
   const [userAnswer, setUserAnswer] = useState('')
   const [progress, setProgress] = useState(0)
   const [startTime, setStartTime] = useState<number>(0)
-  const [correctAnswers, setCorrectAnswers] = useState<Question[]>([])
-  const [wrongAnswers, setWrongAnswers] = useState<Question[]>([])
+  const [correctAnswers, setCorrectAnswers] = useState<QuestionResult[]>([])
+  const [wrongAnswers, setWrongAnswers] = useState<QuestionResult[]>([])
   const [questionResults, setQuestionResults] = useState<QuestionResult[]>([])
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
   const [averageTime, setAverageTime] = useState<number>(0)
@@ -242,9 +242,9 @@ export default function Practice() {
     setQuestionResults((prev) => [...prev, questionResult])
 
     if (isCorrect) {
-      setCorrectAnswers([...correctAnswers, currentQuestion])
+      setCorrectAnswers([...correctAnswers, questionResult])
     } else {
-      setWrongAnswers([...wrongAnswers, currentQuestion])
+      setWrongAnswers([...wrongAnswers, questionResult])
     }
 
     setProgress(progress + 10)

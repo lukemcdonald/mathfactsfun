@@ -4,7 +4,7 @@ import { SerializedSession } from '#app/features/sessions'
 import { calculateSessionAccuracyPercentage } from '#app/features/sessions/sessions.utils'
 
 interface RecentSessionsProps {
-  sessions: SerializedSession[]
+  sessions: Array<SerializedSession>
 }
 
 export function RecentSessions({ sessions }: RecentSessionsProps) {

@@ -1,7 +1,7 @@
 import { getErrorMessage } from '#app/utils/errors'
 import { calculatePercentage, calculateRatio } from '#app/utils/misc.js'
 
-import { Session } from './sessions.types'
+import { Session, SerializedSession } from './sessions.types'
 
 /**
  * Calculates the accuracy ratio for a single session.
@@ -114,5 +114,25 @@ function timestampToISOString(timestamp: null | number): null | string {
   } catch (error) {
     console.error('Invalid timestamp:', timestamp, 'Error:', getErrorMessage(error))
     return null
+  }
+}
+
+/**
+ * Converts string dates in a serialized session back to Date objects.
+ * This is needed because dates are serialized to strings when sent from the server.
+ *
+ * @param {JsonifyObject<SerializedSession>} session - The serialized session with string dates
+ * @returns {SerializedSession} - The session with proper Date objects
+ */
+export function deserializeSession(
+  session: Omit<SerializedSession, 'createdAt' | 'updatedAt'> & {
+    createdAt: string
+    updatedAt: string
+  },
+): SerializedSession {
+  return {
+    ...session,
+    createdAt: new Date(session.createdAt),
+    updatedAt: new Date(session.updatedAt),
   }
 }

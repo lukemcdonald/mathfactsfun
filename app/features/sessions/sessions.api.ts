@@ -5,7 +5,7 @@ import { OPERATIONS } from '#app/constants/operations'
 import {
   CreateSessionData,
   OperationStats,
-  SerializedSession,
+  type SerializedSession,
   SessionStats,
 } from '#app/features/sessions/sessions.types'
 import { Database } from '#app/utils/types'

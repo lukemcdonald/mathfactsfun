@@ -8,6 +8,7 @@ import { getRoute } from '#app/config/routes.js'
 import { db } from '#app/db'
 import { getUser } from '#app/features/auth/auth.api'
 import { getStudentStats } from '#app/features/sessions'
+import { deserializeSession } from '#app/features/sessions/sessions.utils'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -27,6 +28,7 @@ export async function loader({ request }: { request: Request }) {
 
 export default function StudentDashboard() {
   const { stats, user } = useLoaderData<typeof loader>()
+  const deserializedSessions = stats.recentSessions.map(deserializeSession)
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -48,7 +50,7 @@ export default function StudentDashboard() {
 
       <div>
         <h2 className="mb-4 text-xl font-semibold">Recent Sessions</h2>
-        <RecentSessions sessions={stats.recentSessions} />
+        <RecentSessions sessions={deserializedSessions} />
       </div>
     </div>
   )

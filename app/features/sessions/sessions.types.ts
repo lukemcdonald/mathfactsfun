@@ -20,9 +20,9 @@ export type OperationStats = {
 }
 
 export type SessionStats = {
-  byOperation: Record<string, OperationStats>
+  byOperation: Record<Operation, OperationStats>
   overall: OperationStats
-  recentSessions: Array<Session>
+  recentSessions: Array<SerializedSession>
 }
 
 export type SerializedSession = Omit<Session, 'completedAt' | 'startedAt'> & {
