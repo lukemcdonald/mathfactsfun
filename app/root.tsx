@@ -8,12 +8,11 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useRouteError,
   useLocation,
   useMatches,
 } from '@remix-run/react'
-import { captureRemixErrorBoundaryError } from '@sentry/remix'
 
+import { GeneralErrorBoundary } from '#app/components/general-error-boundary'
 import { Navbar } from '#app/components/layout/navbar'
 import { Toaster } from '#app/components/ui/toaster'
 import { getUser } from '#app/features/auth/auth.api'
@@ -22,6 +21,11 @@ import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
 import styles from './assets/globals.css?url'
 
 export const links: LinksFunction = () => [{ href: styles, rel: 'stylesheet' }]
+
+export async function loader({ request }: { request: Request }) {
+  const user = await getUser(request)
+  return json({ user })
+}
 
 export default function App() {
   const { user } = useLoaderData<typeof loader>()
@@ -63,10 +67,9 @@ export default function App() {
   )
 }
 
+// This is a last resort error boundary. There's not much useful information we
+// can offer at this level.
 export function ErrorBoundary() {
-  const error = useRouteError()
-  captureRemixErrorBoundaryError(error)
-
   return (
     <html lang="en">
       <head>
@@ -75,24 +78,9 @@ export function ErrorBoundary() {
         <Links />
       </head>
       <body>
-        <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
-          <div className="rounded-lg bg-white p-8 text-center shadow-md">
-            <h1 className="mb-4 text-2xl font-bold text-red-600">Oops!</h1>
-            <p className="text-gray-600">Something went wrong.</p>
-            {import.meta.env.DEV && (
-              <pre className="mt-4 max-w-lg overflow-auto rounded bg-gray-100 p-4 text-left text-sm">
-                {error instanceof Error ? error.message : 'Unknown error'}
-              </pre>
-            )}
-          </div>
-        </div>
+        <GeneralErrorBoundary />
         <Scripts />
       </body>
     </html>
   )
-}
-
-export async function loader({ request }: { request: Request }) {
-  const user = await getUser(request)
-  return json({ user })
 }
