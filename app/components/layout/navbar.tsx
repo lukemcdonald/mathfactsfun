@@ -1,5 +1,5 @@
 import { Form, Link } from '@remix-run/react'
-import { Calculator } from 'lucide-react'
+import { Calculator as CalculatorIcon } from 'lucide-react'
 
 import { Button } from '#app/components/ui/button'
 import { SelectUser } from '#app/features/users'
@@ -16,7 +16,7 @@ export function Navbar({ userRole }: NavbarProps) {
           className="flex items-center space-x-2"
           to="/"
         >
-          <Calculator className="h-6 w-6" />
+          <CalculatorIcon className="h-6 w-6" />
           <span className="font-bold">MathFacts.fun</span>
         </Link>
 

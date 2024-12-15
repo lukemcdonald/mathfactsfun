@@ -1,4 +1,4 @@
-import { Brain, Clock, Target } from 'lucide-react'
+import { Brain as BrainIcon, Clock as ClockIcon, Target as TargetIcon } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 
@@ -14,7 +14,7 @@ export function StatsCards({ accuracy, averageTime, totalSessions }: StatsCardsP
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-blue-500" />
+            <BrainIcon className="h-5 w-5 text-blue-500" />
             Total Practice Sessions
           </CardTitle>
         </CardHeader>
@@ -26,7 +26,7 @@ export function StatsCards({ accuracy, averageTime, totalSessions }: StatsCardsP
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-green-500" />
+            <TargetIcon className="h-5 w-5 text-green-500" />
             Overall Accuracy
           </CardTitle>
         </CardHeader>
@@ -38,7 +38,7 @@ export function StatsCards({ accuracy, averageTime, totalSessions }: StatsCardsP
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-purple-500" />
+            <ClockIcon className="h-5 w-5 text-purple-500" />
             Average Response Time
           </CardTitle>
         </CardHeader>

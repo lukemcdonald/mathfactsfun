@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData, useNavigation } from '@remix-run/react'
-import { BookOpen, TrendingUp, Users } from 'lucide-react'
+import { BookOpen as BookOpenIcon, TrendingUp as TrendingUpIcon, Users as UsersIcon } from 'lucide-react'
 import { nanoid } from 'nanoid'
 
 import { AddStudentDialog } from '#app/components/dashboard/add-student-dialog'
@@ -220,7 +220,7 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-500" />
+              <UsersIcon className="h-5 w-5 text-blue-500" />
               Total Groups
             </CardTitle>
           </CardHeader>
@@ -232,7 +232,7 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-green-500" />
+              <BookOpenIcon className="h-5 w-5 text-green-500" />
               Active Students
             </CardTitle>
           </CardHeader>
@@ -249,7 +249,7 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-500" />
+              <TrendingUpIcon className="h-5 w-5 text-purple-500" />
               Practice Sessions Today
             </CardTitle>
           </CardHeader>

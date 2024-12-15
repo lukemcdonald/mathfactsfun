@@ -1,5 +1,5 @@
 import { Link } from '@remix-run/react'
-import { Divide, Minus, Plus, X } from 'lucide-react'
+import { Divide as DivideIcon, Minus as MinusIcon, Plus as PlusIcon, X as XIcon } from 'lucide-react'
 
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
@@ -12,10 +12,10 @@ interface PracticeCardProps {
 }
 
 const operationIcons = {
-  addition: Plus,
-  division: Divide,
-  multiplication: X,
-  subtraction: Minus,
+  addition: PlusIcon,
+  division: DivideIcon,
+  multiplication: XIcon,
+  subtraction: MinusIcon,
 }
 
 export function PracticeCard({ description, operation, title }: PracticeCardProps) {

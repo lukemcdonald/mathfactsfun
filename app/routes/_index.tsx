@@ -1,5 +1,5 @@
 import { MetaFunction } from '@remix-run/node'
-import { Brain, Calculator, School, Users } from 'lucide-react'
+import { Brain as BrainIcon, Calculator as CalculatorIcon, School as SchoolIcon, Users as UsersIcon } from 'lucide-react'
 
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#app/components/ui/card'
@@ -29,7 +29,7 @@ export default function Index() {
           <Card className="transform transition-all hover:scale-105">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-6 w-6 text-blue-500" />
+                <CalculatorIcon className="h-6 w-6 text-blue-500" />
                 Practice Math Facts
               </CardTitle>
               <CardDescription>
@@ -45,7 +45,7 @@ export default function Index() {
           <Card className="transform transition-all hover:scale-105">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <School className="h-6 w-6 text-green-500" />
+                <SchoolIcon className="h-6 w-6 text-green-500" />
                 For Teachers
               </CardTitle>
               <CardDescription>
@@ -65,7 +65,7 @@ export default function Index() {
           <Card className="transform transition-all hover:scale-105">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Brain className="h-6 w-6 text-purple-500" />
+                <BrainIcon className="h-6 w-6 text-purple-500" />
                 Smart Learning
               </CardTitle>
               <CardDescription>
@@ -89,21 +89,21 @@ export default function Index() {
           </h2>
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             <div className="p-6">
-              <Users className="mx-auto mb-4 h-12 w-12 text-blue-500" />
+              <UsersIcon className="mx-auto mb-4 h-12 w-12 text-blue-500" />
               <h3 className="mb-2 text-xl font-semibold">For Schools</h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Easy to manage multiple classes and track student progress
               </p>
             </div>
             <div className="p-6">
-              <Calculator className="mx-auto mb-4 h-12 w-12 text-green-500" />
+              <CalculatorIcon className="mx-auto mb-4 h-12 w-12 text-green-500" />
               <h3 className="mb-2 text-xl font-semibold">Comprehensive Practice</h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Cover all basic operations with customizable difficulty levels
               </p>
             </div>
             <div className="p-6">
-              <Brain className="mx-auto mb-4 h-12 w-12 text-purple-500" />
+              <BrainIcon className="mx-auto mb-4 h-12 w-12 text-purple-500" />
               <h3 className="mb-2 text-xl font-semibold">Smart Learning</h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Focus on areas that need improvement with our adaptive system
