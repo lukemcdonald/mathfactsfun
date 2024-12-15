@@ -3,6 +3,57 @@ import { getErrorMessage } from '#app/utils/errors'
 import { SelectSession } from './sessions.types'
 
 /**
+ * Calculates the accuracy ratio for a single session.
+ *
+ * @param {number} correctAnswers - The number of correct answers.
+ * @param {number} totalQuestions - The total number of questions.
+ * @returns {number} - The accuracy as a decimal between 0 and 1.
+ */
+function calculateAccuracy(correctAnswers: number, totalQuestions: number) {
+  return totalQuestions > 0 ? correctAnswers / totalQuestions : 0
+}
+
+/**
+ * Calculates the accuracy percentage for a single session.
+ *
+ * @param {number} correctAnswers - The number of correct answers.
+ * @param {number} totalQuestions - The total number of questions.
+ * @returns {number} - The accuracy as a percentage (0-100).
+ */
+function calculateAccuracyPercentage(correctAnswers: number, totalQuestions: number) {
+  const ratio = calculateAccuracy(correctAnswers, totalQuestions)
+  return Math.round(ratio * 100)
+}
+
+/**
+ * Calculates the accuracy ratio for a single session.
+ *
+ * @param {Object} session - The session object containing correctAnswers and totalQuestions.
+ * @returns {number} - The accuracy as a decimal between 0 and 1.
+ */
+export function calculateSessionAccuracy(session: {
+  correctAnswers: number
+  totalQuestions: number
+}) {
+  const { correctAnswers, totalQuestions } = session
+  return calculateAccuracy(correctAnswers, totalQuestions)
+}
+
+/**
+ * Calculates the accuracy percentage for a single session.
+ *
+ * @param {Object} session - The session object containing correctAnswers and totalQuestions.
+ * @returns {number} - The accuracy as a percentage (0-100).
+ */
+export function calculateSessionAccuracyPercentage(session: {
+  correctAnswers: number
+  totalQuestions: number
+}) {
+  const { correctAnswers, totalQuestions } = session
+  return calculateAccuracyPercentage(correctAnswers, totalQuestions)
+}
+
+/**
  * Calculates the average accuracy from a list of sessions.
  *
  * @param {Array} sessions - The list of session objects.
@@ -10,13 +61,17 @@ import { SelectSession } from './sessions.types'
  */
 export function calculateAverageAccuracy(sessions: SelectSession[]) {
   const totalSessions = sessions.length
-  if (totalSessions === 0) return 0
 
-  const totalAccuracy = sessions.reduce((acc, session) => {
-    return acc + session.correctAnswers / session.totalQuestions
-  }, 0)
+  if (totalSessions === 0) {
+    return 0
+  }
 
-  return Math.round((totalAccuracy / totalSessions) * 100)
+  const totalAccuracy = sessions.reduce(
+    (acc, session) => acc + calculateSessionAccuracy(session),
+    0,
+  )
+
+  return calculateAccuracyPercentage(totalAccuracy, totalSessions)
 }
 
 /**
@@ -27,7 +82,10 @@ export function calculateAverageAccuracy(sessions: SelectSession[]) {
  */
 export function calculateAverageTime(sessions: SelectSession[]) {
   const totalSessions = sessions.length
-  if (totalSessions === 0) return 0
+
+  if (totalSessions === 0) {
+    return 0
+  }
 
   const totalTime = sessions.reduce((acc, session) => acc + session.averageTime, 0)
 

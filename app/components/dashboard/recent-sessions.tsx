@@ -1,6 +1,7 @@
 import { Card } from '#app/components/ui/card'
 import { Progress } from '#app/components/ui/progress'
 import { SerializedSession } from '#app/features/sessions'
+import { calculateSessionAccuracyPercentage } from '#app/features/sessions/sessions.utils'
 
 interface RecentSessionsProps {
   sessions: SerializedSession[]
@@ -30,13 +31,13 @@ export function RecentSessions({ sessions }: RecentSessionsProps) {
           </div>
           <div className="mt-2 flex items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              Accuracy: {Math.round((session.correctAnswers / session.totalQuestions) * 100)}%
+              Accuracy: {calculateSessionAccuracyPercentage(session)}%
             </p>
             <p className="text-sm text-muted-foreground">Time: {session.averageTime}s</p>
           </div>
           <Progress
             className="mt-2 h-2"
-            value={(session.correctAnswers / session.totalQuestions) * 100}
+            value={calculateSessionAccuracyPercentage(session)}
           />
         </Card>
       ))}

@@ -7,6 +7,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/components/ui/dialog'
 import { Progress } from '#app/components/ui/progress'
 import { SerializedSession } from '#app/features/sessions'
+import { calculateSessionAccuracyPercentage } from '#app/features/sessions/sessions.utils'
 
 interface ViewProgressDialogProps {
   onOpenChange: (open: boolean) => void
@@ -78,13 +79,13 @@ export function ViewProgressDialog({
                 </div>
                 <div className="flex items-center gap-4">
                   <p className="text-sm text-muted-foreground">
-                    Accuracy: {Math.round((session.correctAnswers / session.totalQuestions) * 100)}%
+                    Accuracy: {calculateSessionAccuracyPercentage(session)}%
                   </p>
                   <p className="text-sm text-muted-foreground">Time: {session.averageTime}s</p>
                 </div>
                 <Progress
                   className="h-2"
-                  value={(session.correctAnswers / session.totalQuestions) * 100}
+                  value={calculateSessionAccuracyPercentage(session)}
                 />
               </div>
             ))}
