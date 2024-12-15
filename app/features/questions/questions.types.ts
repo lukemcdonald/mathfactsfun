@@ -4,7 +4,9 @@ import { Operation } from '#app/features/sessions'
 
 import { questions } from './questions.db'
 
+export type SelectQuestion = InferSelectModel<typeof questions>
 export type InsertQuestion = InferInsertModel<typeof questions>
+
 export interface Question {
   answer: number
   num1: number
@@ -21,5 +23,3 @@ export type QuestionResult = {
   timeSpent: number
   userAnswer: number
 }
-
-export type SelectQuestion = InferSelectModel<typeof questions>
