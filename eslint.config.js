@@ -1,5 +1,3 @@
-import react from 'eslint-plugin-react'
-
 import { fixupConfigRules, fixupPluginRules } from '@eslint/compat'
 import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
@@ -8,6 +6,7 @@ import tsParser from '@typescript-eslint/parser'
 import _import from 'eslint-plugin-import'
 import jsxA11Y from 'eslint-plugin-jsx-a11y'
 import perfectionist from 'eslint-plugin-perfectionist'
+import react from 'eslint-plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
