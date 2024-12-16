@@ -31,9 +31,9 @@ export const sessions = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
   },
   (table) => ({
-    operationIdx: index('operation_idx').on(table.operation),
-    statusIdx: index('status_idx').on(table.status),
-    userIdx: index('user_idx').on(table.userId),
+    operationIdx: index('sessions_operation_idx').on(table.operation),
+    statusIdx: index('sessions_status_idx').on(table.status),
+    userIdx: index('sessions_user_idx').on(table.userId),
   }),
 )
 
