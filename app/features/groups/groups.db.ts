@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm'
-import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
 import { users } from '#app/db/schema'
 
@@ -52,7 +52,7 @@ export const groupMembers = sqliteTable(
   },
   (table) => ({
     groupIdx: index('group_idx').on(table.groupId),
-    groupStudentPk: primaryKey({ columns: [table.groupId, table.studentId] }),
+    groupStudentUnique: unique('group_student_unique').on(table.groupId, table.studentId),
     studentIdx: index('student_idx').on(table.studentId),
   }),
 )

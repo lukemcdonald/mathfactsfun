@@ -25,8 +25,8 @@ export const questions = sqliteTable(
     userAnswer: integer('user_answer'),
   },
   (table) => ({
-    operationIdx: index('operation_idx').on(table.operation),
-    sessionIdx: index('session_idx').on(table.sessionId),
+    operationIdx: index('questions_operation_idx').on(table.operation),
+    sessionIdx: index('questions_session_idx').on(table.sessionId),
   }),
 )
 
