@@ -46,5 +46,8 @@ export default defineConfig(({ mode }) => {
         '#app': '/app',
       },
     },
+    server: {
+      port: 3000,
+    },
   }
 })

@@ -1,4 +1,4 @@
-import { json } from '@remix-run/node'
+import { data } from '@remix-run/node'
 import { Form, useActionData, useLoaderData, useNavigation } from '@remix-run/react'
 import { z } from 'zod'
 
@@ -34,7 +34,7 @@ export async function action({ request }: { request: Request }) {
       case 'validation': {
         const result = testSchema.safeParse({ name: 'a' })
         if (!result.success) {
-          return json(
+          return data(
             {
               details: result.error.errors,
               error: 'Validation failed',
@@ -42,32 +42,32 @@ export async function action({ request }: { request: Request }) {
             { status: 400 },
           )
         }
-        return json({ message: 'Validation passed', success: true })
+        return data({ message: 'Validation passed', success: true })
       }
 
       case 'toast': {
-        return json({ message: 'This is a test toast message!', success: true })
+        return data({ message: 'This is a test toast message!', success: true })
       }
 
       default: {
-        return json({ message: 'Operation completed successfully', success: true })
+        return data({ message: 'Operation completed successfully', success: true })
       }
     }
   } catch (error: unknown) {
     if (error instanceof DatabaseError) {
-      return json({ details: error.message, error: 'Database error occurred' }, { status: 500 })
+      return data({ details: error.message, error: 'Database error occurred' }, { status: 500 })
     }
 
     if (error instanceof Error) {
-      return json({ error: error.message }, { status: 500 })
+      return data({ error: error.message }, { status: 500 })
     }
 
-    return json({ error: 'An unexpected error occurred' }, { status: 500 })
+    return data({ error: 'An unexpected error occurred' }, { status: 500 })
   }
 }
 
 export async function loader() {
-  return json({ timestamp: Date.now() })
+  return { timestamp: Date.now() }
 }
 
 export default function TestErrors() {

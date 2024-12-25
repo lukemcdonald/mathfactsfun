@@ -15,7 +15,7 @@ import * as Sentry from '@sentry/remix'
 import { isbot } from 'isbot'
 import { PassThrough } from 'node:stream'
 
-const ABORT_DELAY = 5_000
+export const streamTimeout = 5000
 
 export const handleError = Sentry.wrapHandleErrorWithSentry(
   (error: unknown, args: { request: unknown }) => {
@@ -74,7 +74,6 @@ function handleBotRequest(
     let shellRendered = false
     const { abort, pipe } = renderToPipeableStream(
       <RemixServer
-        abortDelay={ABORT_DELAY}
         context={remixContext}
         url={request.url}
       />,
@@ -109,8 +108,9 @@ function handleBotRequest(
         },
       },
     )
-
-    setTimeout(abort, ABORT_DELAY)
+    // Automatically timeout the React renderer after 6 seconds, which ensures
+    // React has enough time to flush down the rejected boundary contents
+    setTimeout(abort, streamTimeout + 1000)
   })
 }
 
@@ -124,7 +124,6 @@ function handleBrowserRequest(
     let shellRendered = false
     const { abort, pipe } = renderToPipeableStream(
       <RemixServer
-        abortDelay={ABORT_DELAY}
         context={remixContext}
         url={request.url}
       />,
@@ -160,6 +159,8 @@ function handleBrowserRequest(
       },
     )
 
-    setTimeout(abort, ABORT_DELAY)
+    // Automatically timeout the React renderer after 6 seconds, which ensures
+    // React has enough time to flush down the rejected boundary contents
+    setTimeout(abort, streamTimeout + 1000)
   })
 }

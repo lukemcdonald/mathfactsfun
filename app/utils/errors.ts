@@ -1,4 +1,4 @@
-import { json } from '@remix-run/node'
+import { data } from '@remix-run/node'
 import { ZodError } from 'zod'
 
 import { IS_DEVELOPMENT } from '#app/constants'
@@ -66,15 +66,15 @@ export function handleError(error: unknown, context?: MonitoringContext): Respon
     response.error = {
       '': ['A database error occurred. Please try again later.'],
     }
-    return json(response, { status: 500 })
+    return data(response, { status: 500 })
   }
 
   if (error instanceof ZodError) {
     response.error = normalizeZodErrors(error.flatten().fieldErrors)
-    return json(response, { status: 400 })
+    return data(response, { status: 400 })
   }
 
-  return json(response, { status: 500 })
+  return data(response, { status: 500 })
 }
 
 /**

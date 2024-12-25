@@ -1,6 +1,6 @@
 import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { json, redirect } from '@remix-run/node'
+import { data, redirect } from '@remix-run/node'
 import { Form, Link, useActionData, useNavigation } from '@remix-run/react'
 import { nanoid } from 'nanoid'
 import { z } from 'zod'
@@ -44,7 +44,7 @@ export async function action({ request }: { request: Request }) {
         level: 'warning',
         message: 'Signup validation failed',
       })
-      return json(submission.reply(), { status: 400 })
+      return data(submission.reply(), { status: 400 })
     }
 
     const { email, name, password, role } = submission.value
@@ -60,7 +60,7 @@ export async function action({ request }: { request: Request }) {
         level: 'warning',
         message: 'Signup failed',
       })
-      return json(
+      return data(
         {
           ...submission,
           error: { email: ['A user with this email already exists'] },
@@ -102,7 +102,7 @@ export async function loader({ request }: { request: Request }) {
   if (user) {
     return redirect(getRoute.dashboard.byRole(user.role))
   }
-  return json({})
+  return {}
 }
 
 export default function Signup() {

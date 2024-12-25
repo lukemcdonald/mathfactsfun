@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { json, LinksFunction } from '@remix-run/node'
+import { LinksFunction } from '@remix-run/node'
 import {
   Links,
   Meta,
@@ -24,7 +24,7 @@ export const links: LinksFunction = () => [{ href: styles, rel: 'stylesheet' }]
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
-  return json({ user })
+  return { user }
 }
 
 export default function App() {

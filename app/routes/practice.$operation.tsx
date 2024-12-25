@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { json, redirect } from '@remix-run/node'
+import { data, redirect } from '@remix-run/node'
 import { Form, Link, useLoaderData, useNavigate, useSubmit } from '@remix-run/react'
 
 import { Button } from '#app/components/ui/button'
@@ -38,7 +38,7 @@ export async function action({ request }: { request: Request }) {
     const sessionData = formData.get('sessionData')
 
     if (typeof sessionData !== 'string') {
-      return json({ error: 'Invalid session data' }, { status: 400 })
+      return data({ error: 'Invalid session data' }, { status: 400 })
     }
 
     const { averageTime, correctAnswers, operation, questionResults, totalQuestions } =
@@ -59,7 +59,7 @@ export async function action({ request }: { request: Request }) {
     // Create associated questions
     await createQuestions(db, sessionId, operation, questionResults)
 
-    return json({ success: true })
+    return { success: true }
   }
 
   return null
@@ -83,7 +83,10 @@ export async function loader({
     return redirect(getRoute.dashboard.byRole('student'))
   }
 
-  return json({ operation: params.operation, userId: user.id })
+  return {
+    operation: params.operation,
+    userId: user.id,
+  }
 }
 
 export default function Practice() {

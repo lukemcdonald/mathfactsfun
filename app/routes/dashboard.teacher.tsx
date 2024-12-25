@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { json, redirect } from '@remix-run/node'
+import { data, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData, useNavigation } from '@remix-run/react'
 import { nanoid } from 'nanoid'
 
@@ -30,7 +30,7 @@ export async function action({ request }: { request: Request }) {
   const user = await getUser(request)
 
   if (!user || user.role !== 'teacher') {
-    return json({ error: 'Unauthorized' }, { status: 401 })
+    return data({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const formData = await request.formData()
@@ -40,7 +40,7 @@ export async function action({ request }: { request: Request }) {
     const groupName = formData.get('groupName')
 
     if (typeof groupName !== 'string' || !groupName.trim()) {
-      return json({ error: 'Group name is required' }, { status: 400 })
+      return data({ error: 'Group name is required' }, { status: 400 })
     }
 
     try {
@@ -50,7 +50,7 @@ export async function action({ request }: { request: Request }) {
         teacherId: user.id,
       })
 
-      return json({ message: 'Group created successfully' })
+      return { message: 'Group created successfully' }
     } catch (error) {
       captureException(
         new DatabaseError('Failed to create group', error, {
@@ -70,29 +70,29 @@ export async function action({ request }: { request: Request }) {
     const groupId = formData.get('groupId')
 
     if (typeof studentEmail !== 'string' || !studentEmail.trim()) {
-      return json({ error: 'Student email is required' }, { status: 400 })
+      return data({ error: 'Student email is required' }, { status: 400 })
     }
 
     if (typeof groupId !== 'string' || !groupId.trim()) {
-      return json({ error: 'Group ID is required' }, { status: 400 })
+      return data({ error: 'Group ID is required' }, { status: 400 })
     }
 
     try {
       const student = await getUserByEmail(db, studentEmail)
 
       if (!student) {
-        return json({ error: 'No student found with this email' }, { status: 404 })
+        return data({ error: 'No student found with this email' }, { status: 404 })
       }
 
       if (student.role !== 'student') {
-        return json({ error: 'This user is not a student' }, { status: 400 })
+        return data({ error: 'This user is not a student' }, { status: 400 })
       }
 
       // Check if student is already in the group
       const existingMember = await getGroupMember(db, groupId, student.id)
 
       if (existingMember) {
-        return json({ error: 'Student is already in this group' }, { status: 400 })
+        return data({ error: 'Student is already in this group' }, { status: 400 })
       }
 
       // Add student to group
@@ -102,7 +102,7 @@ export async function action({ request }: { request: Request }) {
         studentId: student.id,
       })
 
-      return json({ message: 'Student added successfully' })
+      return { message: 'Student added successfully' }
     } catch (error) {
       captureException(
         new DatabaseError('Failed to add student to group', error, {
@@ -148,10 +148,10 @@ export async function loader({ request }: { request: Request }) {
       }
     }
 
-    return json({
+    return {
       groups: teacherGroups,
       studentsProgress: Object.fromEntries(studentsProgress),
-    })
+    }
   } catch (error) {
     captureException(
       new DatabaseError('Failed to load teacher dashboard', error, {

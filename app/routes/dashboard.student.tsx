@@ -1,4 +1,4 @@
-import { json, redirect } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import { OperationStats } from '#app/components/dashboard/operation-stats'
@@ -8,7 +8,7 @@ import { getRoute } from '#app/config/routes'
 import { db } from '#app/db/db.server'
 import { getUser } from '#app/features/auth/auth.api.server'
 import { getStudentStats } from '#app/features/sessions/sessions.api.server'
-import { deserializeSession } from '#app/features/sessions/sessions.utils'
+import { deserializeSession } from '#app/features/sessions/sessions.utils.js'
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request)
@@ -23,7 +23,7 @@ export async function loader({ request }: { request: Request }) {
 
   const stats = await getStudentStats(db, user.id)
 
-  return json({ stats, user })
+  return { stats, user }
 }
 
 export default function StudentDashboard() {
