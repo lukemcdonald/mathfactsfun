@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-
-import { data, redirect } from '@remix-run/node'
-import { Form, Link, useLoaderData, useNavigate, useSubmit } from '@remix-run/react'
+import { data, redirect, Form, Link, useLoaderData, useNavigate, useSubmit } from 'react-router'
 
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'

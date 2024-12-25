@@ -1,4 +1,5 @@
-import { data } from '@remix-run/node'
+import { data } from 'react-router'
+
 import { ZodError } from 'zod'
 
 import { IS_DEVELOPMENT } from '#app/constants'

@@ -1,5 +1,4 @@
-import { redirect } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { redirect, useLoaderData } from 'react-router'
 
 import { OperationStats } from '#app/components/dashboard/operation-stats'
 import { RecentSessions } from '#app/components/dashboard/recent-sessions'

@@ -1,4 +1,4 @@
-import { Form, useActionData, useNavigation } from '@remix-run/react'
+import { Form, useActionData, useNavigation } from 'react-router'
 
 import { Button } from '#app/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/components/ui/dialog'

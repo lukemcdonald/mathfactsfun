@@ -1,4 +1,4 @@
-import { redirect } from '@remix-run/node'
+import { redirect } from 'react-router'
 
 import { getRoute } from '#app/config/routes'
 import { logout } from '#app/features/auth/auth.api.server'

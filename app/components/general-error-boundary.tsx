@@ -1,11 +1,6 @@
 import { ReactNode, type ReactElement } from 'react'
+import { type ErrorResponse, isRouteErrorResponse, useParams, useRouteError } from 'react-router'
 
-import {
-  type ErrorResponse,
-  isRouteErrorResponse,
-  useParams,
-  useRouteError,
-} from '@remix-run/react'
 import { captureRemixErrorBoundaryError } from '@sentry/remix'
 
 import { getErrorMessage } from '#app/utils/errors'

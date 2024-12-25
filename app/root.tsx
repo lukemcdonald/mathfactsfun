@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
-
-import { LinksFunction } from '@remix-run/node'
 import {
+  LinksFunction,
   Links,
   Meta,
   Outlet,
@@ -10,7 +9,7 @@ import {
   useLoaderData,
   useLocation,
   useMatches,
-} from '@remix-run/react'
+} from 'react-router'
 
 import { GeneralErrorBoundary } from '#app/components/general-error-boundary'
 import { Navbar } from '#app/components/layout/navbar'

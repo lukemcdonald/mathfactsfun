@@ -1,4 +1,4 @@
-import { MetaFunction } from '@remix-run/node'
+import { MetaFunction } from 'react-router'
 
 import { Icons } from '#app/components/icons'
 import { Button } from '#app/components/ui/button'

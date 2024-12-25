@@ -1,4 +1,4 @@
-import { vitePlugin as remix } from '@remix-run/dev'
+import { reactRouter } from '@react-router/dev/vite'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { defineConfig, loadEnv } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -21,18 +21,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: mode === 'development',
     },
     plugins: [
-      remix({
-        future: {
-          unstable_optimizeDeps: true,
-          v3_fetcherPersist: true,
-          v3_lazyRouteDiscovery: true,
-          v3_relativeSplatPath: true,
-          v3_singleFetch: true,
-          v3_throwAbortReason: true,
-        },
-        ignoredRouteFiles: ['**/.*'],
-        serverModuleFormat: 'esm',
-      }),
+      reactRouter(),
       tsconfigPaths(),
       sentryVitePlugin({
         authToken: env.SENTRY_AUTH_TOKEN,

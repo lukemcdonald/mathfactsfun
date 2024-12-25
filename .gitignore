@@ -4,13 +4,10 @@
 /node_modules
 /.pnp
 .pnp.js
+.react-router/
 
 # testing
 /coverage
-
-# next.js
-/.next/
-/out/
 
 # production
 /build

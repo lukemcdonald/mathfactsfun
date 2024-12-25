@@ -1,7 +1,6 @@
 import { useState } from 'react'
+import { data, redirect, useLoaderData, useActionData, useNavigation } from 'react-router'
 
-import { data, redirect } from '@remix-run/node'
-import { useLoaderData, useActionData, useNavigation } from '@remix-run/react'
 import { nanoid } from 'nanoid'
 
 import { AddStudentDialog } from '#app/components/dashboard/add-student-dialog'
