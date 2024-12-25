@@ -16,11 +16,13 @@ import {
 import { Input } from '#app/components/ui/input'
 import { Progress } from '#app/components/ui/progress'
 import { getRoute } from '#app/config/routes'
-import { db } from '#app/db'
-import { getUser } from '#app/features/auth/auth.api'
+import { db } from '#app/db/db.server'
+import { getUser } from '#app/features/auth/auth.api.server'
 import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
-import { createQuestions, type QuestionPrompt, type QuestionResult } from '#app/features/questions'
-import { createSession, type Operation } from '#app/features/sessions'
+import { createQuestions } from '#app/features/questions/questions.api.server'
+import { QuestionPrompt, QuestionResult } from '#app/features/questions/questions.types.js'
+import { createSession } from '#app/features/sessions/sessions.api.server'
+import { Operation } from '#app/features/sessions/sessions.types.js'
 
 export async function action({ request }: { request: Request }) {
   const user = await getUser(request)

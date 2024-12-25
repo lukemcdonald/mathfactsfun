@@ -2,7 +2,7 @@ import { json } from '@remix-run/node'
 import { ZodError } from 'zod'
 
 import { IS_DEVELOPMENT } from '#app/constants'
-import { MonitoringContext } from '#app/features/monitoring'
+import { MonitoringContext } from '#app/features/monitoring/monitoring.types'
 
 type ErrorResponse = {
   error: Record<string, string[]>

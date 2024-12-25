@@ -16,11 +16,11 @@ import {
   SelectValue,
 } from '#app/components/ui/select'
 import { getRoute } from '#app/config/routes'
-import { db } from '#app/db'
-import { createUserSession, getUser } from '#app/features/auth/auth.api'
+import { db } from '#app/db/db.server'
+import { createUserSession, getUser } from '#app/features/auth/auth.api.server'
 import { hashPassword } from '#app/features/auth/auth.utils'
 import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
-import { createUser, getUserByEmail } from '#app/features/users'
+import { createUser, getUserByEmail } from '#app/features/users/users.api.server'
 import { handleError } from '#app/utils/errors'
 
 const signupSchema = z.object({

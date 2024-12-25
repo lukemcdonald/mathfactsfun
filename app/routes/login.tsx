@@ -8,7 +8,7 @@ import { Button } from '#app/components/ui/button'
 import { Input } from '#app/components/ui/input'
 import { Label } from '#app/components/ui/label'
 import { getRoute } from '#app/config/routes'
-import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.api'
+import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.api.server'
 import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
 import { handleError } from '#app/utils/errors'
 

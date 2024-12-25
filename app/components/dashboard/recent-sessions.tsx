@@ -1,6 +1,6 @@
 import { Card } from '#app/components/ui/card'
 import { Progress } from '#app/components/ui/progress'
-import { SerializedSession } from '#app/features/sessions'
+import { SerializedSession } from '#app/features/sessions/sessions.types'
 import { calculateSessionAccuracyPercentage } from '#app/features/sessions/sessions.utils'
 
 interface RecentSessionsProps {

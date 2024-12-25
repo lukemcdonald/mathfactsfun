@@ -1,7 +1,7 @@
 import { relations, sql } from 'drizzle-orm'
 import { index, integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
-import { users } from '#app/db/schema'
+import { users } from '#app/db/db.schema.server'
 
 export const groups = sqliteTable(
   'groups',

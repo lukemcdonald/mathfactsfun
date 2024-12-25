@@ -3,7 +3,7 @@ import { Form, Link } from '@remix-run/react'
 import { Icons } from '#app/components/icons'
 import { Button } from '#app/components/ui/button'
 import { getRoute } from '#app/config/routes'
-import { UserRole } from '#app/features/users'
+import { UserRole } from '#app/features/users/users.types'
 
 type NavbarProps = {
   userRole?: UserRole

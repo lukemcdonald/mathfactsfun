@@ -1,8 +1,8 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 
-import { Operation } from '#app/features/sessions'
+import { Operation } from '#app/features/sessions/sessions.types'
 
-import { questions } from './questions.db'
+import { questions } from './questions.db.server'
 
 export type Question = InferSelectModel<typeof questions>
 export type NewQuestion = InferInsertModel<typeof questions>

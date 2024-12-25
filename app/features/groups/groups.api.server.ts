@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 
-import { groupMembers, groups } from '#app/db/schema'
+import { groupMembers, groups } from '#app/db/db.schema.server'
 import { Database } from '#app/utils/types'
 
 import { NewGroup, NewGroupMember } from './groups.types'

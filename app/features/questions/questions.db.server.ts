@@ -2,7 +2,7 @@ import { relations, sql } from 'drizzle-orm'
 import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 import { OPERATIONS } from '#app/constants/operations'
-import { sessions } from '#app/db/schema'
+import { sessions } from '#app/db/db.schema.server'
 
 export const questions = sqliteTable(
   'questions',

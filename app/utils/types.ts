@@ -3,7 +3,7 @@ import { LibSQLDatabase } from 'drizzle-orm/libsql'
 /**
  * Represents a connection to the database with the schema defined in the 'drizzle/schema' module.
  */
-export type Database = LibSQLDatabase<typeof import('app/db/schema')>
+export type Database = LibSQLDatabase<typeof import('app/db/db.schema.server')>
 
 /**
  * Type that represents the properties of a component enhanced with additional properties P

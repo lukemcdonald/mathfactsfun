@@ -2,8 +2,8 @@ import { createCookieSessionStorage, redirect } from '@remix-run/node'
 import bcrypt from 'bcryptjs'
 import invariant from 'tiny-invariant'
 
-import { db } from '#app/db'
-import { getUserByEmail, getUserById } from '#app/features/users'
+import { db } from '#app/db/db.server'
+import { getUserByEmail, getUserById } from '#app/features/users/users.api.server.js'
 import { getErrorMessage } from '#app/utils/errors'
 
 const sessionSecret = process.env.SESSION_SECRET

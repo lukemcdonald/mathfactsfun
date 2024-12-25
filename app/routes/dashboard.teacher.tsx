@@ -11,19 +11,18 @@ import { Icons } from '#app/components/icons'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 import { getRoute } from '#app/config/routes'
-import { db } from '#app/db'
-import { getUser } from '#app/features/auth/auth.api'
+import { db } from '#app/db/db.server'
+import { getUser } from '#app/features/auth/auth.api.server'
 import {
   addGroupMember,
   createGroup,
   getGroupMember,
   getGroupsByTeacherId,
-  GroupWithMembers,
-  GroupWithStudentMembers,
-} from '#app/features/groups'
+} from '#app/features/groups/groups.api.server'
+import { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types.js'
 import { captureException } from '#app/features/monitoring/monitoring.api'
-import { getStudentProgress } from '#app/features/sessions'
-import { getUserByEmail } from '#app/features/users'
+import { getStudentProgress } from '#app/features/sessions/sessions.api.server'
+import { getUserByEmail } from '#app/features/users/users.api.server'
 import { useToast } from '#app/hooks/use-toast'
 import { DatabaseError, handleError } from '#app/utils/errors'
 

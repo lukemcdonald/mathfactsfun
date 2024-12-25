@@ -2,7 +2,7 @@ import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 
 import { User } from '#app/features/users/users.types'
 
-import { groupMembers, groups } from './groups.db'
+import { groupMembers, groups } from './groups.db.server'
 
 export type Group = InferSelectModel<typeof groups>
 export type NewGroup = InferInsertModel<typeof groups>

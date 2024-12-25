@@ -15,7 +15,7 @@ import {
 import { GeneralErrorBoundary } from '#app/components/general-error-boundary'
 import { Navbar } from '#app/components/layout/navbar'
 import { Toaster } from '#app/components/ui/toaster'
-import { getUser } from '#app/features/auth/auth.api'
+import { getUser } from '#app/features/auth/auth.api.server'
 import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
 
 import styles from './assets/globals.css?url'

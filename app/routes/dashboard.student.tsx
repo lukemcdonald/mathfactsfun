@@ -5,9 +5,9 @@ import { OperationStats } from '#app/components/dashboard/operation-stats'
 import { RecentSessions } from '#app/components/dashboard/recent-sessions'
 import { StatsCards } from '#app/components/dashboard/stats-cards'
 import { getRoute } from '#app/config/routes'
-import { db } from '#app/db'
-import { getUser } from '#app/features/auth/auth.api'
-import { getStudentStats } from '#app/features/sessions'
+import { db } from '#app/db/db.server'
+import { getUser } from '#app/features/auth/auth.api.server'
+import { getStudentStats } from '#app/features/sessions/sessions.api.server'
 import { deserializeSession } from '#app/features/sessions/sessions.utils'
 
 export async function loader({ request }: { request: Request }) {

@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 
-import { users } from '#app/db/schema'
+import { users } from '#app/db/db.schema.server'
 import { NewUser } from '#app/features/users/users.types'
 import { Database } from '#app/utils/types'
 

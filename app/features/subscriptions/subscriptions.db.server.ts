@@ -1,7 +1,7 @@
 import { relations, sql } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-import { users } from '#app/db/schema'
+import { users } from '#app/db/db.schema.server'
 
 export const subscriptions = sqliteTable('subscriptions', {
   endDate: integer('end_date', { mode: 'timestamp' }),
