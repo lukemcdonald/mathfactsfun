@@ -124,15 +124,15 @@ function timestampToISOString(timestamp: null | number): null | string {
  * @param {JsonifyObject<SerializedSession>} session - The serialized session with string dates
  * @returns {SerializedSession} - The session with proper Date objects
  */
-export function deserializeSession(
-  session: Omit<SerializedSession, 'createdAt' | 'updatedAt'> & {
-    createdAt: string
-    updatedAt: string
-  },
-): SerializedSession {
-  return {
-    ...session,
-    createdAt: new Date(session.createdAt),
-    updatedAt: new Date(session.updatedAt),
-  }
-}
+// export function deserializeSession(
+//   session: Omit<SerializedSession, 'createdAt' | 'updatedAt'> & {
+//     createdAt: string
+//     updatedAt: string
+//   },
+// ): SerializedSession {
+//   return {
+//     ...session,
+//     createdAt: new Date(session.createdAt),
+//     updatedAt: new Date(session.updatedAt),
+//   }
+// }

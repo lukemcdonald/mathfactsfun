@@ -1,14 +1,4 @@
-import { data } from 'react-router'
-
-import { ZodError } from 'zod'
-
 import { IS_DEVELOPMENT } from '#app/constants'
-import { MonitoringContext } from '#app/features/monitoring/monitoring.types'
-
-type ErrorResponse = {
-  error: Record<string, string[]>
-  submission?: unknown
-}
 
 /**
  * Custom error class for database-related errors.
@@ -18,7 +8,7 @@ export class DatabaseError extends Error {
   constructor(
     message: string,
     public readonly cause?: unknown,
-    public readonly context?: MonitoringContext,
+    public readonly context?: unknown,
   ) {
     super(message)
     this.name = 'DatabaseError'
@@ -47,49 +37,4 @@ export function getErrorMessage(error: unknown): string {
   }
 
   return 'Unknown Error'
-}
-
-/**
- * Handles errors in route actions and loaders.
- * Returns appropriate JSON responses with status codes.
- * Note: Global server-side error reporting is handled by Sentry's error boundary
- */
-export function handleError(error: unknown, context?: MonitoringContext): Response {
-  if (IS_DEVELOPMENT) {
-    console.error('Error:', error, context)
-  }
-
-  const response: ErrorResponse = {
-    error: { '': ['An unexpected error occurred. Please try again later.'] },
-  }
-
-  if (error instanceof DatabaseError) {
-    response.error = {
-      '': ['A database error occurred. Please try again later.'],
-    }
-    return data(response, { status: 500 })
-  }
-
-  if (error instanceof ZodError) {
-    response.error = normalizeZodErrors(error.flatten().fieldErrors)
-    return data(response, { status: 400 })
-  }
-
-  return data(response, { status: 500 })
-}
-
-/**
- * Converts Zod field errors to our error response format,
- * ensuring all values are string arrays
- */
-function normalizeZodErrors(
-  fieldErrors: Record<string, string[] | undefined>,
-): Record<string, string[]> {
-  const normalized: Record<string, string[]> = {}
-
-  for (const [key, value] of Object.entries(fieldErrors)) {
-    normalized[key] = value || []
-  }
-
-  return normalized
 }

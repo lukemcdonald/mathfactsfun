@@ -10,7 +10,7 @@ import {
 } from '#app/features/sessions/sessions.types'
 import { Database } from '#app/utils/types'
 
-import { sessions } from './sessions.db.server'
+import { sessions } from './sessions.db'
 import { calculateAverageAccuracy, calculateAverageTime, formatDate } from './sessions.utils'
 
 export async function createSession(db: Database, data: CreateSessionData) {

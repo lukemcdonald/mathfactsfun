@@ -1,10 +1,8 @@
-import { MetaFunction } from 'react-router'
-
 import { Icons } from '#app/components/icons'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#app/components/ui/card'
 
-export const meta: MetaFunction = () => {
+export function meta() {
   return [
     { title: 'MathFacts.fun' },
     {
@@ -14,7 +12,7 @@ export const meta: MetaFunction = () => {
   ]
 }
 
-export default function Index() {
+export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <main className="container mx-auto px-4 py-16">

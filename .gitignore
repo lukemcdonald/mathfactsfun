@@ -1,34 +1,13 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-.react-router/
-
-# testing
-/coverage
-
-# production
-/build
-/public/build
-
-# misc
 .DS_Store
+/node_modules/
 .cache
-*.pem
+
+# React Router
+/.react-router/
+/build/
 
 # debug
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # local env files
 .env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts

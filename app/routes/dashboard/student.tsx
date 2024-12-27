@@ -1,15 +1,16 @@
-import { redirect, useLoaderData } from 'react-router'
+import { redirect } from 'react-router'
 
 import { OperationStats } from '#app/components/dashboard/operation-stats'
 import { RecentSessions } from '#app/components/dashboard/recent-sessions'
 import { StatsCards } from '#app/components/dashboard/stats-cards'
 import { getRoute } from '#app/config/routes'
 import { db } from '#app/db/db.server'
-import { getUser } from '#app/features/auth/auth.api.server'
-import { getStudentStats } from '#app/features/sessions/sessions.api.server'
-import { deserializeSession } from '#app/features/sessions/sessions.utils.js'
+import { getUser } from '#app/features/auth/auth.server'
+import { getStudentStats } from '#app/features/sessions/sessions.server'
 
-export async function loader({ request }: { request: Request }) {
+import type { Route } from './+types/student'
+
+export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request)
 
   if (!user) {
@@ -25,9 +26,8 @@ export async function loader({ request }: { request: Request }) {
   return { stats, user }
 }
 
-export default function StudentDashboard() {
-  const { stats, user } = useLoaderData<typeof loader>()
-  const deserializedSessions = stats.recentSessions.map(deserializeSession)
+export default function StudentDashboard({ loaderData }: Route.ComponentProps) {
+  const { stats, user } = loaderData
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -49,7 +49,7 @@ export default function StudentDashboard() {
 
       <div>
         <h2 className="mb-4 text-xl font-semibold">Recent Sessions</h2>
-        <RecentSessions sessions={deserializedSessions} />
+        <RecentSessions sessions={stats.recentSessions} />
       </div>
     </div>
   )

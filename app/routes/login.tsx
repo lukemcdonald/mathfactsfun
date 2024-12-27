@@ -1,4 +1,4 @@
-import { data, redirect, Form, useActionData, useNavigation } from 'react-router'
+import { redirect, Form, useNavigation } from 'react-router'
 
 import { getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
@@ -8,9 +8,9 @@ import { Button } from '#app/components/ui/button'
 import { Input } from '#app/components/ui/input'
 import { Label } from '#app/components/ui/label'
 import { getRoute } from '#app/config/routes'
-import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.api.server'
-import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
-import { handleError } from '#app/utils/errors'
+import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.server'
+
+import type { Route } from './+types/login'
 
 // TODO: Split these out into separate ZOD objects to be imported. See epic stack
 const loginSchema = z.object({
@@ -19,70 +19,16 @@ const loginSchema = z.object({
   redirectTo: z.string().default('/'),
 })
 
-export async function action({ request }: { request: Request }) {
-  try {
-    const formData = await request.formData()
-    const submission = parseWithZod(formData, { schema: loginSchema })
-
-    if (submission.status !== 'success') {
-      addBreadcrumb({
-        category: 'auth',
-        data: { errors: submission.error },
-        level: 'warning',
-        message: 'Login validation failed',
-      })
-      return data(submission.reply(), { status: 400 })
-    }
-
-    const { email, password, redirectTo } = submission.value
-    const user = await verifyLogin(email, password)
-
-    if (!user) {
-      addBreadcrumb({
-        category: 'auth',
-        data: {
-          email,
-          reason: 'Invalid credentials',
-        },
-        level: 'warning',
-        message: 'Login failed',
-      })
-      return data(
-        {
-          ...submission,
-          error: { '': ['Invalid email or password'] },
-        },
-        { status: 400 },
-      )
-    }
-
-    addBreadcrumb({
-      category: 'auth',
-      data: {
-        email: user.email,
-        userId: user.id,
-      },
-      level: 'info',
-      message: 'Login successful',
-    })
-
-    // TODO: Redirect to user role dashboard
-    return createUserSession(user.id, redirectTo)
-  } catch (error) {
-    return handleError(error, { path: getRoute.auth.login() })
-  }
-}
-
-export async function loader({ request }: { request: Request }) {
+export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request)
-  if (user) {
-    return redirect(getRoute.dashboard.byRole(user.role))
+  if (!user) {
+    return {}
   }
-  return {}
+  return redirect(getRoute.dashboard.byRole(user.role))
 }
 
-export default function Login() {
-  const lastResult = useActionData<typeof action>()
+export default function Login({ actionData }: Route.ComponentProps) {
+  const lastResult = actionData
   const navigation = useNavigation()
   const isLoading = navigation.state === 'submitting'
 
@@ -153,4 +99,26 @@ export default function Login() {
       </div>
     </div>
   )
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData()
+  const submission = parseWithZod(formData, { schema: loginSchema })
+
+  if (submission.status !== 'success') {
+    return submission.reply()
+  }
+
+  const { email, password } = submission.value
+  const user = await verifyLogin(email, password)
+
+  if (!user) {
+    return submission.reply({
+      formErrors: ['Invalid email or password'],
+    })
+  }
+
+  // Redirect to the appropriate dashboard based on user role
+  const redirectTo = getRoute.dashboard.byRole(user.role) || '/'
+  return createUserSession(user.id, redirectTo)
 }

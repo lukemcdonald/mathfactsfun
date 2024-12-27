@@ -1,4 +1,4 @@
-import { data, redirect, Form, Link, useActionData, useNavigation } from 'react-router'
+import { redirect, Form, Link, useNavigation } from 'react-router'
 
 import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
@@ -17,11 +17,11 @@ import {
 } from '#app/components/ui/select'
 import { getRoute } from '#app/config/routes'
 import { db } from '#app/db/db.server'
-import { createUserSession, getUser } from '#app/features/auth/auth.api.server'
+import { createUserSession, getUser } from '#app/features/auth/auth.server'
 import { hashPassword } from '#app/features/auth/auth.utils'
-import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
-import { createUser, getUserByEmail } from '#app/features/users/users.api.server'
-import { handleError } from '#app/utils/errors'
+import { createUser, getUserByEmail } from '#app/features/users/users.server'
+
+import type { Route } from './+types/signup'
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -32,72 +32,7 @@ const signupSchema = z.object({
   }),
 })
 
-export async function action({ request }: { request: Request }) {
-  try {
-    const formData = await request.formData()
-    const submission = parseWithZod(formData, { schema: signupSchema })
-
-    if (submission.status !== 'success') {
-      addBreadcrumb({
-        category: 'auth',
-        data: { errors: submission.error },
-        level: 'warning',
-        message: 'Signup validation failed',
-      })
-      return data(submission.reply(), { status: 400 })
-    }
-
-    const { email, name, password, role } = submission.value
-    const existingUser = await getUserByEmail(db, email)
-
-    if (existingUser) {
-      addBreadcrumb({
-        category: 'auth',
-        data: {
-          email,
-          reason: 'Email already exists',
-        },
-        level: 'warning',
-        message: 'Signup failed',
-      })
-      return data(
-        {
-          ...submission,
-          error: { email: ['A user with this email already exists'] },
-        },
-        { status: 400 },
-      )
-    }
-
-    const hashedPassword = await hashPassword(password)
-    const userId = nanoid()
-
-    await createUser(db, {
-      email,
-      hashedPassword,
-      id: userId,
-      name,
-      role,
-    })
-
-    addBreadcrumb({
-      category: 'auth',
-      data: {
-        email,
-        role,
-        userId,
-      },
-      level: 'info',
-      message: 'Signup successful',
-    })
-
-    return createUserSession(userId, getRoute.home())
-  } catch (error) {
-    return handleError(error, { path: getRoute.auth.signup() })
-  }
-}
-
-export async function loader({ request }: { request: Request }) {
+export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request)
   if (user) {
     return redirect(getRoute.dashboard.byRole(user.role))
@@ -105,8 +40,8 @@ export async function loader({ request }: { request: Request }) {
   return {}
 }
 
-export default function Signup() {
-  const lastResult = useActionData<typeof action>()
+export default function Signup({ actionData }: Route.ComponentProps) {
+  const lastResult = actionData
   const navigation = useNavigation()
   const isLoading = navigation.state === 'submitting'
 
@@ -223,4 +158,33 @@ export default function Signup() {
       </div>
     </div>
   )
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData()
+  const submission = parseWithZod(formData, { schema: signupSchema })
+
+  if (submission.status !== 'success') {
+    throw new Response('Signup validation failed', { status: 400 })
+  }
+
+  const { email, name, password, role } = submission.value
+  const existingUser = await getUserByEmail(db, email)
+
+  if (existingUser) {
+    throw new Response('A user with this email already exists', { status: 400 })
+  }
+
+  const hashedPassword = await hashPassword(password)
+  const userId = nanoid()
+
+  await createUser(db, {
+    email,
+    hashedPassword,
+    id: userId,
+    name,
+    role,
+  })
+
+  return createUserSession(userId, getRoute.home())
 }

@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import invariant from 'tiny-invariant'
 
 import { db } from '#app/db/db.server'
-import { getUserByEmail, getUserById } from '#app/features/users/users.api.server.js'
+import { getUserByEmail, getUserById } from '#app/features/users/users.server.js'
 import { getErrorMessage } from '#app/utils/errors'
 
 const sessionSecret = process.env.SESSION_SECRET
@@ -42,8 +42,17 @@ export async function getUser(request: Request) {
     if (!userId) {
       return null
     }
+    const user = await getUserById(db, userId)
 
-    return await getUserById(db, userId)
+    // Serialize dates before returning the user
+    if (user) {
+      return {
+        ...user,
+        createdAt: user.createdAt?.toISOString(),
+        updatedAt: user.updatedAt?.toISOString(),
+      }
+    }
+    return null
   } catch (error) {
     const logoutResponse = await logout(request)
     console.error('Error getting user:', getErrorMessage(error))

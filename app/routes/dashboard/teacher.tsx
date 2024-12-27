@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { data, redirect, useLoaderData, useActionData, useNavigation } from 'react-router'
+import { redirect, useActionData, useNavigation } from 'react-router'
 
 import { nanoid } from 'nanoid'
 
@@ -11,117 +11,21 @@ import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 import { getRoute } from '#app/config/routes'
 import { db } from '#app/db/db.server'
-import { getUser } from '#app/features/auth/auth.api.server'
+import { getUser } from '#app/features/auth/auth.server'
 import {
   addGroupMember,
   createGroup,
   getGroupMember,
   getGroupsByTeacherId,
-} from '#app/features/groups/groups.api.server'
+} from '#app/features/groups/groups.server'
 import { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types.js'
-import { captureException } from '#app/features/monitoring/monitoring.api'
-import { getStudentProgress } from '#app/features/sessions/sessions.api.server'
-import { getUserByEmail } from '#app/features/users/users.api.server'
+import { getStudentProgress } from '#app/features/sessions/sessions.server'
+import { getUserByEmail } from '#app/features/users/users.server'
 import { useToast } from '#app/hooks/use-toast'
-import { DatabaseError, handleError } from '#app/utils/errors'
 
-export async function action({ request }: { request: Request }) {
-  const user = await getUser(request)
+import type { Route } from './+types/teacher'
 
-  if (!user || user.role !== 'teacher') {
-    return data({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const formData = await request.formData()
-  const action = formData.get('action')
-
-  if (action === 'createGroup') {
-    const groupName = formData.get('groupName')
-
-    if (typeof groupName !== 'string' || !groupName.trim()) {
-      return data({ error: 'Group name is required' }, { status: 400 })
-    }
-
-    try {
-      await createGroup(db, {
-        id: nanoid(),
-        name: groupName,
-        teacherId: user.id,
-      })
-
-      return { message: 'Group created successfully' }
-    } catch (error) {
-      captureException(
-        new DatabaseError('Failed to create group', error, {
-          groupName,
-          teacherId: user.id,
-          userId: user.id,
-        }),
-      )
-
-      return handleError(error, {
-        path: getRoute.dashboard.byRole('teacher'),
-        userId: user.id,
-      })
-    }
-  } else if (action === 'addStudent') {
-    const studentEmail = formData.get('studentEmail')
-    const groupId = formData.get('groupId')
-
-    if (typeof studentEmail !== 'string' || !studentEmail.trim()) {
-      return data({ error: 'Student email is required' }, { status: 400 })
-    }
-
-    if (typeof groupId !== 'string' || !groupId.trim()) {
-      return data({ error: 'Group ID is required' }, { status: 400 })
-    }
-
-    try {
-      const student = await getUserByEmail(db, studentEmail)
-
-      if (!student) {
-        return data({ error: 'No student found with this email' }, { status: 404 })
-      }
-
-      if (student.role !== 'student') {
-        return data({ error: 'This user is not a student' }, { status: 400 })
-      }
-
-      // Check if student is already in the group
-      const existingMember = await getGroupMember(db, groupId, student.id)
-
-      if (existingMember) {
-        return data({ error: 'Student is already in this group' }, { status: 400 })
-      }
-
-      // Add student to group
-      await addGroupMember(db, {
-        groupId,
-        id: nanoid(),
-        studentId: student.id,
-      })
-
-      return { message: 'Student added successfully' }
-    } catch (error) {
-      captureException(
-        new DatabaseError('Failed to add student to group', error, {
-          groupId,
-          studentEmail,
-          userId: user.id,
-        }),
-      )
-
-      return handleError(error, {
-        path: getRoute.dashboard.byRole('teacher'),
-        userId: user.id,
-      })
-    }
-  }
-
-  return redirect(getRoute.dashboard.root())
-}
-
-export async function loader({ request }: { request: Request }) {
+export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request)
 
   if (!user) {
@@ -132,41 +36,26 @@ export async function loader({ request }: { request: Request }) {
     return redirect(getRoute.dashboard.root())
   }
 
-  try {
-    const teacherGroups = await getGroupsByTeacherId(db, user.id)
+  const teacherGroups = await getGroupsByTeacherId(db, user.id)
+  const studentsProgress = new Map()
 
-    // Get progress for all students in all groups
-    const studentsProgress = new Map()
-
-    for (const group of teacherGroups) {
-      for (const member of group.groupMembers) {
-        if (!studentsProgress.has(member.student.id)) {
-          const progress = await getStudentProgress(db, member.student.id)
-          studentsProgress.set(member.student.id, progress)
-        }
+  for (const group of teacherGroups) {
+    for (const member of group.groupMembers) {
+      if (!studentsProgress.has(member.student.id)) {
+        const progress = await getStudentProgress(db, member.student.id)
+        studentsProgress.set(member.student.id, progress)
       }
     }
+  }
 
-    return {
-      groups: teacherGroups,
-      studentsProgress: Object.fromEntries(studentsProgress),
-    }
-  } catch (error) {
-    captureException(
-      new DatabaseError('Failed to load teacher dashboard', error, {
-        userId: user.id,
-      }),
-    )
-
-    return handleError(error, {
-      path: getRoute.dashboard.byRole('teacher'),
-      userId: user.id,
-    })
+  return {
+    groups: teacherGroups,
+    studentsProgress: Object.fromEntries(studentsProgress),
   }
 }
 
-export default function TeacherDashboard() {
-  const { groups, studentsProgress } = useLoaderData<typeof loader>()
+export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
+  const { groups, studentsProgress } = loaderData
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<null | string>(null)
   const [selectedStudent, setSelectedStudent] = useState<null | {
@@ -328,4 +217,70 @@ export default function TeacherDashboard() {
       )}
     </div>
   )
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const user = await getUser(request)
+
+  if (!user || user.role !== 'teacher') {
+    throw new Response('Unauthorized', { status: 401 })
+  }
+
+  const formData = await request.formData()
+  const action = formData.get('action')
+
+  if (action === 'createGroup') {
+    const groupName = formData.get('groupName')
+
+    if (typeof groupName !== 'string' || !groupName.trim()) {
+      throw new Response('Group name is required', { status: 400 })
+    }
+
+    await createGroup(db, {
+      id: nanoid(),
+      name: groupName,
+      teacherId: user.id,
+    })
+
+    return { message: 'Group created successfully' }
+  } else if (action === 'addStudent') {
+    const studentEmail = formData.get('studentEmail')
+    const groupId = formData.get('groupId')
+
+    if (typeof studentEmail !== 'string' || !studentEmail.trim()) {
+      throw new Response('Student email is required', { status: 400 })
+    }
+
+    if (typeof groupId !== 'string' || !groupId.trim()) {
+      throw new Response('Group ID is required', { status: 400 })
+    }
+
+    const student = await getUserByEmail(db, studentEmail)
+
+    if (!student) {
+      throw new Response('No student found with this email', { status: 404 })
+    }
+
+    if (student.role !== 'student') {
+      throw new Response('This user is not a student', { status: 400 })
+    }
+
+    // Check if student is already in the group
+    const existingMember = await getGroupMember(db, groupId, student.id)
+
+    if (existingMember) {
+      throw new Response('Student is already in this group', { status: 400 })
+    }
+
+    // Add student to group
+    await addGroupMember(db, {
+      groupId,
+      id: nanoid(),
+      studentId: student.id,
+    })
+
+    return { message: 'Student added successfully' }
+  }
+
+  return redirect(getRoute.dashboard.root())
 }

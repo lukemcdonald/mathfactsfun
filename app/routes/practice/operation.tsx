@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { data, redirect, Form, Link, useLoaderData, useNavigate, useSubmit } from 'react-router'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { redirect, Form, Link, useLoaderData, useNavigate, useSubmit } from 'react-router'
+
+import type { Operation } from '#app/features/sessions/sessions.types.js'
 
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
@@ -14,75 +16,30 @@ import {
 import { Input } from '#app/components/ui/input'
 import { Progress } from '#app/components/ui/progress'
 import { getRoute } from '#app/config/routes'
+import { OPERATION, OPERATIONS } from '#app/constants/operations.js'
 import { db } from '#app/db/db.server'
-import { getUser } from '#app/features/auth/auth.api.server'
-import { addBreadcrumb } from '#app/features/monitoring/monitoring.api'
-import { createQuestions } from '#app/features/questions/questions.api.server'
+import { getUser } from '#app/features/auth/auth.server'
+import { createQuestions } from '#app/features/questions/questions.server'
 import { QuestionPrompt, QuestionResult } from '#app/features/questions/questions.types.js'
-import { createSession } from '#app/features/sessions/sessions.api.server'
-import { Operation } from '#app/features/sessions/sessions.types.js'
+import { createSession } from '#app/features/sessions/sessions.server'
 
-export async function action({ request }: { request: Request }) {
+import type { Route } from './+types/operation'
+
+export async function loader({ params, request }: Route.LoaderArgs) {
   const user = await getUser(request)
 
   if (!user) {
     return redirect(getRoute.auth.login())
   }
 
-  const formData = await request.formData()
-  const intent = formData.get('intent')
+  const { operation } = params as { operation: Operation }
 
-  if (intent === 'save' || intent === 'cancel') {
-    const sessionData = formData.get('sessionData')
-
-    if (typeof sessionData !== 'string') {
-      return data({ error: 'Invalid session data' }, { status: 400 })
-    }
-
-    const { averageTime, correctAnswers, operation, questionResults, totalQuestions } =
-      JSON.parse(sessionData)
-
-    // Create session and get its ID
-    const sessionId = await createSession(db, {
-      averageTime,
-      correctAnswers,
-      level: 1,
-      operation,
-      questionResults,
-      status: intent === 'cancel' ? 'cancelled' : 'completed',
-      totalQuestions,
-      userId: user.id,
-    })
-
-    // Create associated questions
-    await createQuestions(db, sessionId, operation, questionResults)
-
-    return { success: true }
-  }
-
-  return null
-}
-
-export async function loader({
-  params,
-  request,
-}: {
-  params: { operation: Operation }
-  request: Request
-}) {
-  const user = await getUser(request)
-
-  if (!user) {
-    return redirect(getRoute.auth.login())
-  }
-
-  const validOperations = ['addition', 'subtraction', 'multiplication', 'division']
-  if (!validOperations.includes(params.operation)) {
+  if (!OPERATIONS.includes(operation)) {
     return redirect(getRoute.dashboard.byRole('student'))
   }
 
   return {
-    operation: params.operation,
+    operation,
     userId: user.id,
   }
 }
@@ -134,13 +91,6 @@ export default function Practice() {
 
   useEffect(() => {
     generateQuestion()
-    // Add breadcrumb for session start
-    addBreadcrumb({
-      category: 'practice',
-      data: { operation, userId },
-      level: 'info',
-      message: 'Started practice session',
-    })
   }, [generateQuestion, operation, userId])
 
   // Auto-focus input after each submission
@@ -173,18 +123,6 @@ export default function Practice() {
         questionResults.reduce((acc, q) => acc + q.timeSpent, 0) / questionResults.length
       : 0
 
-    // Add breadcrumb for session cancellation
-    addBreadcrumb({
-      category: 'practice',
-      data: {
-        averageTime: averageTime,
-        operation,
-        questionsAnswered: questionResults.length,
-      },
-      level: 'info',
-      message: 'Cancelled practice session',
-    })
-
     const sessionData = {
       averageTime: averageTime,
       correctAnswers: correctAnswers.length,
@@ -216,20 +154,6 @@ export default function Practice() {
     const timeSpent = (Date.now() - startTime) / 1000
     const userAnswerNum = parseInt(userAnswer)
     const isCorrect = userAnswerNum === currentQuestion.answer
-
-    // Add breadcrumb for question answer
-    addBreadcrumb({
-      category: 'practice',
-      data: {
-        correctAnswer: currentQuestion.answer,
-        operation,
-        questionNumber: questionResults.length + 1,
-        timeSpent,
-        userAnswer: userAnswerNum,
-      },
-      level: isCorrect ? 'info' : 'warning',
-      message: `Question ${isCorrect ? 'correct' : 'incorrect'}`,
-    })
 
     // Show feedback
     setFeedback(isCorrect ? 'correct' : 'incorrect')
@@ -298,18 +222,8 @@ export default function Practice() {
   }
 
   const getOperationSymbol = () => {
-    switch (operation) {
-      case 'addition':
-        return '+'
-      case 'division':
-        return '÷'
-      case 'multiplication':
-        return '×'
-      case 'subtraction':
-        return '-'
-      default:
-        return ''
-    }
+    const operationConfig = OPERATION[operation]
+    return operationConfig?.operator ?? ''
   }
 
   return (
@@ -441,4 +355,44 @@ export default function Practice() {
       </Dialog>
     </div>
   )
+}
+export async function action({ request }: Route.ActionArgs) {
+  const user = await getUser(request)
+
+  if (!user) {
+    return redirect(getRoute.auth.login())
+  }
+
+  const formData = await request.formData()
+  const intent = formData.get('intent')
+
+  if (intent === 'save' || intent === 'cancel') {
+    const sessionData = formData.get('sessionData')
+
+    if (typeof sessionData !== 'string') {
+      throw new Response('Invalid session data', { status: 400 })
+    }
+
+    const { averageTime, correctAnswers, operation, questionResults, totalQuestions } =
+      JSON.parse(sessionData)
+
+    // Create session and get its ID
+    const sessionId = await createSession(db, {
+      averageTime,
+      correctAnswers,
+      level: 1,
+      operation,
+      questionResults,
+      status: intent === 'cancel' ? 'cancelled' : 'completed',
+      totalQuestions,
+      userId: user.id,
+    })
+
+    // Create associated questions
+    await createQuestions(db, sessionId, operation, questionResults)
+
+    return { success: true }
+  }
+
+  return null
 }

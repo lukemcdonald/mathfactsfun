@@ -1,5 +1,3 @@
-import 'dotenv/config'
-
 /**
  * By default, Remix will handle generating the HTTP Response for you.
  * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
@@ -11,43 +9,10 @@ import { ServerRouter } from 'react-router'
 import type { AppLoadContext, EntryContext } from 'react-router'
 
 import { createReadableStreamFromReadable } from '@react-router/node'
-import * as Sentry from '@sentry/remix'
 import { isbot } from 'isbot'
 import { PassThrough } from 'node:stream'
 
 export const streamTimeout = 5000
-
-export const handleError = Sentry.wrapHandleErrorWithSentry(
-  (error: unknown, args: { request: unknown }) => {
-    console.error('Server error:', error)
-
-    const request = args.request as Request
-    const url = new URL(request.url)
-
-    // Report to Sentry with enhanced context
-    Sentry.captureException(error, {
-      extra: {
-        headers: Object.fromEntries(request.headers),
-        query: Object.fromEntries(url.searchParams),
-      },
-      tags: {
-        host: url.host,
-        method: request.method,
-        pathname: url.pathname,
-      },
-    })
-
-    // Return response based on client type
-    if (isbot(request.headers.get('user-agent'))) {
-      throw new Response('Internal Server Error', { status: 500 })
-    }
-
-    throw new Response('Internal Server Error', {
-      headers: { 'Content-Type': 'text/html' },
-      status: 500,
-    })
-  },
-)
 
 export default function handleRequest(
   request: Request,
