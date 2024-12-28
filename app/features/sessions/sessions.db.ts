@@ -2,33 +2,29 @@ import { relations, sql } from 'drizzle-orm'
 import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 import { OPERATIONS } from '#app/constants/operations'
-import { users } from '#app/db/db.schema.server'
+import { timestamps } from '#app/db/db.helpers'
+import { users } from '#app/db/db.schema'
 
 export const sessions = sqliteTable(
   'sessions',
   {
     averageTime: real('average_time').notNull(),
-    completedAt: integer('completed_at', { mode: 'timestamp' }),
+    completedAt: text('completed_at'),
     correctAnswers: integer('correct_answers').notNull(),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
     id: text('id').primaryKey(),
     level: integer('level').notNull(),
     operation: text('operation', { enum: OPERATIONS }).notNull(),
-    startedAt: integer('started_at', { mode: 'timestamp' })
+    startedAt: text('started_at')
       .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
+      .default(sql`(current_timestamp)`),
     status: text('status', { enum: ['completed', 'cancelled'] })
       .notNull()
       .default('completed'),
     totalQuestions: integer('total_questions').notNull(),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    ...timestamps,
   },
   (table) => ({
     operationIdx: index('sessions_operation_idx').on(table.operation),

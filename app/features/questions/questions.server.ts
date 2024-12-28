@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid'
 
-import { questions } from '#app/db/db.schema.server'
+import { questions } from '#app/db/db.schema'
 import { type NewQuestion, type QuestionResult } from '#app/features/questions/questions.types'
 import { Database } from '#app/utils/types'
 

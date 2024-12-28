@@ -48,8 +48,8 @@ export async function getUser(request: Request) {
     if (user) {
       return {
         ...user,
-        createdAt: user.createdAt?.toISOString(),
-        updatedAt: user.updatedAt?.toISOString(),
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       }
     }
     return null

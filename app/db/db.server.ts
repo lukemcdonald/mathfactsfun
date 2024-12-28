@@ -4,7 +4,7 @@ import invariant from 'tiny-invariant'
 
 import { singleton } from '#app/utils/singleton.server'
 
-import * as schema from './db.schema.server'
+import * as schema from './db.schema'
 
 export const db = singleton('db', () => {
   const authToken = process.env.DATABASE_AUTH_TOKEN

@@ -1,23 +1,18 @@
-import { relations, sql } from 'drizzle-orm'
-import { index, integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+import { relations } from 'drizzle-orm'
+import { index, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
-import { users } from '#app/db/db.schema.server'
+import { timestamps } from '#app/db/db.helpers'
+import { users } from '#app/db/db.schema'
 
 export const groups = sqliteTable(
   'groups',
   {
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
-    deletedAt: integer('deleted_at', { mode: 'timestamp' }),
     id: text('id').primaryKey(),
     name: text('name').notNull(),
     teacherId: text('teacher_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
+    ...timestamps,
   },
   (table) => ({
     nameIdx: index('name_idx').on(table.name),
@@ -36,9 +31,6 @@ export const groupsRelations = relations(groups, ({ many, one }) => ({
 export const groupMembers = sqliteTable(
   'group_members',
   {
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
     groupId: text('group_id')
       .notNull()
       .references(() => groups.id, { onDelete: 'cascade' }),
@@ -46,9 +38,7 @@ export const groupMembers = sqliteTable(
     studentId: text('student_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
+    ...timestamps,
   },
   (table) => ({
     groupIdx: index('group_idx').on(table.groupId),

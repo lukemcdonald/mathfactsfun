@@ -1,16 +1,14 @@
-import { relations, sql } from 'drizzle-orm'
+import { relations } from 'drizzle-orm'
 import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 import { OPERATIONS } from '#app/constants/operations'
-import { sessions } from '#app/db/db.schema.server'
+import { timestamps } from '#app/db/db.helpers'
+import { sessions } from '#app/db/db.schema'
 
 export const questions = sqliteTable(
   'questions',
   {
     correct: integer('correct', { mode: 'boolean' }),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
     id: text('id').primaryKey(),
     num1: integer('num1').notNull(),
     num2: integer('num2').notNull(),
@@ -19,10 +17,8 @@ export const questions = sqliteTable(
       .notNull()
       .references(() => sessions.id, { onDelete: 'cascade' }),
     timeSpent: real('time_spent'),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
     userAnswer: integer('user_answer'),
+    ...timestamps,
   },
   (table) => ({
     operationIdx: index('questions_operation_idx').on(table.operation),

@@ -29,8 +29,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     user ?
       {
         ...user,
-        createdAt: user.createdAt?.toISOString(),
-        updatedAt: user.updatedAt?.toISOString(),
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       }
     : null
 
