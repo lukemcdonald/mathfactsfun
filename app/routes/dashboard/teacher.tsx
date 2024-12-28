@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { redirect, useActionData, useNavigation } from 'react-router'
 
 import { nanoid } from 'nanoid'
@@ -66,19 +66,24 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
   const actionData = useActionData<{ error?: string; message?: string }>()
   const navigation = useNavigation()
 
-  // Handle toast notifications based on action data and navigation state
-  if (actionData?.message && navigation.state === 'idle') {
-    toast({
-      description: actionData.message,
-      title: 'Success',
-    })
-  } else if (actionData?.error && navigation.state === 'idle') {
-    toast({
-      description: actionData.error,
-      title: 'Error',
-      variant: 'destructive',
-    })
-  }
+  useEffect(() => {
+    if (navigation.state !== 'idle') {
+      return
+    }
+
+    if (actionData?.message) {
+      toast({
+        description: actionData.message,
+        title: 'Success',
+      })
+    } else if (actionData?.error) {
+      toast({
+        description: actionData.error,
+        title: 'Error',
+        variant: 'destructive',
+      })
+    }
+  }, [actionData, navigation.state, toast])
 
   const handleAddStudent = (groupId: string) => {
     setSelectedGroupId(groupId)
