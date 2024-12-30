@@ -22,7 +22,7 @@ const loginSchema = z.object({
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request)
   if (!user) {
-    return {}
+    return null
   }
   return redirect(getRoute.dashboard.byRole(user.role))
 }

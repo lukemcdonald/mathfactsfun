@@ -28,10 +28,10 @@ const signupSchema = z.object({
 
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request)
-  if (user) {
-    return redirect(getRoute.dashboard.byRole(user.role))
+  if (!user) {
+    return null
   }
-  return null
+  return redirect(getRoute.dashboard.byRole(user.role))
 }
 
 export default function Signup({ actionData }: Route.ComponentProps) {

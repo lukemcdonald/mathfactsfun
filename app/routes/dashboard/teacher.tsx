@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { redirect, useActionData, useNavigation } from 'react-router'
+import { redirect, useNavigation } from 'react-router'
 
 import { nanoid } from 'nanoid'
 
@@ -55,17 +55,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 }
 
-export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
+export default function TeacherDashboard({ actionData, loaderData }: Route.ComponentProps) {
   const { groups, studentsProgress } = loaderData
+  const navigation = useNavigation()
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<null | string>(null)
-  const [selectedStudent, setSelectedStudent] = useState<null | {
-    id: string
-    name: string
-  }>(null)
+  const [selectedStudent, setSelectedStudent] = useState<null | { id: string; name: string }>(null)
   const { toast } = useToast()
-  const actionData = useActionData<{ error?: string; message?: string }>()
-  const navigation = useNavigation()
 
   useEffect(() => {
     if (navigation.state !== 'idle') {
@@ -90,16 +86,16 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
     setSelectedGroupId(groupId)
   }
 
-  const handleViewProgress = (studentId: string, studentName: string) => {
-    setSelectedStudent({ id: studentId, name: studentName })
+  const handleAddStudentSuccess = () => {
+    setSelectedGroupId(null)
   }
 
   const handleCreateGroupSuccess = () => {
     setIsCreateGroupOpen(false)
   }
 
-  const handleAddStudentSuccess = () => {
-    setSelectedGroupId(null)
+  const handleViewProgress = (studentId: string, studentName: string) => {
+    setSelectedStudent({ id: studentId, name: studentName })
   }
 
   return (
@@ -239,7 +235,7 @@ export async function action({ request }: Route.ActionArgs) {
     const groupName = formData.get('groupName')
 
     if (typeof groupName !== 'string' || !groupName.trim()) {
-      throw new Response('Group name is required', { status: 400 })
+      return { error: 'Group name is required' }
     }
 
     await createGroup(db, {
@@ -254,28 +250,28 @@ export async function action({ request }: Route.ActionArgs) {
     const groupId = formData.get('groupId')
 
     if (typeof studentEmail !== 'string' || !studentEmail.trim()) {
-      throw new Response('Student email is required', { status: 400 })
+      return { error: 'Student email is required' }
     }
 
     if (typeof groupId !== 'string' || !groupId.trim()) {
-      throw new Response('Group ID is required', { status: 400 })
+      return { error: 'Group ID is required' }
     }
 
     const student = await getUserByEmail(db, studentEmail)
 
     if (!student) {
-      throw new Response('No student found with this email', { status: 404 })
+      return { error: 'No student found with this email' }
     }
 
     if (student.role !== 'student') {
-      throw new Response('This user is not a student', { status: 400 })
+      return { error: 'This user is not a student' }
     }
 
     // Check if student is already in the group
     const existingMember = await getGroupMember(db, groupId, student.id)
 
     if (existingMember) {
-      throw new Response('Student is already in this group', { status: 400 })
+      return { error: 'Student is already in this group' }
     }
 
     // Add student to group
