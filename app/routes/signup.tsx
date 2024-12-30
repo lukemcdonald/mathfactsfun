@@ -1,6 +1,6 @@
 import { redirect, Form, Link, useNavigation } from 'react-router'
 
-import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
+import { useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { nanoid } from 'nanoid'
 import { z } from 'zod'
@@ -9,15 +9,6 @@ import { FormErrors } from '#app/components/common/form-errors'
 import { FormInputField } from '#app/components/common/form-input-field'
 import { FormSelectField } from '#app/components/common/form-select-field'
 import { Button } from '#app/components/ui/button'
-import { Input } from '#app/components/ui/input'
-import { Label } from '#app/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '#app/components/ui/select'
 import { getRoute } from '#app/config/routes'
 import { db } from '#app/db/db.server'
 import { createUserSession, getUser } from '#app/features/auth/auth.server'
@@ -40,13 +31,14 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (user) {
     return redirect(getRoute.dashboard.byRole(user.role))
   }
-  return {}
+  return null
 }
 
 export default function Signup({ actionData }: Route.ComponentProps) {
-  const lastResult = actionData
   const navigation = useNavigation()
-  const isLoading = navigation.state === 'submitting'
+
+  const lastResult = actionData
+  const isSubmitting = navigation.state === 'submitting'
 
   const [form, fields] = useForm({
     constraint: getZodConstraint(signupSchema),
@@ -84,73 +76,45 @@ export default function Signup({ actionData }: Route.ComponentProps) {
           noValidate
           onSubmit={form.onSubmit}
         >
-          {form.errors && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{form.errors}</div>
-            </div>
-          )}
+          <FormErrors errors={form.errors} />
 
+          {/** TODO: Add a fieldset for the form */}
           <div className="space-y-4 rounded-md shadow-sm">
-            <div>
-              <Label htmlFor={fields.name.id}>Full Name</Label>
-              <Input
-                {...getInputProps(fields.name, { type: 'text' })}
-                autoComplete="name"
-                type="text"
-              />
-              {fields.name.errors && (
-                <p className="mt-1 text-sm text-red-600">{fields.name.errors}</p>
-              )}
-            </div>
+            <FormInputField
+              field={fields.name}
+              label="Full Name"
+              type="text"
+              autoComplete="name"
+            />
 
-            <div>
-              <Label htmlFor={fields.email.id}>Email address</Label>
-              <Input
-                {...getInputProps(fields.email, { type: 'email' })}
-                autoComplete="email"
-                type="email"
-              />
-              {fields.email.errors && (
-                <p className="mt-1 text-sm text-red-600">{fields.email.errors}</p>
-              )}
-            </div>
+            <FormInputField
+              field={fields.email}
+              label="Email address"
+              type="email"
+              autoComplete="email"
+            />
 
-            <div>
-              <Label htmlFor={fields.password.id}>Password</Label>
-              <Input
-                {...getInputProps(fields.password, { type: 'password' })}
-                autoComplete="new-password"
-                type="password"
-              />
-              {fields.password.errors && (
-                <p className="mt-1 text-sm text-red-600">{fields.password.errors}</p>
-              )}
-            </div>
+            <FormInputField
+              field={fields.password}
+              label="Password"
+              type="password"
+              autoComplete="new-password"
+            />
 
-            <div>
-              <Label htmlFor={fields.role.id}>I am a</Label>
-              <Select
-                {...getSelectProps(fields.role)}
-                defaultValue=""
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="teacher">Teacher</SelectItem>
-                </SelectContent>
-              </Select>
-              {fields.role.errors && (
-                <p className="mt-1 text-sm text-red-600">{fields.role.errors}</p>
-              )}
-            </div>
+            <FormSelectField
+              field={fields.role}
+              label="I am a"
+              options={[
+                { label: 'Student', value: 'student' },
+                { label: 'Teacher', value: 'teacher' },
+              ]}
+            />
           </div>
 
           <div>
             <Button
               className="w-full"
-              isLoading={isLoading}
+              isLoading={isSubmitting}
               loadingText="Creating account..."
               type="submit"
             >

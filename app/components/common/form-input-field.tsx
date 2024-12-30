@@ -1,8 +1,7 @@
 import { getInputProps } from '@conform-to/react'
 
+import { FormField } from '#app/components/common/form-field'
 import { Input } from '#app/components/ui/input'
-
-import { FormField } from './form-field'
 
 import type { FieldMetadata } from '@conform-to/react'
 

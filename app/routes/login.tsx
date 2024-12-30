@@ -1,14 +1,12 @@
 import { redirect, Form, useNavigation } from 'react-router'
 
-import { getInputProps, useForm } from '@conform-to/react'
+import { useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { z } from 'zod'
 
 import { FormErrors } from '#app/components/common/form-errors'
 import { FormInputField } from '#app/components/common/form-input-field'
 import { Button } from '#app/components/ui/button'
-import { Input } from '#app/components/ui/input'
-import { Label } from '#app/components/ui/label'
 import { getRoute } from '#app/config/routes'
 import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.server'
 
@@ -52,6 +50,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
             Sign in to your account
           </h2>
         </div>
+
         <Form
           className="mt-8 space-y-6"
           id={form.id}
@@ -60,32 +59,22 @@ export default function Login({ actionData }: Route.ComponentProps) {
           onSubmit={form.onSubmit}
         >
           <div className="space-y-4 rounded-md shadow-sm">
-            <div>
-              <Label htmlFor={fields.email.id}>Email address</Label>
-              <Input
-                {...getInputProps(fields.email, { type: 'email' })}
-                autoComplete="email"
-                type="email"
-              />
-              {fields.email.errors && (
-                <p className="mt-1 text-sm text-red-600">{fields.email.errors}</p>
-              )}
-            </div>
+            <FormInputField
+              field={fields.email}
+              label="Email address"
+              autoComplete="email"
+              type="email"
+            />
 
-            <div>
-              <Label htmlFor={fields.password.id}>Password</Label>
-              <Input
-                {...getInputProps(fields.password, { type: 'password' })}
-                autoComplete="current-password"
-                type="password"
-              />
-              {fields.password.errors && (
-                <p className="mt-1 text-sm text-red-600">{fields.password.errors}</p>
-              )}
-            </div>
+            <FormInputField
+              field={fields.password}
+              label="Password"
+              autoComplete="current-password"
+              type="password"
+            />
           </div>
 
-          {form.errors && <div className="text-sm text-red-600">{form.errors}</div>}
+          <FormErrors errors={form.errors} />
 
           <div>
             <Button
@@ -121,6 +110,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   // Redirect to the appropriate dashboard based on user role
-  const redirectTo = getRoute.dashboard.byRole(user.role) || '/'
+  const redirectTo = getRoute.dashboard.byRole(user.role) || getRoute.home()
+
   return createUserSession(user.id, redirectTo)
 }
