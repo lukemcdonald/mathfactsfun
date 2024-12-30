@@ -1,10 +1,12 @@
 import * as React from 'react'
 
 import * as ToastPrimitives from '@radix-ui/react-toast'
-import { cva, type VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 
 import { Icons } from '#app/components/icons'
 import { cn } from '#app/utils/misc'
+
+import type { VariantProps } from 'class-variance-authority'
 
 const ToastProvider = ToastPrimitives.Provider
 

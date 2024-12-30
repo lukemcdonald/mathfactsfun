@@ -4,9 +4,9 @@ import { Navbar } from '#app/components/layout/navbar'
 import { Toaster } from '#app/components/ui/toaster'
 import { getUser } from '#app/features/auth/auth.server'
 
-import type { Route } from './+types/root'
-
 import stylesheet from './assets/globals.css?url'
+
+import type { Route } from './+types/root'
 export const links: Route.LinksFunction = () => [
   { href: 'https://fonts.googleapis.com', rel: 'preconnect' },
   {

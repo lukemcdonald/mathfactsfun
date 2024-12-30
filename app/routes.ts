@@ -1,7 +1,8 @@
-import { type RouteConfig } from '@react-router/dev/routes'
 import { index, route, prefix } from '@react-router/dev/routes'
 
-import { getRoute } from '#app/config/routes.js'
+import { getRoute } from '#app/config/routes'
+
+import type { RouteConfig } from '@react-router/dev/routes'
 
 export default [
   index('routes/home.tsx'),

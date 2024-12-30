@@ -1,5 +1,5 @@
-import { Operation } from '#app/features/sessions/sessions.types'
-import { UserRole } from '#app/features/users/users.types'
+import type { Operation } from '#app/features/sessions/sessions.types'
+import type { UserRole } from '#app/features/users/users.types'
 
 export const ROUTES = {
   AUTH: {

@@ -1,8 +1,9 @@
 import { Icons } from '#app/components/icons'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/components/ui/dialog'
 import { Progress } from '#app/components/ui/progress'
-import { type SerializedSession } from '#app/features/sessions/sessions.types'
 import { calculateSessionAccuracyPercentage } from '#app/features/sessions/sessions.utils'
+
+import type { SerializedSession } from '#app/features/sessions/sessions.types'
 
 interface ViewProgressDialogProps {
   onOpenChange: (open: boolean) => void

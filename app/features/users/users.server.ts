@@ -1,8 +1,9 @@
 import { eq } from 'drizzle-orm'
 
 import { users } from '#app/db/db.schema'
-import { NewUser } from '#app/features/users/users.types'
-import { Database } from '#app/utils/types'
+
+import type { NewUser } from '#app/features/users/users.types'
+import type { Database } from '#app/utils/types'
 
 export async function createUser(db: Database, user: NewUser) {
   await db.insert(users).values({

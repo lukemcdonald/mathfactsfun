@@ -4,7 +4,8 @@ import { Icons } from '#app/components/icons'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 import { getRoute } from '#app/config/routes'
-import { Operation } from '#app/features/sessions/sessions.types'
+
+import type { Operation } from '#app/features/sessions/sessions.types'
 
 interface PracticeCardProps {
   description: string

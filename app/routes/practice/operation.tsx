@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { redirect, Form, Link, useLoaderData, useNavigate, useSubmit } from 'react-router'
-
-import type { Operation } from '#app/features/sessions/sessions.types.js'
 
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
@@ -16,12 +14,15 @@ import {
 import { Input } from '#app/components/ui/input'
 import { Progress } from '#app/components/ui/progress'
 import { getRoute } from '#app/config/routes'
-import { OPERATION, OPERATIONS } from '#app/constants/operations.js'
+import { OPERATION, OPERATIONS } from '#app/constants/operations'
 import { db } from '#app/db/db.server'
 import { getUser } from '#app/features/auth/auth.server'
 import { createQuestions } from '#app/features/questions/questions.server'
-import { QuestionPrompt, QuestionResult } from '#app/features/questions/questions.types.js'
 import { createSession } from '#app/features/sessions/sessions.server'
+
+import type { QuestionPrompt, QuestionResult } from '#app/features/questions/questions.types'
+import type { Operation } from '#app/features/sessions/sessions.types'
+import type React from 'react'
 
 import type { Route } from './+types/operation'
 

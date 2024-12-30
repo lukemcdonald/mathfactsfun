@@ -44,15 +44,6 @@ export default [
     rules: {
       'import/order': 'off',
 
-      'perfectionist/sort-objects': [
-        'warn',
-        {
-          partitionByComment: true,
-          partitionByNewLine: true,
-          type: 'natural',
-        },
-      ],
-
       'perfectionist/sort-imports': [
         'warn',
         {
@@ -62,23 +53,42 @@ export default [
               react: ['^react$', '^react-.+', '^prop-types$'],
             },
           },
-
           groups: [
             'react',
-            'type',
             ['builtin', 'external'],
-            'internal-type',
             'internal',
-            ['parent-type', 'sibling-type', 'index-type'],
             ['parent', 'sibling', 'index'],
             'object',
+            'type',
+            'internal-type',
+            ['parent-type', 'sibling-type', 'index-type'],
             'unknown',
           ],
-
           newlinesBetween: 'always',
         },
       ],
-
+      'perfectionist/sort-interfaces': [
+        'warn',
+        {
+          order: 'asc',
+          type: 'alphabetical'
+        }
+      ],
+      'perfectionist/sort-object-types': [
+        'warn',
+        {
+          order: 'asc',
+          type: 'alphabetical'
+        }
+      ],
+      'perfectionist/sort-objects': [
+        'warn',
+        {
+          partitionByComment: true,
+          partitionByNewLine: true,
+          type: 'natural',
+        },
+      ],
       'react/prop-types': 'off',
     },
   },
@@ -156,11 +166,21 @@ export default [
         node: {
           extensions: ['.ts', '.tsx'],
         },
-
         typescript: {
           alwaysTryTypes: true,
         },
       },
+    },
+
+    rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          disallowTypeAnnotations: true,
+          prefer: 'type-imports',
+        },
+      ],
+      'import/extensions': ['error', 'never']
     },
   },
 ]

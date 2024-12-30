@@ -1,9 +1,10 @@
 import { and, eq } from 'drizzle-orm'
 
 import { groupMembers, groups } from '#app/db/db.schema'
-import { Database } from '#app/utils/types'
 
-import { NewGroup, NewGroupMember } from './groups.types'
+import type { Database } from '#app/utils/types'
+
+import type { NewGroup, NewGroupMember } from './groups.types'
 
 export async function addGroupMember(db: Database, groupMember: NewGroupMember) {
   await db.insert(groupMembers).values({

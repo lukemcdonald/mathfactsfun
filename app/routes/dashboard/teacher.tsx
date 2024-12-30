@@ -18,10 +18,11 @@ import {
   getGroupMember,
   getGroupsByTeacherId,
 } from '#app/features/groups/groups.server'
-import { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types.js'
 import { getStudentProgress } from '#app/features/sessions/sessions.server'
 import { getUserByEmail } from '#app/features/users/users.server'
 import { useToast } from '#app/hooks/use-toast'
+
+import type { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types'
 
 import type { Route } from './+types/teacher'
 

@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import invariant from 'tiny-invariant'
 
 import { db } from '#app/db/db.server'
-import { getUserByEmail, getUserById } from '#app/features/users/users.server.js'
+import { getUserByEmail, getUserById } from '#app/features/users/users.server'
 import { getErrorMessage } from '#app/utils/errors'
 
 const sessionSecret = process.env.SESSION_SECRET

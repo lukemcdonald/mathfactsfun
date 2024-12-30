@@ -1,8 +1,9 @@
 import { nanoid } from 'nanoid'
 
 import { questions } from '#app/db/db.schema'
-import { type NewQuestion, type QuestionResult } from '#app/features/questions/questions.types'
-import { Database } from '#app/utils/types'
+
+import type { NewQuestion, QuestionResult } from '#app/features/questions/questions.types'
+import type { Database } from '#app/utils/types'
 
 export async function createQuestions(
   db: Database,

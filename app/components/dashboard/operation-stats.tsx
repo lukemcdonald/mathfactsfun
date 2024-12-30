@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/car
 import { Progress } from '#app/components/ui/progress'
 import { getRoute } from '#app/config/routes'
 import { OPERATION } from '#app/constants/operations'
-import { type Operation, type OperationStats } from '#app/features/sessions/sessions.types'
+
+import type { Operation, OperationStats } from '#app/features/sessions/sessions.types'
 
 interface OperationStatsProps {
   stats: Record<Operation, OperationStats>

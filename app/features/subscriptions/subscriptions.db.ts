@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 import { timestamps } from '#app/db/db.helpers'
 import { users } from '#app/db/db.schema'

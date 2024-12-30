@@ -2,16 +2,17 @@ import { desc, eq } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 
 import { OPERATIONS } from '#app/constants/operations'
-import {
-  CreateSessionData,
-  OperationStats,
-  type SerializedSession,
-  SessionStats,
-} from '#app/features/sessions/sessions.types'
-import { Database } from '#app/utils/types'
 
 import { sessions } from './sessions.db'
 import { calculateAverageAccuracy, calculateAverageTime, formatDate } from './sessions.utils'
+
+import type {
+  SerializedSession,
+  CreateSessionData,
+  OperationStats,
+  SessionStats,
+} from '#app/features/sessions/sessions.types'
+import type { Database } from '#app/utils/types'
 
 export async function createSession(db: Database, data: CreateSessionData) {
   const sessionId = nanoid()

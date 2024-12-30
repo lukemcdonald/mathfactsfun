@@ -1,7 +1,7 @@
 import { getErrorMessage } from '#app/utils/errors'
 import { calculatePercentage, calculateRatio } from '#app/utils/misc'
 
-import { Session, SerializedSession } from './sessions.types'
+import type { Session } from './sessions.types'
 
 /**
  * Calculates the accuracy ratio for a single session.
