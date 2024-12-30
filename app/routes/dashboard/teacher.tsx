@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { redirect, useNavigation } from 'react-router'
+import { useState } from 'react'
+import { redirect } from 'react-router'
 
 import { nanoid } from 'nanoid'
 
@@ -20,7 +20,7 @@ import {
 } from '#app/features/groups/groups.server'
 import { getStudentProgress } from '#app/features/sessions/sessions.server'
 import { getUserByEmail } from '#app/features/users/users.server'
-import { useToast } from '#app/hooks/use-toast'
+import { toast } from '#app/hooks/use-toast'
 
 import type { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types'
 
@@ -55,32 +55,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 }
 
-export default function TeacherDashboard({ actionData, loaderData }: Route.ComponentProps) {
+export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
   const { groups, studentsProgress } = loaderData
-  const navigation = useNavigation()
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<null | string>(null)
   const [selectedStudent, setSelectedStudent] = useState<null | { id: string; name: string }>(null)
-  const { toast } = useToast()
-
-  useEffect(() => {
-    if (navigation.state !== 'idle') {
-      return
-    }
-
-    if (actionData?.message) {
-      toast({
-        description: actionData.message,
-        title: 'Success',
-      })
-    } else if (actionData?.error) {
-      toast({
-        description: actionData.error,
-        title: 'Error',
-        variant: 'destructive',
-      })
-    }
-  }, [actionData, navigation.state, toast])
 
   const handleAddStudent = (groupId: string) => {
     setSelectedGroupId(groupId)
@@ -285,4 +264,25 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   return redirect(getRoute.dashboard.root())
+}
+
+export async function clientAction({ serverAction }: Route.ClientActionArgs) {
+  const result = await serverAction()
+
+  const data = result as { error?: string; message?: string }
+
+  if (data.message) {
+    toast({
+      description: data.message,
+      title: 'Success',
+    })
+  } else if (data.error) {
+    toast({
+      description: data.error,
+      title: 'Error',
+      variant: 'destructive',
+    })
+  }
+
+  return result
 }
