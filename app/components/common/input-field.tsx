@@ -5,21 +5,23 @@ import { Input } from '#app/components/ui/input'
 
 import type { FieldMetadata } from '@conform-to/react'
 
-interface FormInputFieldProps {
+type InputProps = Parameters<typeof getInputProps>[1]
+
+interface InputFieldProps {
   autoComplete?: string
   className?: string
   field: FieldMetadata
   label: string
-  type?: Parameters<typeof getInputProps>[1]['type']
+  type?: InputProps['type']
 }
 
-export function FormInputField({
+export function InputField({
   className,
   field,
   label,
   type = 'text',
   ...delegated
-}: FormInputFieldProps) {
+}: InputFieldProps) {
   return (
     <FormField
       label={label}
@@ -31,8 +33,8 @@ export function FormInputField({
         {...getInputProps(field, {
           ariaAttributes: false,
           type,
-          ...delegated,
         })}
+        {...delegated}
       />
     </FormField>
   )

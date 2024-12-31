@@ -5,7 +5,7 @@ import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { z } from 'zod'
 
 import { FormErrors } from '#app/components/common/form-errors'
-import { FormInputField } from '#app/components/common/form-input-field'
+import { InputField } from '#app/components/common/input-field'
 import { Button } from '#app/components/ui/button'
 import { getRoute } from '#app/config/routes'
 import { createUserSession, getUser, verifyLogin } from '#app/features/auth/auth.server'
@@ -59,14 +59,14 @@ export default function Login({ actionData }: Route.ComponentProps) {
           onSubmit={form.onSubmit}
         >
           <div className="space-y-4 rounded-md shadow-sm">
-            <FormInputField
+            <InputField
               field={fields.email}
               label="Email address"
               autoComplete="email"
               type="email"
             />
 
-            <FormInputField
+            <InputField
               field={fields.password}
               label="Password"
               autoComplete="current-password"

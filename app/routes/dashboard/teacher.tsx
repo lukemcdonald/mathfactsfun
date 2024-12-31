@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { redirect } from 'react-router'
 
+import { parseWithZod } from '@conform-to/zod'
 import { nanoid } from 'nanoid'
+import { z } from 'zod'
 
 import { AddStudentDialog } from '#app/components/dashboard/add-student-dialog'
 import { CreateGroupDialog } from '#app/components/dashboard/create-group-dialog'
@@ -20,11 +22,17 @@ import {
 } from '#app/features/groups/groups.server'
 import { getStudentProgress } from '#app/features/sessions/sessions.server'
 import { getUserByEmail } from '#app/features/users/users.server'
-import { toast } from '#app/hooks/use-toast'
+// import { toast } from '#app/hooks/use-toast'
 
 import type { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types'
 
 import type { Route } from './+types/teacher'
+
+// Define the schema for adding a student
+const addStudentSchema = z.object({
+  groupId: z.string().min(1, 'Group ID is required'),
+  studentEmail: z.string().email('Invalid email address'),
+})
 
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request)
@@ -225,35 +233,40 @@ export async function action({ request }: Route.ActionArgs) {
 
     return { message: 'Group created successfully' }
   } else if (action === 'addStudent') {
-    const studentEmail = formData.get('studentEmail')
-    const groupId = formData.get('groupId')
+    const submission = parseWithZod(formData, { schema: addStudentSchema })
 
-    if (typeof studentEmail !== 'string' || !studentEmail.trim()) {
-      return { error: 'Student email is required' }
+    if (submission.status !== 'success') {
+      return submission.reply()
     }
 
-    if (typeof groupId !== 'string' || !groupId.trim()) {
-      return { error: 'Group ID is required' }
-    }
-
+    const { groupId, studentEmail } = submission.value
     const student = await getUserByEmail(db, studentEmail)
 
     if (!student) {
-      return { error: 'No student found with this email' }
+      return submission.reply({
+        fieldErrors: {
+          studentEmail: ['No student found with this email'],
+        },
+      })
     }
 
     if (student.role !== 'student') {
-      return { error: 'This user is not a student' }
+      return submission.reply({
+        fieldErrors: {
+          studentEmail: ['This user is not a student'],
+        },
+      })
     }
 
-    // Check if student is already in the group
     const existingMember = await getGroupMember(db, groupId, student.id)
-
     if (existingMember) {
-      return { error: 'Student is already in this group' }
+      return submission.reply({
+        fieldErrors: {
+          studentEmail: ['Student is already in this group'],
+        },
+      })
     }
 
-    // Add student to group
     await addGroupMember(db, {
       groupId,
       id: nanoid(),
@@ -266,23 +279,23 @@ export async function action({ request }: Route.ActionArgs) {
   return redirect(getRoute.dashboard.root())
 }
 
-export async function clientAction({ serverAction }: Route.ClientActionArgs) {
-  const result = await serverAction()
+// export async function clientAction({ serverAction }: Route.ClientActionArgs) {
+//   const result = await serverAction()
 
-  const data = result as { error?: string; message?: string }
+//   const data = result as { error?: string; message?: string }
 
-  if (data.message) {
-    toast({
-      description: data.message,
-      title: 'Success',
-    })
-  } else if (data.error) {
-    toast({
-      description: data.error,
-      title: 'Error',
-      variant: 'destructive',
-    })
-  }
+//   if (data.message) {
+//     toast({
+//       description: data.message,
+//       title: 'Success',
+//     })
+//   } else if (data.error) {
+//     toast({
+//       description: data.error,
+//       title: 'Error',
+//       variant: 'destructive',
+//     })
+//   }
 
-  return result
-}
+//   return result
+// }

@@ -11,7 +11,7 @@ import {
 
 import type { FieldMetadata } from '@conform-to/react'
 
-interface FormSelectFieldProps {
+interface SelectFieldProps {
   className?: string
   field: FieldMetadata
   label: string
@@ -19,14 +19,14 @@ interface FormSelectFieldProps {
   placeholder?: string
 }
 
-export function FormSelectField({
+export function SelectField({
   className,
   field,
   label,
   options,
   placeholder = 'Select an option',
   ...delegated
-}: FormSelectFieldProps) {
+}: SelectFieldProps) {
   return (
     <FormField
       label={label}

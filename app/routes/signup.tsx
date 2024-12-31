@@ -6,8 +6,8 @@ import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 import { FormErrors } from '#app/components/common/form-errors'
-import { FormInputField } from '#app/components/common/form-input-field'
-import { FormSelectField } from '#app/components/common/form-select-field'
+import { InputField } from '#app/components/common/input-field'
+import { SelectField } from '#app/components/common/select-field'
 import { Button } from '#app/components/ui/button'
 import { getRoute } from '#app/config/routes'
 import { db } from '#app/db/db.server'
@@ -80,28 +80,28 @@ export default function Signup({ actionData }: Route.ComponentProps) {
 
           {/** TODO: Add a fieldset for the form */}
           <div className="space-y-4 rounded-md shadow-sm">
-            <FormInputField
+            <InputField
               field={fields.name}
               label="Full Name"
               type="text"
               autoComplete="name"
             />
 
-            <FormInputField
+            <InputField
               field={fields.email}
               label="Email address"
               type="email"
               autoComplete="email"
             />
 
-            <FormInputField
+            <InputField
               field={fields.password}
               label="Password"
               type="password"
               autoComplete="new-password"
             />
 
-            <FormSelectField
+            <SelectField
               field={fields.role}
               label="I am a"
               options={[

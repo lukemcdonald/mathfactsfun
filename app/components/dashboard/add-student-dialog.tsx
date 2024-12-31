@@ -1,9 +1,20 @@
+import { useEffect } from 'react'
 import { Form, useActionData, useNavigation } from 'react-router'
 
+import { useForm } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { z } from 'zod'
+
+import { FormErrors } from '#app/components/common/form-errors'
+import { InputField } from '#app/components/common/input-field'
 import { Button } from '#app/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/components/ui/dialog'
-import { Input } from '#app/components/ui/input'
-import { Label } from '#app/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '#app/components/ui/dialog'
 
 interface AddStudentDialogProps {
   groupId: string
@@ -12,20 +23,37 @@ interface AddStudentDialogProps {
   open: boolean
 }
 
+// Define the schema for adding a student
+const addStudentSchema = z.object({
+  groupId: z.string().min(1, 'Group ID is required'),
+  studentEmail: z.string().email('Invalid email address'),
+})
+
 export function AddStudentDialog({
   groupId,
   onOpenChange,
   onSuccess,
   open,
 }: AddStudentDialogProps) {
+  const lastResult = useActionData()
   const navigation = useNavigation()
-  const actionData = useActionData<{ error?: string; message?: string }>()
   const isSubmitting = navigation.state === 'submitting'
 
-  // Handle successful submission
-  if (actionData?.message && !isSubmitting && onSuccess) {
-    onSuccess()
-  }
+  const [form, fields] = useForm({
+    constraint: getZodConstraint(addStudentSchema),
+    id: 'add-student-form',
+    lastResult,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: addStudentSchema })
+    },
+    shouldRevalidate: 'onBlur',
+  })
+
+  useEffect(() => {
+    if (navigation.state === 'idle' && lastResult?.message) {
+      onSuccess?.()
+    }
+  }, [navigation.state, lastResult, onSuccess])
 
   return (
     <Dialog
@@ -36,39 +64,42 @@ export function AddStudentDialog({
         <DialogHeader>
           <DialogTitle>Add Student to Group</DialogTitle>
         </DialogHeader>
+
         <Form
           className="space-y-4"
+          id={form.id}
           method="post"
+          onSubmit={form.onSubmit}
         >
           <input
-            name="action"
             type="hidden"
+            name="action"
             value="addStudent"
           />
           <input
-            name="groupId"
             type="hidden"
+            name="groupId"
             value={groupId}
           />
-          <div>
-            <Label htmlFor="studentEmail">Student Email</Label>
-            <Input
-              id="studentEmail"
-              name="studentEmail"
-              placeholder="Enter student email"
-              required
-              type="email"
-            />
-            {actionData?.error && <p className="mt-1 text-sm text-red-600">{actionData.error}</p>}
-          </div>
-          <Button
-            disabled={isSubmitting}
-            isLoading={isSubmitting}
-            loadingText="Adding..."
-            type="submit"
-          >
-            Add Student
-          </Button>
+
+          <InputField
+            field={fields.studentEmail}
+            label="Student Email"
+            type="email"
+            data-1p-ignore
+          />
+
+          <FormErrors errors={form.errors} />
+
+          <DialogFooter>
+            <Button
+              isLoading={isSubmitting}
+              loadingText="Adding student..."
+              type="submit"
+            >
+              Add Student
+            </Button>
+          </DialogFooter>
         </Form>
       </DialogContent>
     </Dialog>
