@@ -37,7 +37,7 @@ export const groupMembers = sqliteTable(
     id: text('id').primaryKey(),
     studentId: text('student_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => users.id),
     ...timestamps,
   },
   (table) => ({

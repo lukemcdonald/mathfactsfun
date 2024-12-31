@@ -19,4 +19,5 @@ export default [
 
   route(RESOURCES.groupMembers.add(), 'routes/resources/group-members/add.tsx'),
   route(RESOURCES.groupMembers.remove(), 'routes/resources/group-members/remove.tsx'),
+  route(RESOURCES.groups.remove(), 'routes/resources/groups/remove.tsx'),
 ] satisfies RouteConfig

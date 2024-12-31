@@ -22,6 +22,7 @@ import type { LucideIcon } from 'lucide-react'
 export type IconComponent = LucideIcon
 
 export const Icons = {
+  AddGroupMember: Plus,
   Book: BookOpen,
   Brain,
   Calculator,
@@ -35,6 +36,7 @@ export const Icons = {
   Minus,
   Multiply: X,
   Plus,
+  RemoveGroup: X,
   RemoveUser: X,
   School,
   Target,

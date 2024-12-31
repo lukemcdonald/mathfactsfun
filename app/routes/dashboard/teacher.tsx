@@ -17,6 +17,7 @@ import { getStudentProgress } from '#app/features/sessions/sessions.server'
 // import { toast } from '#app/hooks/use-toast'
 import { AddStudentDialog } from '#app/routes/resources/group-members/add'
 import { RemoveStudentDialog } from '#app/routes/resources/group-members/remove'
+import { RemoveGroupDialog } from '#app/routes/resources/groups/remove'
 
 import type { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types'
 
@@ -61,6 +62,11 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
     id: string
     name: string
   }>(null)
+  const [groupToRemove, setGroupToRemove] = useState<null | {
+    id: string
+    name: string
+    studentCount: number
+  }>(null)
 
   const handleAddStudent = (groupId: string) => {
     setSelectedGroupId(groupId)
@@ -84,6 +90,18 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
 
   const handleRemoveStudentSuccess = () => {
     setStudentToRemove(null)
+  }
+
+  const handleRemoveGroup = (group: GroupWithStudentMembers) => {
+    setGroupToRemove({
+      id: group.id,
+      name: group.name,
+      studentCount: group.groupMembers.length,
+    })
+  }
+
+  const handleRemoveGroupSuccess = () => {
+    setGroupToRemove(null)
   }
 
   return (
@@ -141,12 +159,22 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
           <Card key={group.id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>{group.name}</CardTitle>
-              <Button
-                onClick={() => handleAddStudent(group.id)}
-                variant="outline"
-              >
-                Add Student
-              </Button>
+              <div className="flex gap-2">
+                <IconButton
+                  onClick={() => handleAddStudent(group.id)}
+                  variant="outline"
+                  label={`Add student to ${group.name} group`}
+                  icon={Icons.AddGroupMember}
+                  size="sm"
+                />
+                <IconButton
+                  onClick={() => handleRemoveGroup(group)}
+                  variant="outline"
+                  label={`Remove ${group.name} group`}
+                  icon={Icons.RemoveGroup}
+                  size="sm"
+                />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -235,6 +263,19 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
           }}
           onSuccess={handleRemoveStudentSuccess}
           open={!!studentToRemove}
+        />
+      )}
+
+      {groupToRemove && (
+        <RemoveGroupDialog
+          groupId={groupToRemove.id}
+          groupName={groupToRemove.name}
+          studentCount={groupToRemove.studentCount}
+          onOpenChange={(open) => {
+            if (!open) setGroupToRemove(null)
+          }}
+          onSuccess={handleRemoveGroupSuccess}
+          open={!!groupToRemove}
         />
       )}
     </div>

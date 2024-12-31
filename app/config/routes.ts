@@ -21,6 +21,9 @@ export const ROUTES = {
       ADD: '/resources/group-members/add',
       REMOVE: '/resources/group-members/remove',
     },
+    GROUPS: {
+      REMOVE: '/resources/groups/remove',
+    },
   },
 } as const
 
@@ -44,6 +47,9 @@ export const getRoute = {
     groupMembers: {
       add: () => ROUTES.RESOURCES.GROUP_MEMBERS.ADD,
       remove: () => ROUTES.RESOURCES.GROUP_MEMBERS.REMOVE,
+    },
+    groups: {
+      remove: () => ROUTES.RESOURCES.GROUPS.REMOVE,
     },
   },
 }

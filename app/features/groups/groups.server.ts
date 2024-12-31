@@ -46,3 +46,7 @@ export async function removeGroupMember(db: Database, groupId: string, studentId
     .delete(groupMembers)
     .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.studentId, studentId)))
 }
+
+export async function removeGroup(db: Database, groupId: string) {
+  return db.delete(groups).where(eq(groups.id, groupId))
+}
