@@ -1,59 +1,89 @@
-import { Form, Link } from 'react-router'
-
-import { Icons } from '#app/components/icons'
 import { Button } from '#app/components/ui/button'
-import { getRoute } from '#app/config/routes'
+import { ButtonLink } from '#app/components/ui/button-link'
+import { cn } from '#app/utils/misc'
 
-import type { UserRole } from '#app/features/users/users.types'
+import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 
-type NavbarProps = {
-  userRole?: UserRole
+export function Navbar({ className, ...delegated }: ComponentPropsWithoutRef<'nav'>) {
+  return (
+    <nav
+      {...delegated}
+      className={cn('flex flex-1 items-center gap-4 py-2.5', className)}
+    />
+  )
 }
 
-export function Navbar({ userRole }: NavbarProps) {
+export function NavbarDivider({ className, ...delegated }: ComponentPropsWithoutRef<'div'>) {
   return (
-    <nav className="border-b bg-background">
-      <div className="container mx-auto flex h-16 items-center px-4">
-        <Link
-          className="flex items-center space-x-2"
-          to={getRoute.home()}
-        >
-          <Icons.Calculator className="h-6 w-6" />
-          <span className="font-bold">MathFacts.fun</span>
-        </Link>
+    <div
+      aria-hidden="true"
+      {...delegated}
+      className={cn('h-6 w-px bg-zinc-950/10', className)}
+    />
+  )
+}
 
-        <ul className="ml-auto flex items-center space-x-4">
-          {userRole ?
-            <>
-              <li>
-                <Link to={getRoute.dashboard.byRole(userRole)}>
-                  <Button variant="ghost">Dashboard</Button>
-                </Link>
-              </li>
-              <li>
-                <Form
-                  action={getRoute.auth.logout()}
-                  method="post"
-                >
-                  <Button type="submit">Logout</Button>
-                </Form>
-              </li>
-            </>
-          : <>
-              <li>
-                <Link to={getRoute.auth.login()}>
-                  <Button variant="ghost">Login</Button>
-                </Link>
-              </li>
-              <li>
-                <Link to={getRoute.auth.signup()}>
-                  <Button>Sign Up</Button>
-                </Link>
-              </li>
-            </>
-          }
-        </ul>
-      </div>
-    </nav>
+export function NavbarSection({ className, ...delegated }: ComponentPropsWithoutRef<'div'>) {
+  return (
+    <div
+      {...delegated}
+      className={cn('flex items-center gap-3', className)}
+    />
+  )
+}
+
+export function NavbarSpacer({ className, ...delegated }: ComponentPropsWithoutRef<'div'>) {
+  return (
+    <div
+      aria-hidden="true"
+      {...delegated}
+      className={cn('-ml-4 flex-1', className)}
+    />
+  )
+}
+
+export function NavbarItem({
+  children,
+  ...delegated
+}: { children: ReactNode } & (
+  | ComponentPropsWithoutRef<typeof Button>
+  | ComponentPropsWithoutRef<typeof ButtonLink>
+)) {
+  const classes = cn(
+    'relative flex w-full min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base font-medium sm:text-sm',
+  )
+
+  if ('href' in delegated || 'to' in delegated) {
+    return (
+      <span className="relative">
+        <ButtonLink
+          className={classes}
+          {...(delegated as ComponentPropsWithoutRef<typeof ButtonLink>)}
+        >
+          {children}
+        </ButtonLink>
+      </span>
+    )
+  }
+
+  return (
+    <span className="relative">
+      <Button
+        className={cn('cursor-default', classes)}
+        variant="ghost"
+        {...(delegated as ComponentPropsWithoutRef<typeof Button>)}
+      >
+        {children}
+      </Button>
+    </span>
+  )
+}
+
+export function NavbarLabel({ className, ...delegated }: React.ComponentPropsWithoutRef<'span'>) {
+  return (
+    <span
+      {...delegated}
+      className={cn('truncate', className)}
+    />
   )
 }

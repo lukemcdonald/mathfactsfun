@@ -7,7 +7,7 @@
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "module": "ES2022",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "resolveJsonModule": true,
     "target": "ES2022",

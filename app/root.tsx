@@ -1,7 +1,24 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
+import {
+  isRouteErrorResponse,
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  Form,
+} from 'react-router'
 
-import { Navbar } from '#app/components/layout/navbar'
+import { Branding } from '#app/components/layout/branding'
+import {
+  Navbar,
+  NavbarDivider,
+  NavbarItem,
+  NavbarSection,
+  NavbarSpacer,
+} from '#app/components/layout/navbar-alt'
+import { StackedLayout } from '#app/components/layout/stacked-layout'
 import { Toaster } from '#app/components/ui/toaster'
+import { getRoute } from '#app/config/routes.js'
 import { getUser } from '#app/features/auth/auth.server'
 
 import stylesheet from './assets/globals.css?url'
@@ -61,10 +78,56 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   const { user } = loaderData
+  const userRole = user?.role
   return (
     <>
-      <Navbar userRole={user?.role} />
-      <Outlet />
+      <StackedLayout
+        // navbar={<Navbar userRole={user?.role} />}
+        navbar={
+          <Navbar>
+            <Branding className="max-lg:hidden" />
+            <NavbarDivider className="max-lg:hidden" />
+            <NavbarSection className="max-lg:hidden">
+              <NavbarItem to={getRoute.home()}>Home</NavbarItem>
+            </NavbarSection>
+            <NavbarSpacer />
+            <NavbarSection>
+              {userRole ?
+                <>
+                  <NavbarItem to={getRoute.dashboard.byRole(userRole)}>Dashboard</NavbarItem>
+                  <Form
+                    action={getRoute.auth.logout()}
+                    method="post"
+                  >
+                    <NavbarItem type="submit">Logout</NavbarItem>
+                  </Form>
+                </>
+              : <>
+                  <NavbarItem to={getRoute.auth.login()}>Login</NavbarItem>
+                  <NavbarItem to={getRoute.auth.signup()}>Sign Up</NavbarItem>
+                </>
+              }
+            </NavbarSection>
+          </Navbar>
+        }
+        sidebar={
+          <Navbar className="flex h-full min-h-0 flex-col">
+            <Branding className="max-lg:hidden" />
+            <div className="flex w-full flex-1 flex-col overflow-y-auto p-3">
+              <div className="flex flex-col gap-0.5">
+                <NavbarItem
+                  className="justify-start"
+                  to={getRoute.home()}
+                >
+                  Home
+                </NavbarItem>
+              </div>
+            </div>
+          </Navbar>
+        }
+      >
+        <Outlet />
+      </StackedLayout>
     </>
   )
 }

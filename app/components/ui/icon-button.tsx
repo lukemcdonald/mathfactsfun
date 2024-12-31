@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority'
 
-import { cn } from '#app/utils/misc.js'
+import { cn } from '#app/utils/misc'
 
 import { Button, type ButtonProps } from './button'
 
@@ -25,10 +25,17 @@ interface IconButtonProps extends ButtonProps {
   label: string
 }
 
-export function IconButton({ className, icon: Icon, label, size, ...delegated }: IconButtonProps) {
+export function IconButton({
+  className,
+  icon: Icon,
+  label,
+  size = 'default',
+  ...delegated
+}: IconButtonProps) {
   return (
     <Button
       title={label}
+      variant="ghost"
       {...delegated}
       size={size}
       className={cn(
