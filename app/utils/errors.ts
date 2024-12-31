@@ -1,40 +1,42 @@
 import { IS_DEVELOPMENT } from '#app/constants'
 
-/**
- * Custom error class for database-related errors.
- * Includes support for cause and context information.
- */
-export class DatabaseError extends Error {
-  constructor(
-    message: string,
-    public readonly cause?: unknown,
-    public readonly context?: unknown,
-  ) {
-    super(message)
-    this.name = 'DatabaseError'
+type ErrorWithMessage = {
+  message: string
+}
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  )
+}
+
+function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
+  if (typeof maybeError === 'string') {
+    return new Error(maybeError)
+  }
+
+  if (isErrorWithMessage(maybeError)) {
+    return maybeError
+  }
+
+  try {
+    return new Error(JSON.stringify(maybeError))
+  } catch {
+    // fallback in case there's an error stringifying the maybeError
+    // like with circular references for example.
+    return new Error(String(maybeError))
   }
 }
 
-/**
- * Extracts an error message from an unknown error type.
- */
 export function getErrorMessage(error: unknown): string {
-  if (typeof error === 'string') {
-    return error
-  }
-
-  if (
-    error &&
-    typeof error === 'object' &&
-    'message' in error &&
-    typeof error.message === 'string'
-  ) {
-    return error.message
-  }
+  const errorWithMessage = toErrorWithMessage(error)
 
   if (IS_DEVELOPMENT) {
-    console.error('Unable to get error message for error', error)
+    console.error('Original error:', error)
   }
 
-  return 'Unknown Error'
+  return errorWithMessage.message
 }
