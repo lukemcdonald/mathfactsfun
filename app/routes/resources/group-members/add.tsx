@@ -22,7 +22,12 @@ import { getUser } from '#app/features/auth/auth.server'
 import { addGroupMember, getGroupMember } from '#app/features/groups/groups.server'
 import { getUserByEmail } from '#app/features/users/users.server'
 
-import type { Route } from './+types/add-student'
+import type { Route } from './+types/add'
+
+const addStudentSchema = z.object({
+  groupId: z.string().min(1, 'Group ID is required'),
+  studentEmail: z.string().email('Invalid email address'),
+})
 
 interface AddStudentDialogProps {
   groupId: string
@@ -30,11 +35,6 @@ interface AddStudentDialogProps {
   onSuccess?: () => void
   open: boolean
 }
-
-const addStudentSchema = z.object({
-  groupId: z.string().min(1, 'Group ID is required'),
-  studentEmail: z.string().email('Invalid email address'),
-})
 
 export function AddStudentDialog({
   groupId,
@@ -74,15 +74,10 @@ export function AddStudentDialog({
         <fetcher.Form
           className="space-y-4"
           id={form.id}
-          action={getRoute.resources.addStudent()}
+          action={getRoute.resources.groupMembers.add()}
           method="post"
           onSubmit={form.onSubmit}
         >
-          <input
-            type="hidden"
-            name="action"
-            value="addStudent"
-          />
           <input
             type="hidden"
             name="groupId"

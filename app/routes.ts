@@ -4,16 +4,18 @@ import { getRoute } from '#app/config/routes'
 
 import type { RouteConfig } from '@react-router/dev/routes'
 
+const { auth: AUTH, dashboard: DASHBOARD, practice: PRACTICE, resources: RESOURCES } = getRoute
+
 export default [
   index('routes/home.tsx'),
-  route(getRoute.auth.login(), 'routes/login.tsx'),
-  route(getRoute.auth.logout(), 'routes/logout.tsx'),
-  route(getRoute.auth.signup(), 'routes/signup.tsx'),
+  route(AUTH.login(), 'routes/login.tsx'),
+  route(AUTH.logout(), 'routes/logout.tsx'),
+  route(AUTH.signup(), 'routes/signup.tsx'),
 
-  route(getRoute.dashboard.byRole('student'), 'routes/dashboard/student.tsx'),
-  route(getRoute.dashboard.byRole('teacher'), 'routes/dashboard/teacher.tsx'),
+  route(DASHBOARD.byRole('student'), 'routes/dashboard/student.tsx'),
+  route(DASHBOARD.byRole('teacher'), 'routes/dashboard/teacher.tsx'),
 
-  ...prefix(getRoute.practice.root(), [route(':operation', 'routes/practice/operation.tsx')]),
+  ...prefix(PRACTICE.root(), [route(':operation', 'routes/practice/operation.tsx')]),
 
-  route(getRoute.resources.addStudent(), 'routes/resources/add-student.tsx'),
+  route(RESOURCES.groupMembers.add(), 'routes/resources/group-members/add.tsx'),
 ] satisfies RouteConfig

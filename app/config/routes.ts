@@ -17,7 +17,9 @@ export const ROUTES = {
     ROOT: '/practice',
   },
   RESOURCES: {
-    ADD_STUDENT: '/resources/add-student',
+    GROUP_MEMBERS: {
+      ADD: '/resources/group-members/add',
+    },
   },
 } as const
 
@@ -38,6 +40,8 @@ export const getRoute = {
     root: () => ROUTES.PRACTICE.ROOT,
   },
   resources: {
-    addStudent: () => ROUTES.RESOURCES.ADD_STUDENT,
+    groupMembers: {
+      add: () => ROUTES.RESOURCES.GROUP_MEMBERS.ADD,
+    },
   },
 }

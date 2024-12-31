@@ -14,7 +14,7 @@ import { getUser } from '#app/features/auth/auth.server'
 import { createGroup, getGroupsByTeacherId } from '#app/features/groups/groups.server'
 import { getStudentProgress } from '#app/features/sessions/sessions.server'
 // import { toast } from '#app/hooks/use-toast'
-import { AddStudentDialog } from '#app/routes/resources/add-student.js'
+import { AddStudentDialog } from '#app/routes/resources/group-members/add'
 
 import type { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types'
 
@@ -138,7 +138,7 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
                 <h4 className="font-semibold">Students</h4>
                 {group.groupMembers.length === 0 ?
                   <p className="text-sm text-gray-500">No students in this group yet</p>
-                : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                : <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     {group.groupMembers.map((member) => (
                       <div
                         className="flex items-center justify-between rounded-lg border p-4"
