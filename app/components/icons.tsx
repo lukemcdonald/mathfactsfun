@@ -35,6 +35,7 @@ export const Icons = {
   Minus,
   Multiply: X,
   Plus,
+  RemoveUser: X,
   School,
   Target,
   TrendingUp,

@@ -16,6 +16,7 @@ import { createGroup, getGroupsByTeacherId } from '#app/features/groups/groups.s
 import { getStudentProgress } from '#app/features/sessions/sessions.server'
 // import { toast } from '#app/hooks/use-toast'
 import { AddStudentDialog } from '#app/routes/resources/group-members/add'
+import { RemoveStudentDialog } from '#app/routes/resources/group-members/remove'
 
 import type { GroupWithMembers, GroupWithStudentMembers } from '#app/features/groups/groups.types'
 
@@ -55,6 +56,11 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<null | string>(null)
   const [selectedStudent, setSelectedStudent] = useState<null | { id: string; name: string }>(null)
+  const [studentToRemove, setStudentToRemove] = useState<null | {
+    groupId: string
+    id: string
+    name: string
+  }>(null)
 
   const handleAddStudent = (groupId: string) => {
     setSelectedGroupId(groupId)
@@ -70,6 +76,14 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
 
   const handleViewProgress = (studentId: string, studentName: string) => {
     setSelectedStudent({ id: studentId, name: studentName })
+  }
+
+  const handleRemoveStudent = (groupId: string, studentId: string, studentName: string) => {
+    setStudentToRemove({ groupId, id: studentId, name: studentName })
+  }
+
+  const handleRemoveStudentSuccess = () => {
+    setStudentToRemove(null)
   }
 
   return (
@@ -150,13 +164,27 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
                           <p className="text-sm text-gray-500">{member.student.email}</p>
                         </div>
 
-                        <IconButton
-                          onClick={() => handleViewProgress(member.student.id, member.student.name)}
-                          size="sm"
-                          variant="outline"
-                          label={`View ${member.student.name}'s progress report`}
-                          icon={Icons.TrendingUp}
-                        />
+                        <div className="flex gap-2">
+                          <IconButton
+                            onClick={() =>
+                              handleViewProgress(member.student.id, member.student.name)
+                            }
+                            size="sm"
+                            variant="outline"
+                            label={`View ${member.student.name}'s progress report`}
+                            icon={Icons.TrendingUp}
+                          />
+
+                          <IconButton
+                            onClick={() =>
+                              handleRemoveStudent(group.id, member.student.id, member.student.name)
+                            }
+                            size="sm"
+                            variant="outline"
+                            label={`Remove ${member.student.name} from group`}
+                            icon={Icons.RemoveUser}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -194,6 +222,19 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
           open={!!selectedStudent}
           studentName={selectedStudent.name}
           studentProgress={studentsProgress[selectedStudent.id]}
+        />
+      )}
+
+      {studentToRemove && (
+        <RemoveStudentDialog
+          groupId={studentToRemove.groupId}
+          studentId={studentToRemove.id}
+          studentName={studentToRemove.name}
+          onOpenChange={(open) => {
+            if (!open) setStudentToRemove(null)
+          }}
+          onSuccess={handleRemoveStudentSuccess}
+          open={!!studentToRemove}
         />
       )}
     </div>

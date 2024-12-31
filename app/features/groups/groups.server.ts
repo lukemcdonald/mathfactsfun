@@ -40,3 +40,9 @@ export async function getGroupsByTeacherId(db: Database, teacherId: string) {
     },
   })
 }
+
+export async function removeGroupMember(db: Database, groupId: string, studentId: string) {
+  return db
+    .delete(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.studentId, studentId)))
+}

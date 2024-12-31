@@ -92,17 +92,18 @@ export function AddStudentDialog({
           />
 
           <FormErrors errors={form.errors} />
-
-          <DialogFooter>
-            <Button
-              isLoading={isSubmitting}
-              loadingText="Adding student..."
-              type="submit"
-            >
-              Add Student
-            </Button>
-          </DialogFooter>
         </fetcher.Form>
+
+        <DialogFooter>
+          <Button
+            isLoading={isSubmitting}
+            loadingText="Adding student..."
+            type="submit"
+            form={form.id}
+          >
+            Add Student
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
