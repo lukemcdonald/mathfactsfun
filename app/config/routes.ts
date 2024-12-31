@@ -16,6 +16,9 @@ export const ROUTES = {
     byOperation: (operation: Operation) => `/practice/${operation}`,
     ROOT: '/practice',
   },
+  RESOURCES: {
+    ADD_STUDENT: '/resources/add-student',
+  },
 } as const
 
 // Type-safe route generator
@@ -33,5 +36,8 @@ export const getRoute = {
   practice: {
     byOperation: (operation: Operation) => ROUTES.PRACTICE.byOperation(operation),
     root: () => ROUTES.PRACTICE.ROOT,
+  },
+  resources: {
+    addStudent: () => ROUTES.RESOURCES.ADD_STUDENT,
   },
 }

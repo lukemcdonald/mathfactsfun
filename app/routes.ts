@@ -14,4 +14,6 @@ export default [
   route(getRoute.dashboard.byRole('teacher'), 'routes/dashboard/teacher.tsx'),
 
   ...prefix(getRoute.practice.root(), [route(':operation', 'routes/practice/operation.tsx')]),
+
+  route(getRoute.resources.addStudent(), 'routes/resources/add-student.tsx'),
 ] satisfies RouteConfig

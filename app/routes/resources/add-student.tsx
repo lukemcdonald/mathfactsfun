@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
-import { Form, useActionData, useNavigation } from 'react-router'
+import { useFetcher } from 'react-router'
 
 import { useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 import { FormErrors } from '#app/components/common/form-errors'
@@ -15,6 +16,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from '#app/components/ui/dialog'
+import { getRoute } from '#app/config/routes'
+import { db } from '#app/db/db.server'
+import { getUser } from '#app/features/auth/auth.server'
+import { addGroupMember, getGroupMember } from '#app/features/groups/groups.server'
+import { getUserByEmail } from '#app/features/users/users.server'
+
+import type { Route } from './+types/add-student'
 
 interface AddStudentDialogProps {
   groupId: string
@@ -23,7 +31,6 @@ interface AddStudentDialogProps {
   open: boolean
 }
 
-// Define the schema for adding a student
 const addStudentSchema = z.object({
   groupId: z.string().min(1, 'Group ID is required'),
   studentEmail: z.string().email('Invalid email address'),
@@ -35,14 +42,13 @@ export function AddStudentDialog({
   onSuccess,
   open,
 }: AddStudentDialogProps) {
-  const lastResult = useActionData()
-  const navigation = useNavigation()
-  const isSubmitting = navigation.state === 'submitting'
+  const fetcher = useFetcher()
+  const isSubmitting = fetcher.state === 'submitting'
 
   const [form, fields] = useForm({
     constraint: getZodConstraint(addStudentSchema),
     id: 'add-student-form',
-    lastResult,
+    lastResult: fetcher.data,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: addStudentSchema })
     },
@@ -50,10 +56,10 @@ export function AddStudentDialog({
   })
 
   useEffect(() => {
-    if (navigation.state === 'idle' && lastResult?.message) {
+    if (fetcher.state === 'idle' && fetcher.data?.message) {
       onSuccess?.()
     }
-  }, [navigation.state, lastResult, onSuccess])
+  }, [fetcher.state, fetcher.data, onSuccess])
 
   return (
     <Dialog
@@ -65,9 +71,10 @@ export function AddStudentDialog({
           <DialogTitle>Add Student to Group</DialogTitle>
         </DialogHeader>
 
-        <Form
+        <fetcher.Form
           className="space-y-4"
           id={form.id}
+          action={getRoute.resources.addStudent()}
           method="post"
           onSubmit={form.onSubmit}
         >
@@ -100,8 +107,60 @@ export function AddStudentDialog({
               Add Student
             </Button>
           </DialogFooter>
-        </Form>
+        </fetcher.Form>
       </DialogContent>
     </Dialog>
   )
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const user = await getUser(request)
+
+  if (!user || user.role !== 'teacher') {
+    throw new Response('Unauthorized', { status: 401 })
+  }
+
+  const formData = await request.formData()
+  const submission = parseWithZod(formData, { schema: addStudentSchema })
+
+  if (submission.status !== 'success') {
+    return submission.reply()
+  }
+
+  const { groupId, studentEmail } = submission.value
+  const student = await getUserByEmail(db, studentEmail)
+
+  if (!student) {
+    return submission.reply({
+      fieldErrors: {
+        studentEmail: ['No student found with this email'],
+      },
+    })
+  }
+
+  if (student.role !== 'student') {
+    return submission.reply({
+      fieldErrors: {
+        studentEmail: ['This user is not a student'],
+      },
+    })
+  }
+
+  const existingMember = await getGroupMember(db, groupId, student.id)
+
+  if (existingMember) {
+    return submission.reply({
+      fieldErrors: {
+        studentEmail: ['Student is already in this group'],
+      },
+    })
+  }
+
+  await addGroupMember(db, {
+    groupId,
+    id: nanoid(),
+    studentId: student.id,
+  })
+
+  return { message: 'Student added successfully' }
 }
