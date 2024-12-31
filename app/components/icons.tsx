@@ -17,6 +17,10 @@ import {
   X,
 } from 'lucide-react'
 
+import type { LucideIcon } from 'lucide-react'
+
+export type IconComponent = LucideIcon
+
 export const Icons = {
   Book: BookOpen,
   Brain,

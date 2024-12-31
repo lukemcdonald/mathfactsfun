@@ -19,6 +19,7 @@ export const ROUTES = {
   RESOURCES: {
     GROUP_MEMBERS: {
       ADD: '/resources/group-members/add',
+      REMOVE: '/resources/group-members/remove',
     },
   },
 } as const
@@ -42,6 +43,7 @@ export const getRoute = {
   resources: {
     groupMembers: {
       add: () => ROUTES.RESOURCES.GROUP_MEMBERS.ADD,
+      remove: () => ROUTES.RESOURCES.GROUP_MEMBERS.REMOVE,
     },
   },
 }

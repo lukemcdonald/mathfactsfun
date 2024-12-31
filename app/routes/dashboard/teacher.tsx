@@ -8,6 +8,7 @@ import { ViewProgressDialog } from '#app/components/dashboard/view-progress-dial
 import { Icons } from '#app/components/icons'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
+import { IconButton } from '#app/components/ui/icon-button.js'
 import { getRoute } from '#app/config/routes'
 import { db } from '#app/db/db.server'
 import { getUser } from '#app/features/auth/auth.server'
@@ -148,13 +149,14 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
                           <p className="font-medium">{member.student.name}</p>
                           <p className="text-sm text-gray-500">{member.student.email}</p>
                         </div>
-                        <Button
+
+                        <IconButton
                           onClick={() => handleViewProgress(member.student.id, member.student.name)}
                           size="sm"
                           variant="outline"
-                        >
-                          View Progress
-                        </Button>
+                          label={`View ${member.student.name}'s progress report`}
+                          icon={Icons.TrendingUp}
+                        />
                       </div>
                     ))}
                   </div>
@@ -174,7 +176,9 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
       <AddStudentDialog
         groupId={selectedGroupId || ''}
         onOpenChange={(open) => {
-          if (!open) setSelectedGroupId(null)
+          if (!open) {
+            setSelectedGroupId(null)
+          }
         }}
         onSuccess={handleAddStudentSuccess}
         open={!!selectedGroupId}
@@ -183,7 +187,9 @@ export default function TeacherDashboard({ loaderData }: Route.ComponentProps) {
       {selectedStudent && (
         <ViewProgressDialog
           onOpenChange={(open) => {
-            if (!open) setSelectedStudent(null)
+            if (!open) {
+              setSelectedStudent(null)
+            }
           }}
           open={!!selectedStudent}
           studentName={selectedStudent.name}

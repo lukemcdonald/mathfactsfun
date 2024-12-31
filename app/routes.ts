@@ -18,4 +18,5 @@ export default [
   ...prefix(PRACTICE.root(), [route(':operation', 'routes/practice/operation.tsx')]),
 
   route(RESOURCES.groupMembers.add(), 'routes/resources/group-members/add.tsx'),
+  route(RESOURCES.groupMembers.remove(), 'routes/resources/group-members/remove.tsx'),
 ] satisfies RouteConfig
