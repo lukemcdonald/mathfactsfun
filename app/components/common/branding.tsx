@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 
-import { Icons } from '#app/components/icons'
+import { Icons } from '#app/components/common/icons'
 import { getRoute } from '#app/config/routes'
 import { cn } from '#app/utils/misc'
 

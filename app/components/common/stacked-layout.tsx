@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 
-import { Icons } from '#app/components/icons'
+import { Icons } from '#app/components/common/icons'
 import { IconButton } from '#app/components/ui/icon-button'
 
 import type { PropsWithChildren } from 'react'

@@ -1,4 +1,4 @@
-import { Icons } from '#app/components/icons'
+import { Icons } from '#app/components/common/icons'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 
 interface StatsCardsProps {

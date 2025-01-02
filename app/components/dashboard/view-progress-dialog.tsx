@@ -1,4 +1,4 @@
-import { Icons } from '#app/components/icons'
+import { Icons } from '#app/components/common/icons'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/components/ui/dialog'
 import { Progress } from '#app/components/ui/progress'
 import { calculateSessionAccuracyPercentage } from '#app/features/sessions/sessions.utils'

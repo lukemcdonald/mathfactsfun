@@ -4,11 +4,11 @@ import { cn } from '#app/utils/misc'
 
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 
-export function Navbar({ className, ...delegated }: ComponentPropsWithoutRef<'nav'>) {
+export default function Navbar({ className, ...delegated }: ComponentPropsWithoutRef<'nav'>) {
   return (
     <nav
-      {...delegated}
       className={cn('flex flex-1 items-center gap-4 py-2.5', className)}
+      {...delegated}
     />
   )
 }
@@ -17,8 +17,8 @@ export function NavbarDivider({ className, ...delegated }: ComponentPropsWithout
   return (
     <div
       aria-hidden="true"
-      {...delegated}
       className={cn('h-6 w-px bg-zinc-950/10', className)}
+      {...delegated}
     />
   )
 }
@@ -26,8 +26,8 @@ export function NavbarDivider({ className, ...delegated }: ComponentPropsWithout
 export function NavbarSection({ className, ...delegated }: ComponentPropsWithoutRef<'div'>) {
   return (
     <div
-      {...delegated}
       className={cn('flex items-center gap-3', className)}
+      {...delegated}
     />
   )
 }
@@ -36,8 +36,8 @@ export function NavbarSpacer({ className, ...delegated }: ComponentPropsWithoutR
   return (
     <div
       aria-hidden="true"
-      {...delegated}
       className={cn('-ml-4 flex-1', className)}
+      {...delegated}
     />
   )
 }
@@ -82,8 +82,14 @@ export function NavbarItem({
 export function NavbarLabel({ className, ...delegated }: React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
-      {...delegated}
       className={cn('truncate', className)}
+      {...delegated}
     />
   )
 }
+
+Navbar.Divider = NavbarDivider
+Navbar.Item = NavbarItem
+Navbar.Label = NavbarLabel
+Navbar.Section = NavbarSection
+Navbar.Spacer = NavbarSpacer

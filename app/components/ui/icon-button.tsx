@@ -4,7 +4,7 @@ import { cn } from '#app/utils/misc'
 
 import { Button, type ButtonProps } from './button'
 
-import type { IconComponent } from '#app/components/icons'
+import type { IconComponent } from '#app/components/common/icons'
 
 const iconVariants = cva('', {
   defaultVariants: {

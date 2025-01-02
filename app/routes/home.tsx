@@ -1,4 +1,4 @@
-import { Icons } from '#app/components/icons'
+import { Icons } from '#app/components/common/icons'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#app/components/ui/card'
 

@@ -3,9 +3,9 @@ import { redirect } from 'react-router'
 
 import { nanoid } from 'nanoid'
 
+import { Icons } from '#app/components/common/icons'
 import { CreateGroupDialog } from '#app/components/dashboard/create-group-dialog'
 import { ViewProgressDialog } from '#app/components/dashboard/view-progress-dialog'
-import { Icons } from '#app/components/icons'
 import { Button } from '#app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
 import { IconButton } from '#app/components/ui/icon-button.js'

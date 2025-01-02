@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 
-import { Icons } from '#app/components/icons'
+import { Icons } from '#app/components/common/icons'
 import { cn } from '#app/utils/misc'
 
 const Dialog = DialogPrimitive.Root
