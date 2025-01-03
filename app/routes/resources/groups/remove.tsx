@@ -25,20 +25,19 @@ const removeGroupSchema = z.object({
 
 interface RemoveGroupDialogProps {
   groupId: string
+  groupMembersCount: number
   groupName: string
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
   open: boolean
-  studentCount: number
 }
-
 export function RemoveGroupDialog({
   groupId,
+  groupMembersCount,
   groupName,
   onOpenChange,
   onSuccess,
   open,
-  studentCount,
 }: RemoveGroupDialogProps) {
   const fetcher = useFetcher()
   const isSubmitting = fetcher.state === 'submitting'
@@ -64,10 +63,10 @@ export function RemoveGroupDialog({
           <p>
             Are you sure you want to remove <strong>{groupName}</strong>?
           </p>
-          {studentCount > 0 && (
+          {groupMembersCount > 0 && (
             <p className="mt-2">
-              This will also remove {studentCount} student{studentCount === 1 ? '' : 's'} from the
-              group.
+              This will also remove {groupMembersCount} student{groupMembersCount === 1 ? '' : 's'}{' '}
+              from the group.
             </p>
           )}
           <p className="mt-2 text-sm text-gray-500">This action cannot be undone.</p>

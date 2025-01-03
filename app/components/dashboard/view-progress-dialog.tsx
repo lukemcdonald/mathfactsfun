@@ -3,18 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '#app/component
 import { Progress } from '#app/components/ui/progress'
 import { calculateSessionAccuracyPercentage } from '#app/features/sessions/sessions.utils'
 
-import type { SerializedSession } from '#app/features/sessions/sessions.types'
+import type { StudentProgress } from '#app/features/groups/groups.types'
 
-interface ViewProgressDialogProps {
+type ViewProgressDialogProps = {
   onOpenChange: (open: boolean) => void
   open: boolean
   studentName: string
-  studentProgress: {
-    averageAccuracy: number
-    averageTime: number
-    recentSessions: SerializedSession[]
-    totalSessions: number
-  }
+  studentProgress: StudentProgress
 }
 
 export function ViewProgressDialog({

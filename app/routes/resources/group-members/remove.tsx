@@ -17,6 +17,9 @@ import { db } from '#app/db/db.server'
 import { getUser } from '#app/features/auth/auth.server'
 import { removeGroupMember } from '#app/features/groups/groups.server'
 
+import type { Group } from '#app/features/groups/groups.types'
+import type { User } from '#app/features/users/users.types'
+
 import type { Route } from './+types/remove'
 
 const removeStudentSchema = z.object({
@@ -25,12 +28,12 @@ const removeStudentSchema = z.object({
 })
 
 interface RemoveStudentDialogProps {
-  groupId: string
+  groupId: Group['id']
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
   open: boolean
-  studentId: string
-  studentName: string
+  studentId: User['id']
+  studentName: User['name']
 }
 
 export function RemoveStudentDialog({
